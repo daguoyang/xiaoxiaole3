@@ -9,7 +9,7 @@ export class Ads {
     public interstitialAd = null;//插屏广告
 
     private bannerId: string = "";// banner广告id
-    private videoId: string = "";// 激励式视频广告id
+    private videoId: string = "adunit-7fc34b1dba8ed852";// 激励式视频广告id
     private interstitialId: string = "";// 插屏r广告id
     constructor() {
         this.init();
@@ -46,13 +46,19 @@ export class Ads {
         })
 
         // @ts-ignore 创建激励视频广告实例，提前初始化
-        let videoAdv = wx.createRewardedVideoAd({
-            adUnitId: this.videoId//传入自己的id，此处为视频广告位ID
-        })
-        videoAdv.onError((err) => {
-            console.log(err);
-        })
-        this.videoAdv = videoAdv;
+        if (this.videoId) {
+            let videoAdv = wx.createRewardedVideoAd({
+                adUnitId: this.videoId//传入自己的id，此处为视频广告位ID
+            })
+            videoAdv.onError((err) => {
+                console.error("创建视频广告时发生错误:", err);
+                console.error("广告ID:", this.videoId);
+            })
+            this.videoAdv = videoAdv;
+            console.log("激励视频广告初始化成功，ID:", this.videoId);
+        } else {
+            console.warn("视频广告ID为空，跳过视频广告初始化");
+        }
         // 创建插屏广告实例，提前初始化
         // @ts-ignore
         if (wx.createInterstitialAd) {
@@ -80,41 +86,67 @@ export class Ads {
 
     //显示视频广告
     showVideoAds() {
-        if (sys.platform != sys.Platform.WECHAT_GAME) return;
-        // 在适合的场景显示 Video 广告
+        if (sys.platform != sys.Platform.WECHAT_GAME) {
+            console.log("非微信小游戏环境，模拟广告播放完成");
+            // 非微信环境下模拟广告播放成功
+            setTimeout(() => {
+                console.log("模拟广告播放完成，给予奖励");
+            }, 1000);
+            return;
+        }
+
+        console.log("开始显示激励视频广告，ID:", this.videoId);
+        
+        if (!this.videoAdv) {
+            console.error("视频广告实例未初始化");
+            return;
+        }
+
         // @ts-ignore
         let videoAdv = this.videoAdv;
-        // 用户触发广告后，显示激励视频广告
+        
+        // 先设置错误处理
         // @ts-ignore
-        videoAdv.show().catch(() => {
-            // 失败重试
-            // @ts-ignore
-            videoAdv.load()
-                // @ts-ignore
-                .then(() => videoAdv.show())
-                .catch(err => {
-                    console.log('激励视频 广告显示失败')
-                })
-        })
-        // @ts-ignore
-        //拉取异常处理
         videoAdv.onError((err) => {
-            console.log(err);
-        })
+            console.error("激励视频广告错误:", err);
+            console.error("错误详情:", JSON.stringify(err));
+        });
 
+        // 设置关闭回调
         // @ts-ignore
         videoAdv.onClose((res) => {
             if (!videoAdv) return;
             // @ts-ignore
             videoAdv.offClose();//需要清除回调，否则第N次广告会一次性给N个奖励
+            console.log("广告关闭，结果:", res);
+            
             //关闭
             if (res && res.isEnded || res === undefined) {
                 //正常播放结束，需要下发奖励
+                console.log("广告播放完成，给予奖励");
                 WxMgr.addReward();
             } else {
                 //播放退出，不下发奖励
+                console.log("广告未播放完成，不给奖励");
             }
-        })
+        });
+
+        // 用户触发广告后，显示激励视频广告
+        // @ts-ignore
+        videoAdv.show().catch((err) => {
+            console.error("广告显示失败，尝试重新加载:", err);
+            // 失败重试
+            // @ts-ignore
+            videoAdv.load()
+                // @ts-ignore
+                .then(() => {
+                    console.log("广告重新加载成功，再次显示");
+                    return videoAdv.show();
+                })
+                .catch(retryErr => {
+                    console.error('激励视频广告显示失败，重试也失败:', retryErr);
+                })
+        });
     }
 
     // 显示插件广告

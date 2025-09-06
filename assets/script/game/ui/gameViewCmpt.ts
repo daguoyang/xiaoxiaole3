@@ -36,6 +36,7 @@ export class GameViewCmpt extends BaseViewCmpt {
     private addBtn2: Node = null;
     private addBtn3: Node = null;
     private addBtn4: Node = null;
+    private headAvatar: Node = null;
     /**   */
     private gridPre: Prefab = null;
     private particlePre: Prefab = null;
@@ -57,6 +58,8 @@ export class GameViewCmpt extends BaseViewCmpt {
     private curScore: number = 0;
     private starCount: number = 0;
     private isWin: boolean = false;
+    private flyingAnimationCount: number = 0; // 正在飞行的动画数量
+    private needCheckAfterAnimation: boolean = false; // 是否需要在动画完成后检查游戏状态
     onLoad() {
         for (let i = 1; i < 5; i++) {
             this[`onClick_addBtn${i}`] = this.onClickAddButton.bind(this);
@@ -81,6 +84,7 @@ export class GameViewCmpt extends BaseViewCmpt {
         this.addBtn2 = this.viewList.get('bottom/proppenal/tool2/addBtn2');
         this.addBtn3 = this.viewList.get('bottom/proppenal/tool3/addBtn3');
         this.addBtn4 = this.viewList.get('bottom/proppenal/tool4/addBtn4');
+        this.headAvatar = this.viewList.get('top/head6');
     }
 
     addEvents() {
@@ -98,7 +102,10 @@ export class GameViewCmpt extends BaseViewCmpt {
         this.level = lv;
         this.data = await LevelConfig.getLevelData(lv);
         App.gameLogic.blockCount = this.data.blockCount;
+        this.flyingAnimationCount = 0; // 重置飞行动画计数器
+        this.needCheckAfterAnimation = false; // 重置检查标记
         this.setLevelInfo();
+        this.updateHeadAvatar();
         if (!this.gridPre) {
             this.gridPre = await ResLoadHelper.loadPieces(ViewName.Pieces.grid);
             this.particlePre = await ResLoadHelper.loadPieces(ViewName.Pieces.particle);
@@ -176,6 +183,13 @@ export class GameViewCmpt extends BaseViewCmpt {
         });
     }
 
+    /** 更新头像 */
+    updateHeadAvatar() {
+        if (this.headAvatar && App.user && App.user.rankData) {
+            CocosHelper.updateUserHeadSpriteAsync(this.headAvatar, App.user.rankData.icon);
+        }
+    }
+
     /** 更新步数 */
     updateStep() {
         if (this.stepCount < 0) this.stepCount = 0;
@@ -206,7 +220,13 @@ export class GameViewCmpt extends BaseViewCmpt {
         }
         else if (this.stepCount <= 0 && count != this.coutArr.length) {
             //lose
-            App.view.openView(ViewName.Single.eResultView, this.level, false);
+            if (this.flyingAnimationCount <= 0) {
+                // 没有飞行动画，立即失败
+                App.view.openView(ViewName.Single.eResultView, this.level, false);
+            } else {
+                // 有飞行动画，标记需要在动画完成后检查
+                this.needCheckAfterAnimation = true;
+            }
         }
     }
 
@@ -331,6 +351,9 @@ export class GameViewCmpt extends BaseViewCmpt {
         let bc = this.checkClickOnBlock(pos);
         /** 点到炸弹 */
         if (bc && (this.isBomb(bc)) && this.curTwo.length == 1) {
+            // 点击特效元素触发，扣减步数
+            this.stepCount--;
+            this.updateStep();
             await this.handleBomb(bc);
         }
         this.isStartTouch = false;
@@ -520,12 +543,24 @@ export class GameViewCmpt extends BaseViewCmpt {
                         this.updateStep();
                     }
                 });
-                if (bool || (isbomb1 || isbomb2)) {
+                // 只有成功的操作才扣减步数
+                if ((bool || (isbomb1 || isbomb2))) {
+                    // 如果没有通过正常三连扣减步数，但有特效元素触发，则扣减步数
+                    if (!bool && (isbomb1 || isbomb2)) {
+                        this.stepCount--;
+                        this.updateStep();
+                    }
                     this.checkAgain()
                 }
                 else {
                     console.log(this.curTwo);
                     this.startChangeCurTwoPos(true);
+                    // 无效操作后检查是否游戏失败和是否需要洗牌
+                    this.scheduleOnce(async () => {
+                        this.checkResult();
+                        // 检查是否需要洗牌
+                        await this.checkAndShuffle();
+                    }, 0.1);
                 }
             }
             else {
@@ -565,6 +600,14 @@ export class GameViewCmpt extends BaseViewCmpt {
                 console.log(isResult);
                 this.checkAllBomb();
             }
+            // 没有更多消除时，检查游戏状态和是否需要洗牌
+            this.scheduleOnce(async () => {
+                if (this.flyingAnimationCount <= 0) {
+                    this.checkResult();
+                    // 检查是否需要洗牌
+                    await this.checkAndShuffle();
+                }
+            }, 0.1);
         }
     }
     /**
@@ -725,7 +768,8 @@ export class GameViewCmpt extends BaseViewCmpt {
             let ele: gridCmpt = item[j];
             let tp = ele.type;
             let worldPosition = ele.node.worldPosition
-            // this.flyItem(tp, worldPosition);
+            // 生成特效元素时也要统计目标
+            this.flyItem(tp, worldPosition);
             this.addScoreByType(tp);
             tween(ele.node).to(0.1, { position: this.blockPosArr[center.h][center.v] }).call((target) => {
                 let gt = target.getComponent(gridCmpt);
@@ -1088,7 +1132,8 @@ export class GameViewCmpt extends BaseViewCmpt {
             }
         }
         await ToolsHelper.delayTime(0.8);
-        // this.checkAgain();
+        // 自动检测并消除可消除的元素
+        this.autoEliminateLoop();
         /** 进入游戏选择的道具炸弹 */
         let list = App.gameLogic.toolsArr;
         for (let i = 0; i < list.length; i++) {
@@ -1150,9 +1195,18 @@ export class GameViewCmpt extends BaseViewCmpt {
 
         let time = 0.5 + Math.random() * 1;
         item.setScale(0.5, 0.5, 0.5);
+        // 开始飞行动画，计数器+1
+        this.flyingAnimationCount++;
         tween(item).to(time, { position: targetPos }, { easing: 'backIn' }).call(() => {
             this.handleLevelTarget(type);
             item.destroy();
+            // 动画完成，计数器-1
+            this.flyingAnimationCount--;
+            // 检查是否所有动画都完成了，如果是且需要检查则检查游戏状态
+            if (this.flyingAnimationCount <= 0 && this.needCheckAfterAnimation) {
+                this.needCheckAfterAnimation = false;
+                this.checkResult();
+            }
             // App.audio.play('Full');
         }).start();
     }
@@ -1253,5 +1307,308 @@ export class GameViewCmpt extends BaseViewCmpt {
         let pos = btnNode.worldPosition;
         this.throwTools(type, pos);
         this.updateToolsInfo();
+    }
+
+    /**
+     * 检测棋盘是否有可移动的元素
+     * @returns Promise<boolean> 是否有可移动的元素
+     */
+    async detectPossibleMoves(): Promise<boolean> {
+        return new Promise(resolve => {
+            console.log("开始检测可能的移动...");
+            let totalChecked = 0;
+            
+            // 遍历所有格子，尝试与相邻格子交换
+            for (let h = 0; h < this.H; h++) {
+                for (let v = 0; v < this.V; v++) {
+                    if (!this.blockArr[h][v]) continue;
+                    let current = this.blockArr[h][v].getComponent(gridCmpt);
+                    if (!current) continue;
+                    
+                    // 检查右邻居
+                    if (h + 1 < this.H && this.blockArr[h + 1][v]) {
+                        let neighbor = this.blockArr[h + 1][v].getComponent(gridCmpt);
+                        totalChecked++;
+                        if (this.canMakeMatch(current, neighbor)) {
+                            console.log(`找到可移动组合：位置(${h},${v})与(${h+1},${v})`);
+                            resolve(true);
+                            return;
+                        }
+                    }
+                    
+                    // 检查下邻居
+                    if (v + 1 < this.V && this.blockArr[h][v + 1]) {
+                        let neighbor = this.blockArr[h][v + 1].getComponent(gridCmpt);
+                        totalChecked++;
+                        if (this.canMakeMatch(current, neighbor)) {
+                            console.log(`找到可移动组合：位置(${h},${v})与(${h},${v+1})`);
+                            resolve(true);
+                            return;
+                        }
+                    }
+                }
+            }
+            console.log(`检查了${totalChecked}个组合，未发现可移动元素`);
+            resolve(false);
+        });
+    }
+
+    /**
+     * 检测两个元素交换后是否能形成消除
+     */
+    canMakeMatch(grid1: gridCmpt, grid2: gridCmpt): boolean {
+        // 如果任一是特效元素，可以移动
+        if (this.isBomb(grid1) || this.isBomb(grid2)) {
+            return true;
+        }
+        
+        // 模拟交换
+        let temp = grid1.type;
+        grid1.type = grid2.type;
+        grid2.type = temp;
+        
+        // 检查是否能形成3连
+        let canMatch = this.checkPotentialMatch(grid1) || this.checkPotentialMatch(grid2);
+        
+        // 恢复原状
+        temp = grid1.type;
+        grid1.type = grid2.type;
+        grid2.type = temp;
+        
+        return canMatch;
+    }
+
+    /**
+     * 检测指定位置是否能形成3连消除
+     */
+    checkPotentialMatch(grid: gridCmpt): boolean {
+        let type = grid.type;
+        let h = grid.h;
+        let v = grid.v;
+        
+        // 检查横向3连
+        let horizontalCount = 1;
+        // 向左检查
+        for (let i = h - 1; i >= 0 && this.blockArr[i] && this.blockArr[i][v]; i--) {
+            let neighborGrid = this.blockArr[i][v].getComponent(gridCmpt);
+            if (neighborGrid && neighborGrid.type === type) {
+                horizontalCount++;
+            } else {
+                break;
+            }
+        }
+        // 向右检查
+        for (let i = h + 1; i < this.H && this.blockArr[i] && this.blockArr[i][v]; i++) {
+            let neighborGrid = this.blockArr[i][v].getComponent(gridCmpt);
+            if (neighborGrid && neighborGrid.type === type) {
+                horizontalCount++;
+            } else {
+                break;
+            }
+        }
+        if (horizontalCount >= 3) return true;
+        
+        // 检查纵向3连
+        let verticalCount = 1;
+        // 向上检查
+        for (let i = v - 1; i >= 0 && this.blockArr[h] && this.blockArr[h][i]; i--) {
+            let neighborGrid = this.blockArr[h][i].getComponent(gridCmpt);
+            if (neighborGrid && neighborGrid.type === type) {
+                verticalCount++;
+            } else {
+                break;
+            }
+        }
+        // 向下检查
+        for (let i = v + 1; i < this.V && this.blockArr[h] && this.blockArr[h][i]; i++) {
+            let neighborGrid = this.blockArr[h][i].getComponent(gridCmpt);
+            if (neighborGrid && neighborGrid.type === type) {
+                verticalCount++;
+            } else {
+                break;
+            }
+        }
+        if (verticalCount >= 3) return true;
+        
+        return false;
+    }
+
+    /**
+     * 重新洗牌 - 打乱棋盘元素
+     */
+    async shuffleBoard() {
+        console.log("开始洗牌...");
+        
+        // 收集所有非特效元素的类型
+        let elementTypes = [];
+        for (let h = 0; h < this.H; h++) {
+            for (let v = 0; v < this.V; v++) {
+                if (this.blockArr[h][v]) {
+                    let grid = this.blockArr[h][v].getComponent(gridCmpt);
+                    if (grid && !this.isBomb(grid)) {
+                        elementTypes.push(grid.type);
+                    }
+                }
+            }
+        }
+        
+        console.log(`收集到${elementTypes.length}个普通元素进行洗牌`);
+        
+        // Fisher-Yates洗牌算法
+        for (let i = elementTypes.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [elementTypes[i], elementTypes[j]] = [elementTypes[j], elementTypes[i]];
+        }
+        
+        // 洗牌特效动画
+        await this.playShuffleAnimation();
+        
+        // 重新分配类型到棋盘
+        let typeIndex = 0;
+        for (let h = 0; h < this.H; h++) {
+            for (let v = 0; v < this.V; v++) {
+                if (this.blockArr[h][v]) {
+                    let grid = this.blockArr[h][v].getComponent(gridCmpt);
+                    if (grid && !this.isBomb(grid)) {
+                        grid.setType(elementTypes[typeIndex]);
+                        typeIndex++;
+                    }
+                }
+            }
+        }
+        
+        console.log("洗牌完成，重新分配了", typeIndex, "个元素");
+    }
+
+    /**
+     * 播放洗牌特效动画
+     */
+    async playShuffleAnimation(): Promise<void> {
+        return new Promise(resolve => {
+            // 所有元素随机旋转和缩放动画
+            let animationCount = 0;
+            let totalAnimations = 0;
+            
+            for (let h = 0; h < this.H; h++) {
+                for (let v = 0; v < this.V; v++) {
+                    if (this.blockArr[h][v]) {
+                        let grid = this.blockArr[h][v].getComponent(gridCmpt);
+                        if (grid && !this.isBomb(grid)) {
+                            totalAnimations++;
+                            
+                            // 随机延迟开始动画
+                            let delay = Math.random() * 0.5;
+                            
+                            this.scheduleOnce(() => {
+                                // 旋转 + 缩放动画
+                                tween(this.blockArr[h][v])
+                                    .to(0.2, { 
+                                        scale: v3(0.1, 0.1, 1),
+                                        angle: Math.random() * 360 
+                                    })
+                                    .to(0.2, { 
+                                        scale: v3(1, 1, 1),
+                                        angle: 0 
+                                    })
+                                    .call(() => {
+                                        animationCount++;
+                                        if (animationCount >= totalAnimations) {
+                                            resolve();
+                                        }
+                                    })
+                                    .start();
+                            }, delay);
+                        }
+                    }
+                }
+            }
+            
+            // 如果没有需要动画的元素，直接完成
+            if (totalAnimations === 0) {
+                resolve();
+            }
+            
+            // 播放洗牌音效
+            App.audio.play('ui_banner_up_hide');
+        });
+    }
+
+    /**
+     * 检查是否需要洗牌并执行
+     */
+    async checkAndShuffle() {
+        let hasPossibleMoves = await this.detectPossibleMoves();
+        console.log("检查可移动元素结果:", hasPossibleMoves);
+        
+        if (!hasPossibleMoves) {
+            console.log("没有可移动的元素，开始洗牌");
+            await this.shuffleBoard();
+            
+            // 洗牌后再次检查，避免无限循环
+            let hasMovesAfterShuffle = await this.detectPossibleMoves();
+            console.log("洗牌后可移动元素检查结果:", hasMovesAfterShuffle);
+            if (!hasMovesAfterShuffle) {
+                console.log("洗牌后仍无可移动元素，再次洗牌");
+                await this.shuffleBoard();
+            }
+        } else {
+            console.log("发现可移动元素，无需洗牌");
+        }
+    }
+
+    /**
+     * 自动消除循环 - 进入游戏后自动检测并消除可消除的元素
+     */
+    async autoEliminateLoop() {
+        console.log("开始自动消除检测...");
+        
+        // 检测是否有可消除的元素
+        let hasMatches = await this.detectMatches();
+        
+        if (hasMatches) {
+            console.log("发现可消除元素，开始自动消除...");
+            // 使用现有的checkAgain方法进行消除，它会递归处理所有连锁反应
+            this.checkAgain();
+        } else {
+            console.log("进入游戏时未发现可消除元素");
+        }
+        
+        // 确保用户可以开始游戏
+        this.isStartTouch = false;
+        this.isStartChange = false;
+    }
+
+    /**
+     * 检测当前棋盘是否存在可消除的组合
+     * @returns Promise<boolean> 是否存在可消除的组合
+     */
+    async detectMatches(): Promise<boolean> {
+        return new Promise(resolve => {
+            for (let i = 0; i < this.H; i++) {
+                for (let j = 0; j < this.V; j++) {
+                    let item = this.blockArr[i][j];
+                    if (!item || item.getComponent(gridCmpt).getMoveState()) continue;
+                    
+                    let gridComponent = item.getComponent(gridCmpt);
+                    
+                    // 检查水平方向
+                    let hor: gridCmpt[] = this._checkHorizontal(gridComponent);
+                    if (hor.length >= 3) {
+                        console.log(`发现水平可消除组合，位置: (${i}, ${j}), 长度: ${hor.length}`);
+                        resolve(true);
+                        return;
+                    }
+                    
+                    // 检查垂直方向
+                    let ver: gridCmpt[] = this._checkVertical(gridComponent);
+                    if (ver.length >= 3) {
+                        console.log(`发现垂直可消除组合，位置: (${i}, ${j}), 长度: ${ver.length}`);
+                        resolve(true);
+                        return;
+                    }
+                }
+            }
+            resolve(false);
+        });
     }
 }

@@ -42,6 +42,8 @@ class StorageKey {
     BombBomb = "BombBomb";
     BombAllSame = "BombAllSame";
     Heart = "Heart";
+    /** 体力恢复时间戳 */
+    HeartRecoverTime = "HeartRecoverTime";
 }
 
 class Helper {
@@ -101,7 +103,7 @@ class Helper {
             this.setData(StorageHelperKey.BombAllSame, 3)
         }
         if (!this.getData(StorageHelperKey.Heart)) {
-            this.setData(StorageHelperKey.Heart, 3)
+            this.setData(StorageHelperKey.Heart, 5)
         }
 
     }

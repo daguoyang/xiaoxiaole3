@@ -10,6 +10,7 @@ import { UserInfo } from "./userInfo";
 import { NoticeManager } from "./noticeManager";
 import { StorageHelper } from "../utils/storageHelper";
 import TimeManager from "./timeManager";
+import { SimpleHeartManager } from './simpleHeartManager';
 import { GameLogic } from "../game/logic/gameLogic";
 import { WxMgr } from "../wx/wxManager";
 import { ViewName } from "../const/viewNameConst";
@@ -28,6 +29,7 @@ class StarMatchGameApp extends SingletonClass<StarMatchGameApp> {
     get i18n() { return I18nManager.getInstance<I18nManager>(I18nManager); }
     get notice() { return NoticeManager.getInstance<NoticeManager>(NoticeManager); }
     get timer() { return TimeManager.getInstance<TimeManager>(TimeManager); }
+    get heartManager() { return SimpleHeartManager.getInstance<SimpleHeartManager>(SimpleHeartManager); }
     get gameLogic() { return GameLogic.getInstance<GameLogic>(GameLogic); }
 
     protected async onInit(canvas: Node) {
@@ -35,6 +37,7 @@ class StarMatchGameApp extends SingletonClass<StarMatchGameApp> {
         this.audio.init(canvas);
         this.view.init(canvas);
         this.timer.init();
+        this.heartManager.init();
         this.gameLogic.init();
         StorageHelper.initData();
         WxMgr.init();

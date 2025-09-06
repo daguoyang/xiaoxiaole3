@@ -25,6 +25,10 @@ export namespace EventName {
         AddStarScore = "AddStarScore",
         /** 刷新金币 */
         UpdataGold = "UpdataGold",
+        /** 更新头像 */
+        UpdateAvatar = "UpdateAvatar",
+        /** 体力更新 */
+        HeartUpdate = "HeartUpdate",
         /** 刷新网格 */
         ContinueGame = "ContinueGame",
         /** 提示道具 */

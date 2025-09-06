@@ -1,21 +1,21 @@
-import { BaseSystem } from './baseSystem';
+import { SingletonClass } from './singletonClass';
 
 /**
  * 时间控制器 - 全新的时间管理系统
  */
-export class TimeController extends BaseSystem {
+export class TimeController extends SingletonClass<TimeController> {
     private timers: Map<string, Timer> = new Map();
     private intervals: Map<string, Timer> = new Map();
     private timeScale: number = 1.0;
     private paused: boolean = false;
     private lastTime: number = 0;
 
-    protected async onInitialize(): Promise<void> {
+    protected onInit(...args: any[]) {
         this.lastTime = Date.now();
         console.log('TimeController system initialized');
     }
 
-    protected async onDestroy(): Promise<void> {
+    protected onDestroy() {
         this.clearAllTimers();
         this.clearAllIntervals();
     }

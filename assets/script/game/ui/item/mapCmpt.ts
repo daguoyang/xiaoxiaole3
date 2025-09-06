@@ -55,6 +55,7 @@ export class mapCmpt extends ScrollItemCmpt {
             let pos = this.node.getComponent(UITransform).convertToNodeSpaceAR(starNode.worldPosition);
             this.local.active = true;
             this.local.setPosition(v3(pos.x, pos.y + 60, 1));
+            this.updateLocalAvatar();
         }
     }
 
@@ -67,5 +68,12 @@ export class mapCmpt extends ScrollItemCmpt {
             return;
         }
         App.view.openView(ViewName.Single.eChallengeView, idx);
+    }
+
+    /** 更新地图标记头像 */
+    updateLocalAvatar() {
+        if (this.local && App.user && App.user.rankData) {
+            CocosHelper.updateUserHeadSpriteAsync(this.local, App.user.rankData.icon);
+        }
     }
 }

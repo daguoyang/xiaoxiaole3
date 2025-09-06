@@ -36,6 +36,10 @@ export class ResultViewCmpt extends BaseViewCmpt {
         if (isWin) {
             LevelConfig.setLevelStar(lv, starCount);
             this.handleWin(coutArr);
+            // 胜利奖励1点体力
+            App.heartManager.addHeart(1);
+            // 通知UI更新体力显示
+            App.event.emit(EventName.Game.HeartUpdate);
         }
         else {
             this.handleLose();

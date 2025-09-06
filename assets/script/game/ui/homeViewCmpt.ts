@@ -2,6 +2,7 @@ import { _decorator, Node, Vec3, Prefab, instantiate, v2, ScrollView, PageView }
 import { BaseViewCmpt } from '../../components/baseViewCmpt';
 import { ScrollViewCmpt } from '../../components/scrollViewCmpt';
 import { EventName } from '../../const/eventName';
+import { mapCmpt } from './item/mapCmpt';
 import { LevelConfig } from '../../const/levelConfig';
 import { ViewName } from '../../const/viewNameConst';
 import { App } from '../../core/app';
@@ -14,11 +15,11 @@ import { Advertise } from '../../wx/advertise';
 const { ccclass, property } = _decorator;
 
 enum Pages {
-    shop = 0,
-    rank,
-    home,
-    share,
-    setting
+    shop = 0,      // 隐藏，不使用
+    rank = 1,      // 排行页面
+    home = 2,      // 主页页面 (默认)
+    share = 3,     // 隐藏，不使用
+    setting = 4    // 设置页面
 }
 
 
@@ -34,12 +35,13 @@ export class homeViewCmpt extends BaseViewCmpt {
     private head: Node = null;
     private lbCoin: Node = null;
     private lbLife: Node = null;
+    private heartUpdateTimer: any = null; // 体力倒计时更新定时器
     private PagesName = {
-        "0": "shopBtn",
-        "1": "rankBtn",
-        "2": "homeBtn",
-        "3": "shareBtn",
-        "4": "settingBtn"
+        "0": "shopBtn",      // 商店按钮，但功能重定向到广告
+        "1": "rankBtn",      // 排行按钮
+        "2": "homeBtn",      // 主页按钮
+        "3": "shareBtn",     // 分享按钮，但功能已移除
+        "4": "settingBtn"    // 设置按钮
     }
     onLoad() {
         super.onLoad();
@@ -57,12 +59,25 @@ export class homeViewCmpt extends BaseViewCmpt {
         App.event.on(EventName.Game.Scrolling, this.evtScrolling, this);
         App.event.on(EventName.Game.Scrolling, this.evtScrolling, this);
         App.event.on(EventName.Game.GotoShop, this.evtGotoShop, this);
+        App.event.on(EventName.Game.UpdateAvatar, this.evtUpdateAvatar, this);
+        App.event.on(EventName.Game.HeartUpdate, this.updateHeartInfo, this);
         this.pageView.node.on('page-turning', this.evtPageView, this);
+        
+        // 隐藏商店和分享按钮
+        this.hideShopAndShareButtons();
     }
 
     onDestroy() {
         super.onDestroy();
         App.event.off(EventName.Game.UpdataGold, this);
+        App.event.off(EventName.Game.UpdateAvatar, this);
+        App.event.off(EventName.Game.HeartUpdate, this);
+        
+        // 清理体力更新定时器
+        if (this.heartUpdateTimer) {
+            clearInterval(this.heartUpdateTimer);
+            this.heartUpdateTimer = null;
+        }
     }
     async loadExtraData(isStart: boolean, pageIndex: number = 2) {
         App.view.closeView(ViewName.Single.eLoadingView);
@@ -97,8 +112,78 @@ export class homeViewCmpt extends BaseViewCmpt {
 
     setHomeInfo() {
         CocosHelper.updateUserHeadSpriteAsync(this.head, App.user.rankData.icon);
+        this.updateLocalBtnAvatar();
         CocosHelper.updateLabelText(this.lbCoin, GlobalFuncHelper.getGold());
-        CocosHelper.updateLabelText(this.lbLife, GlobalFuncHelper.getHeart());
+        this.updateHeartInfo();
+    }
+    
+    /** 更新体力显示 - 主页显示格式为 "3/5" 带倒计时 */
+    updateHeartInfo() {
+        const currentHeart = App.heartManager.getCurrentHeart();
+        const maxHeart = App.heartManager.getMaxHeart();
+        let heartText = `${currentHeart}/${maxHeart}`;
+        
+        // 如果不是满体力，显示下次恢复倒计时
+        if (currentHeart < maxHeart) {
+            const countdown = App.heartManager.getNextRecoverCountdown();
+            if (countdown > 0) {
+                const timeStr = App.heartManager.formatCountdown(countdown);
+                heartText += `\n${timeStr}`;
+            }
+            
+            // 启动倒计时更新定时器
+            this.startHeartUpdateTimer();
+        } else {
+            // 满体力时停止定时器
+            this.stopHeartUpdateTimer();
+        }
+        
+        CocosHelper.updateLabelText(this.lbLife, heartText);
+    }
+    
+    /** 启动体力倒计时更新定时器 */
+    startHeartUpdateTimer() {
+        // 如果已经有定时器在运行，先清除
+        if (this.heartUpdateTimer) {
+            return;
+        }
+        
+        // 每秒更新一次倒计时
+        this.heartUpdateTimer = setInterval(() => {
+            const currentHeart = App.heartManager.getCurrentHeart();
+            const maxHeart = App.heartManager.getMaxHeart();
+            
+            if (currentHeart >= maxHeart) {
+                // 满体力时停止定时器
+                this.stopHeartUpdateTimer();
+                this.updateHeartInfo();
+                return;
+            }
+            
+            let heartText = `${currentHeart}/${maxHeart}`;
+            const countdown = App.heartManager.getNextRecoverCountdown();
+            if (countdown > 0) {
+                const timeStr = App.heartManager.formatCountdown(countdown);
+                heartText += `\n${timeStr}`;
+            }
+            
+            CocosHelper.updateLabelText(this.lbLife, heartText);
+        }, 1000);
+    }
+    
+    /** 停止体力倒计时更新定时器 */
+    stopHeartUpdateTimer() {
+        if (this.heartUpdateTimer) {
+            clearInterval(this.heartUpdateTimer);
+            this.heartUpdateTimer = null;
+        }
+    }
+
+    /** 更新下方弹出按钮的头像 */
+    updateLocalBtnAvatar() {
+        if (this.localBtn && App.user && App.user.rankData) {
+            CocosHelper.updateUserHeadSpriteAsync(this.localBtn, App.user.rankData.icon);
+        }
     }
 
     continueGame() {
@@ -140,10 +225,9 @@ export class homeViewCmpt extends BaseViewCmpt {
     }
 
     evtGotoShop() {
-        this.showSelectedBtn('shopBtn');
-        this.pageView.getPages().forEach((item, idx) => {
-            item.active = idx == Pages.shop;
-        });
+        // 跳转商店逻辑改为显示广告
+        console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");
+        Advertise.showVideoAds();
     }
 
     onClick_settingBtn(node: Node) {
@@ -192,21 +276,108 @@ export class homeViewCmpt extends BaseViewCmpt {
 
     showSelectedBtn(n: string) {
         this.btnNode.children.forEach(item => {
-            item.getChildByName("s").active = n == item.name;
-            item.getChildByName("n").active = n != item.name;
+            // 只处理可见的按钮
+            if (item.active) {
+                let selectedNode = item.getChildByName("s");
+                let normalNode = item.getChildByName("n");
+                if (selectedNode) selectedNode.active = n == item.name;
+                if (normalNode) normalNode.active = n != item.name;
+            }
         })
     }
 
     evtPageView(pv: PageView) {
         let pageIndex = pv.getCurrentPageIndex();
-        if (pageIndex == 2) {
+        if (pageIndex == 2) { // 主页是索引2
             this.setHomeInfo();
+        } else {
+            // 离开主页时停止体力倒计时定时器
+            this.stopHeartUpdateTimer();
         }
+    }
+
+    /** 头像更新事件处理 */
+    evtUpdateAvatar() {
+        // 立即更新主页头像和地图头像
+        CocosHelper.updateUserHeadSpriteAsync(this.head, App.user.rankData.icon);
+        this.updateLocalBtnAvatar();
+        // 更新地图组件中的头像
+        this.updateMapAvatars();
+    }
+
+    /** 更新地图中的头像 */
+    updateMapAvatars() {
+        // 获取地图滚动视图中的所有地图组件
+        let mapNodes = this.scrollview.node.getComponentsInChildren(mapCmpt);
+        mapNodes.forEach(map => {
+            if (map.updateLocalAvatar) {
+                map.updateLocalAvatar();
+            }
+        });
     }
 
     onClick_sharePageBtn() {
         App.audio.play('button_click');
-        App.event.emit(EventName.Game.Share, LevelConfig.getCurLevel());
+        console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");
+        Advertise.showVideoAds();
+    }
+
+    /**
+     * 隐藏商店和分享按钮，只保留排行、主页、设置三个按钮
+     */
+    hideShopAndShareButtons() {
+        if (!this.btnNode) return;
+        
+        // 隐藏商店按钮 (shopBtn)
+        let shopBtn = this.btnNode.getChildByName('shopBtn');
+        if (shopBtn) {
+            shopBtn.active = false;
+            console.log("已隐藏商店按钮");
+        }
+        
+        // 隐藏分享按钮 (shareBtn)
+        let shareBtn = this.btnNode.getChildByName('shareBtn');
+        if (shareBtn) {
+            shareBtn.active = false;
+            console.log("已隐藏分享按钮");
+        }
+        
+        // 调整剩余三个按钮的位置，使其居中分布
+        this.adjustButtonLayout();
+    }
+
+    /**
+     * 调整按钮布局，让三个按钮(排行、主页、设置)居中分布
+     */
+    adjustButtonLayout() {
+        if (!this.btnNode) return;
+        
+        let activeButtons = [];
+        let buttonNames = ['rankBtn', 'homeBtn', 'settingBtn'];
+        
+        // 收集所有激活的按钮
+        buttonNames.forEach(name => {
+            let btn = this.btnNode.getChildByName(name);
+            if (btn && btn.active) {
+                activeButtons.push(btn);
+            }
+        });
+        
+        // 重新排布三个按钮的位置
+        if (activeButtons.length === 3) {
+            // 假设按钮容器宽度，三个按钮平均分布
+            let containerWidth = this.btnNode.getComponent('UITransform')?.width || 600;
+            let buttonSpacing = containerWidth / 4; // 分成4段，按钮占中间3段
+            
+            activeButtons.forEach((btn, index) => {
+                let pos = btn.getPosition();
+                // 重新设置x坐标：-buttonSpacing, 0, buttonSpacing
+                pos.x = (index - 1) * buttonSpacing;
+                btn.setPosition(pos);
+            });
+            
+            console.log("已调整按钮布局为三个按钮居中分布");
+        }
     }
 
 }

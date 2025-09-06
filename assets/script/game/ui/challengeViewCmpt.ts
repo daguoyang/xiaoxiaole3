@@ -7,6 +7,7 @@ import { ViewName } from '../../const/viewNameConst';
 import { App } from '../../core/app';
 import { CocosHelper } from '../../utils/cocosHelper';
 import { GlobalFuncHelper } from '../../utils/globalFuncHelper';
+import { Advertise } from '../../wx/advertise';
 import { gridCmpt } from './item/gridCmpt';
 const { ccclass, property } = _decorator;
 
@@ -61,6 +62,17 @@ export class challengeViewCmpt extends BaseViewCmpt {
 
     onClick_playBtn() {
         App.audio.play('button_click');
+        
+        // 检查体力是否足够
+        if (!App.heartManager.consumeHeart(1)) {
+            // 体力不足，显示提示
+            App.view.showMsgTips("体力不足！");
+            return;
+        }
+        
+        // 通知UI更新体力显示
+        App.event.emit(EventName.Game.UpdataGold);
+        
         App.gameLogic.toolsArr = [];
         for (let i = 1; i < 4; i++) {
             let s = this.viewList.get(`animNode/content/bg/toolBtn${i}`).getChildByName('s');
@@ -91,7 +103,9 @@ export class challengeViewCmpt extends BaseViewCmpt {
         App.audio.play('button_click');
         let idx = +btn.name.substring(btn.name.length - 1, btn.name.length);
         if (this[`tCount${idx}`] <= 0) {
-            App.event.emit(EventName.Game.GotoShop);
+            // 道具不足时显示广告而不是跳转商店
+            console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");
+            Advertise.showVideoAds();
             this.onClick_closeBtn();
             return;
         }

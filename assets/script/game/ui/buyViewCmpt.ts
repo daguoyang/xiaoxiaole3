@@ -1,132 +1,75 @@
-import { _decorator, Component, Node, Button, Sprite } from 'cc';
+import { _decorator, Node } from 'cc';
 import { BaseViewCmpt } from '../../components/baseViewCmpt';
-import { Bomb } from '../../const/enumConst';
 import { EventName } from '../../const/eventName';
-import { LevelConfig } from '../../const/levelConfig';
 import { App } from '../../core/app';
 import { CocosHelper } from '../../utils/cocosHelper';
 import { GlobalFuncHelper } from '../../utils/globalFuncHelper';
-import { StorageHelper, StorageHelperKey } from '../../utils/storageHelper';
-import { ToolsHelper } from '../../utils/toolsHelper';
-import { WxManager } from '../../wx/wxManager';
+import { Advertise } from '../../wx/advertise';
 const { ccclass, property } = _decorator;
 
+/**
+ * 商店页面组件 - 已简化为广告奖励系统
+ */
 @ccclass('buyViewCmpt')
-export class BuyViewCmpt extends BaseViewCmpt {
-    private lbGold: Node = null;
+export class buyViewCmpt extends BaseViewCmpt {
     private content: Node = null;
+    private lbGold: Node = null;
+
     onLoad() {
-        for (let i = 1; i < 8; i++) {
-            this[`onClick_itemBtn${i}`] = this.handleBtnEvent.bind(this);
-        }
         super.onLoad();
-        this.lbGold = this.viewList.get('top/lbGold');
-        this.content = this.viewList.get('s/view/content');
-        App.event.on(EventName.Game.UpdataGold, this.evtUpdateGold, this);
-        this.evtUpdateGold();
-        this.updateItemStatus();
+        this.content = this.viewList.get('animNode/content/bg/scrollview/view/content');
+        this.lbGold = this.viewList.get('animNode/content/top/lbGold');
     }
 
     loadExtraData() {
         App.audio.play('UI_PopUp');
+        this.updateGoldDisplay();
     }
 
-    evtUpdateGold() {
+    updateGoldDisplay() {
         let gold = GlobalFuncHelper.getGold();
         CocosHelper.updateLabelText(this.lbGold, gold);
     }
 
-    updateItemStatus() {
-        let gold = GlobalFuncHelper.getGold();
-        let bool = gold < 888;
-        let item1 = this.content.getChildByName('itemBtn1');
-        ToolsHelper.setNodeGray(item1, bool);
-
-        bool = gold < 200;
-        item1 = this.content.getChildByName('itemBtn4');
-        ToolsHelper.setNodeGray(item1, bool);
-        item1 = this.content.getChildByName('itemBtn5');
-        ToolsHelper.setNodeGray(item1, bool);
-        item1 = this.content.getChildByName('itemBtn7');
-        ToolsHelper.setNodeGray(item1, bool);
-        bool = gold < 600;
-        item1 = this.content.getChildByName('itemBtn6');
-        ToolsHelper.setNodeGray(item1, bool);
-    }
-
+    /**
+     * 处理所有按钮点击 - 统一显示广告并给奖励
+     */
     handleBtnEvent(btn: Node) {
         App.audio.play('button_click');
-        let gold = GlobalFuncHelper.getGold();
-        let bool = gold < 888;
-        let lv = LevelConfig.getCurLevel();
+        
+        // 显示广告
+        console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");
+        Advertise.showVideoAds();
+        
+        // 根据按钮类型给予不同奖励
         switch (btn.name) {
-            case 'itemBtn1':
-                if (bool) {
-                    App.view.showMsgTips("金币不足");
-                    return;
-                }
-                GlobalFuncHelper.setGold(-888);
-                App.event.emit(EventName.Game.UpdataGold);
-                App.view.showMsgTips("购买成功");
-                GlobalFuncHelper.setBomb(Bomb.hor, 1)
-                GlobalFuncHelper.setBomb(Bomb.allSame, 1)
-                GlobalFuncHelper.setBomb(Bomb.bomb, 1)
+            case 'itemBtn7': // 体力相关
+                App.heartManager.addHeart(1);
+                App.event.emit(EventName.Game.HeartUpdate);
+                App.view.showMsgTips("观看广告获得体力！");
                 break;
-            case 'itemBtn2':
-                App.event.emit(EventName.Game.Share, lv, false);
-                GlobalFuncHelper.setGold(1000);
+            case 'itemBtn1': // 大礼包
+                GlobalFuncHelper.setGold(100);
+                App.heartManager.addHeart(1);
                 App.event.emit(EventName.Game.UpdataGold);
+                App.event.emit(EventName.Game.HeartUpdate);
+                App.view.showMsgTips("观看广告获得大礼包！");
                 break;
-            case 'itemBtn3':
-                App.event.emit(EventName.Game.Share, lv, false);
-                GlobalFuncHelper.setGold(5000);
+            default:
+                // 其他按钮给金币奖励
+                GlobalFuncHelper.setGold(50);
                 App.event.emit(EventName.Game.UpdataGold);
-                break;
-            case 'itemBtn4':
-                bool = gold < 200;
-                if (bool) {
-                    App.view.showMsgTips("金币不足");
-                    return;
-                }
-                GlobalFuncHelper.setGold(-200);
-                App.event.emit(EventName.Game.UpdataGold);
-                App.view.showMsgTips("购买成功");
-                GlobalFuncHelper.setBomb(Bomb.bomb, 1)
-                break;
-            case 'itemBtn5':
-                bool = gold < 200;
-                if (bool) {
-                    App.view.showMsgTips("金币不足");
-                    return;
-                }
-                GlobalFuncHelper.setGold(-200);
-                App.event.emit(EventName.Game.UpdataGold);
-                App.view.showMsgTips("购买成功");
-                GlobalFuncHelper.setBomb(Bomb.hor, 1);
-                break;
-            case 'itemBtn6':
-                bool = gold < 600;
-                if (bool) {
-                    App.view.showMsgTips("金币不足");
-                    return;
-                }
-                GlobalFuncHelper.setGold(-600);
-                App.event.emit(EventName.Game.UpdataGold);
-                App.view.showMsgTips("购买成功");
-                GlobalFuncHelper.setBomb(Bomb.allSame, 1)
-                break;
-            case 'itemBtn7':
-                bool = gold < 200;
-                if (bool) {
-                    App.view.showMsgTips("金币不足");
-                    return;
-                }
-                GlobalFuncHelper.setGold(-200);
-                App.event.emit(EventName.Game.UpdataGold);
-                App.view.showMsgTips("购买成功");
-                GlobalFuncHelper.setHeart(1)
+                App.view.showMsgTips("观看广告获得金币！");
                 break;
         }
-        this.updateItemStatus();
+        
+        this.updateGoldDisplay();
+    }
+
+    /**
+     * 兼容旧的按钮点击方法
+     */
+    onClick_itemBtn(btn: Node) {
+        this.handleBtnEvent(btn);
     }
 }

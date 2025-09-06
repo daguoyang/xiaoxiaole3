@@ -87,8 +87,10 @@ export class ScrollViewCmpt extends ScrollView {
         App.event.emit(EventName.Game.Scrolling, this.node);
         for (let i = 0; i < this.itemArr.length; i++) {
             let item: Node = this.itemArr[i];
+            if (!item || !item.parent) continue; // 添加null检查
             let pos = item.getPosition();
             let worldPos = item.parent.getComponent(UITransform).convertToWorldSpaceAR(pos);
+            if (!this.node.parent) continue; // 添加null检查
             let thisPos = this.node.parent.getComponent(UITransform).convertToWorldSpaceAR(this.node.getPosition());
             let gap = this.node.getComponent(UITransform).height / 2;
             if (worldPos.y >= thisPos.y + gap + this.scrollItem.getComponent(UITransform).height) {
