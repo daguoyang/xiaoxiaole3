@@ -68,9 +68,11 @@ export class gridCmpt extends Component {
     setCount(count: number) {
         let lb = this.node.getChildByName('lb');
         lb.getComponent(Label).string = `${count}`;
-        if (count == 0) {
-            this.node.getChildByName('ok').active = true;
+        let okNode = this.node.getChildByName('ok');
+        if (okNode) {
+            okNode.active = count == 0;
         }
+        console.log(`gridCmpt setCount: ${count}, ok显示: ${count == 0}`);
     }
     showGou(bool: boolean) {
         this.node.getChildByName('gou').active = bool;

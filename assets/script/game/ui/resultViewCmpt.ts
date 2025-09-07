@@ -22,6 +22,8 @@ export class ResultViewCmpt extends BaseViewCmpt {
     }
 
     async loadExtraData(lv: number, isWin: boolean, coutArr: any[], starCount: number) {
+        console.log(`结果弹窗加载数据 - 关卡:${lv}, 胜利:${isWin}, 星数:${starCount}, 目标状态:`, coutArr);
+        
         if (isWin) {
             App.audio.play('win');
         }
@@ -33,6 +35,19 @@ export class ResultViewCmpt extends BaseViewCmpt {
         this.isWin = isWin;
         this.viewList.get('animNode/win').active = isWin;
         this.viewList.get('animNode/lose').active = !isWin;
+        
+        // 检查各种可能的按钮路径
+        let continueBtnWin = this.viewList.get('animNode/win/continueBtn');
+        let continueBtnLose = this.viewList.get('animNode/lose/continueBtn');
+        let nextBtnWin = this.viewList.get('animNode/win/nextBtn');
+        let nextBtnLose = this.viewList.get('animNode/lose/nextBtn');
+        let guanbiBtnWin = this.viewList.get('animNode/win/guanbiBtn');
+        let guanbiBtnLose = this.viewList.get('animNode/lose/guanbiBtn');
+        
+        console.log(`按钮检查 - continueBtn win:${!!continueBtnWin} lose:${!!continueBtnLose}`);
+        console.log(`按钮检查 - nextBtn win:${!!nextBtnWin} lose:${!!nextBtnLose}`);
+        console.log(`按钮检查 - guanbiBtn win:${!!guanbiBtnWin} lose:${!!guanbiBtnLose}`);
+        
         if (isWin) {
             LevelConfig.setLevelStar(lv, starCount);
             this.handleWin(coutArr);
@@ -81,15 +96,26 @@ export class ResultViewCmpt extends BaseViewCmpt {
         }
     }
     /** 下一关 */
-    onClick_nextBtn() {
+    async onClick_nextBtn() {
         App.audio.play('button_click');
         GlobalFuncHelper.setGold(App.gameLogic.rewardGold);
         if (this.level == LevelConfig.getCurLevel()) {
             LevelConfig.nextLevel();
         }
+        
+        // 标记结果已处理，防止重复弹窗
+        let gameView = App.view.getViewByName(ViewName.Single.eGameView);
+        if (gameView) {
+            let gameViewCmpt = gameView.getComponent('gameViewCmpt');
+            if (gameViewCmpt) {
+                gameViewCmpt.resultShown = true;
+            }
+        }
+        
+        // 关闭视图并切换到主页
+        App.view.closeView(ViewName.Single.eResultView);
         App.view.closeView(ViewName.Single.eGameView);
         App.view.openView(ViewName.Single.eHomeView, true);
-        this.onClick_closeBtn();
     }
     /** 获取奖励 - 观看广告 */
     onClick_shareBtn() {
@@ -98,28 +124,109 @@ export class ResultViewCmpt extends BaseViewCmpt {
         // 直接播放广告，不触发微信分享
         Advertise.showVideoAds();
     }
-    /** 购买次数继续游戏 */
-    onClick_continueBtn() {
+    /** 继续游戏按钮 */
+    async onClick_continueBtn() {
         App.audio.play('button_click');
-        let count = +GlobalFuncHelper.getGold();
-        if (count < 200) {
-            App.view.showMsgTips("金币不足")
-            Advertise.showVideoAds();
-            return;
+        
+        // 取消自动关闭定时器
+        this.unscheduleAllCallbacks();
+        
+        console.log(`点击继续游戏按钮 - isWin: ${this.isWin}, level: ${this.level}`);
+        
+        if (this.isWin) {
+            // 胜利状态：完成关卡，返回主页面准备下一关
+            GlobalFuncHelper.setGold(App.gameLogic.rewardGold);
+            if (this.level == LevelConfig.getCurLevel()) {
+                LevelConfig.nextLevel();
+            }
+            
+            // 标记结果已处理，防止重复弹窗
+            let gameView = App.view.getViewByName(ViewName.Single.eGameView);
+            if (gameView) {
+                let gameViewCmpt = gameView.getComponent('gameViewCmpt');
+                if (gameViewCmpt) {
+                    gameViewCmpt.resultShown = true;
+                }
+            }
+            
+            // 关闭视图并返回主页
+            App.view.closeView(ViewName.Single.eResultView);
+            App.view.closeView(ViewName.Single.eGameView);
+            App.view.openView(ViewName.Single.eHomeView, true);
+        } else {
+            // 失败状态：购买道具继续当前关卡
+            let count = +GlobalFuncHelper.getGold();
+            if (count < 200) {
+                App.view.showMsgTips("金币不足")
+                Advertise.showVideoAds();
+                return;
+            }
+            
+            GlobalFuncHelper.setGold(-200);
+            App.event.emit(EventName.Game.UpdataGold);
+            App.event.emit(EventName.Game.ContinueGame);
         }
-        GlobalFuncHelper.setGold(-200);
-        App.event.emit(EventName.Game.UpdataGold);
-        App.event.emit(EventName.Game.ContinueGame);
-        this.onClick_closeBtn();
     }
 
-    onClick_guanbiBtn() {
+    /** 关闭按钮 - 返回主页面 */
+    async onClick_guanbiBtn() {
+        
+        // 取消自动关闭定时器
+        this.unscheduleAllCallbacks();
+        
         if (this.isWin) {
+            // 胜利状态下点击关闭按钮，执行与继续游戏相同的逻辑
+            console.log(`胜利状态关闭，执行继续游戏逻辑`);
+            GlobalFuncHelper.setGold(App.gameLogic.rewardGold);
             if (this.level == LevelConfig.getCurLevel()) {
                 LevelConfig.nextLevel();
             }
         }
-        App.backHome(true);
-        super.onClick_closeBtn()
+        
+        console.log(`开始关闭视图并返回主页...`);
+        
+        // 标记结果已处理，防止重复弹窗
+        let gameView = App.view.getViewByName(ViewName.Single.eGameView);
+        if (gameView) {
+            let gameViewCmpt = gameView.getComponent('gameViewCmpt');
+            if (gameViewCmpt) {
+                gameViewCmpt.resultShown = true;
+                console.log(`关闭按钮设置resultShown=true`);
+            }
+        }
+        
+        // 直接关闭所有视图并返回主页
+        App.view.closeView(ViewName.Single.eResultView);
+        App.view.closeView(ViewName.Single.eGameView);
+        App.view.openView(ViewName.Single.eHomeView, true);
+        console.log(`关闭按钮处理完成`);
+    }
+
+    /** 自动关闭胜利弹窗 */
+    autoWinClose() {
+        if (this.isWin) {
+            console.log(`自动关闭胜利弹窗并跳转主页`);
+            
+            // 发放奖励
+            GlobalFuncHelper.setGold(App.gameLogic.rewardGold);
+            if (this.level == LevelConfig.getCurLevel()) {
+                LevelConfig.nextLevel();
+            }
+            
+            // 标记结果已处理
+            let gameView = App.view.getViewByName(ViewName.Single.eGameView);
+            if (gameView) {
+                let gameViewCmpt = gameView.getComponent('gameViewCmpt');
+                if (gameViewCmpt) {
+                    gameViewCmpt.resultShown = true;
+                }
+            }
+            
+            // 关闭弹窗并跳转
+            App.view.closeView(ViewName.Single.eResultView);
+            App.view.closeView(ViewName.Single.eGameView);
+            App.view.openView(ViewName.Single.eHomeView, true);
+            console.log(`自动跳转完成`);
+        }
     }
 }

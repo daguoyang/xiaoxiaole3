@@ -58,6 +58,7 @@ export class GameViewCmpt extends BaseViewCmpt {
     private curScore: number = 0;
     private starCount: number = 0;
     private isWin: boolean = false;
+    private resultShown: boolean = false; // 标记结果弹窗是否已经显示并处理过
     private flyingAnimationCount: number = 0; // 正在飞行的动画数量
     private needCheckAfterAnimation: boolean = false; // 是否需要在动画完成后检查游戏状态
     
@@ -112,6 +113,7 @@ export class GameViewCmpt extends BaseViewCmpt {
         App.gameLogic.blockCount = this.data.blockCount;
         this.flyingAnimationCount = 0; // 重置飞行动画计数器
         this.needCheckAfterAnimation = false; // 重置检查标记
+        this.resultShown = false; // 重置结果弹窗显示标记
         
         // 初始化提示系统
         this.initHintSystem();
@@ -132,14 +134,17 @@ export class GameViewCmpt extends BaseViewCmpt {
         let data = this.data;
         let idArr = data.mapData[0].m_id;
         let ctArr = data.mapData[0].m_ct;
+        console.log(`关卡${this.level}初始化目标数据:`, {idArr, ctArr});
         this.coutArr = [];
         for (let i = 0; i < idArr.length; i++) {
             let temp = [idArr[i], ctArr[i] + 10];
             if (ctArr[i] < 10) {
                 temp = [idArr[i], ctArr[i] + 30];
             }
+            console.log(`目标${i}: 类型${idArr[i]}, 原始数量${ctArr[i]}, 最终数量${temp[1]}`);
             this.coutArr.push(temp);
         }
+        console.log(`关卡${this.level}最终目标数组:`, this.coutArr);
         let steps = this.data.moveCount - 10 > 0 ? this.data.moveCount - 10 : this.data.moveCount;
         this.stepCount = steps;
         this.updateTargetCount();
@@ -149,29 +154,56 @@ export class GameViewCmpt extends BaseViewCmpt {
     }
     /** 道具信息 */
     updateToolsInfo() {
+        // TODO: 测试模式 - 无限特效道具
+        const isTestMode = true; // 测试完成后改为 false
+        
+        if (isTestMode) {
+            // 测试模式：设置无限道具
+            GlobalFuncHelper.setBomb(Bomb.bomb, 999);
+            GlobalFuncHelper.setBomb(Bomb.hor, 999);
+            GlobalFuncHelper.setBomb(Bomb.ver, 999);
+            GlobalFuncHelper.setBomb(Bomb.allSame, 999);
+        }
+        
         let bombCount = GlobalFuncHelper.getBomb(Bomb.bomb);
         let horCount = GlobalFuncHelper.getBomb(Bomb.hor);
         let verCount = GlobalFuncHelper.getBomb(Bomb.ver);
         let allCount = GlobalFuncHelper.getBomb(Bomb.allSame);
-        CocosHelper.updateLabelText(this.lbTool1, bombCount);
-        CocosHelper.updateLabelText(this.lbTool2, horCount);
-        CocosHelper.updateLabelText(this.lbTool3, verCount);
-        CocosHelper.updateLabelText(this.lbTool4, allCount);
-        this.addBtn1.active = bombCount <= 0;
-        this.addBtn2.active = horCount <= 0;
-        this.addBtn3.active = verCount <= 0;
-        this.addBtn4.active = allCount <= 0;
+        
+        if (isTestMode) {
+            // 测试模式显示无限符号
+            CocosHelper.updateLabelText(this.lbTool1, "∞");
+            CocosHelper.updateLabelText(this.lbTool2, "∞");
+            CocosHelper.updateLabelText(this.lbTool3, "∞");
+            CocosHelper.updateLabelText(this.lbTool4, "∞");
+            this.addBtn1.active = false;
+            this.addBtn2.active = false;
+            this.addBtn3.active = false;
+            this.addBtn4.active = false;
+        } else {
+            // 正常模式
+            CocosHelper.updateLabelText(this.lbTool1, bombCount);
+            CocosHelper.updateLabelText(this.lbTool2, horCount);
+            CocosHelper.updateLabelText(this.lbTool3, verCount);
+            CocosHelper.updateLabelText(this.lbTool4, allCount);
+            this.addBtn1.active = bombCount <= 0;
+            this.addBtn2.active = horCount <= 0;
+            this.addBtn3.active = verCount <= 0;
+            this.addBtn4.active = allCount <= 0;
+        }
     }
 
     /** 更新消除目标数量 */
     updateTargetCount() {
         let arr = this.coutArr;
+        console.log(`更新目标显示, 当前目标数组:`, arr);
         this.target1.active = arr.length <= 2;
         this.target2.active = arr.length > 2;
         let target = arr.length <= 2 ? this.target1 : this.target2;
         target.children.forEach((item, idx) => {
             item.active = idx < arr.length;
             if (idx < arr.length) {
+                console.log(`设置目标${idx}: 类型${arr[idx][0]}, 数量${arr[idx][1]}`);
                 item.getComponent(gridCmpt).setType(arr[idx][0]);
                 item.getComponent(gridCmpt).setCount(arr[idx][1]);
             }
@@ -208,13 +240,19 @@ export class GameViewCmpt extends BaseViewCmpt {
     }
     /** 结束检测 */
     checkResult() {
-        if (this.isWin) return;
+        console.log(`checkResult调用 - isWin=${this.isWin}, stepCount=${this.stepCount}, flyingAnimationCount=${this.flyingAnimationCount}, resultShown=${this.resultShown}`);
+        if (this.isWin) {
+            console.log(`游戏已胜利，跳过checkResult检查`);
+            return;
+        }
         let count = 0;
+        console.log(`检查游戏结果, 当前目标状态:`, this.coutArr);
         for (let i = 0; i < this.coutArr.length; i++) {
             if (this.coutArr[i][1] == 0) {
                 count++;
             }
         }
+        console.log(`完成的目标数量: ${count}/${this.coutArr.length}`);
         if (count == this.coutArr.length) {
             // win
             this.isWin = true;
@@ -223,8 +261,9 @@ export class GameViewCmpt extends BaseViewCmpt {
                 this.handleLastSteps();
             }
             else {
-                let view = App.view.getViewByName(ViewName.Single.eResultView);
-                if (!view) {
+                if (!this.resultShown) {
+                    console.log(`立即弹出胜利弹窗`);
+                    this.resultShown = true; // 立即设置标志，防止重复弹窗
                     App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
                 }
             }
@@ -268,10 +307,14 @@ export class GameViewCmpt extends BaseViewCmpt {
             }
         }
         await ToolsHelper.delayTime(1);
-        if (!isHaveBomb) {
+        if (!isHaveBomb && this.isWin) {
             let view = App.view.getViewByName(ViewName.Single.eResultView);
             console.log("没有炸弹了，一切都结束了")
-            if (!view) {
+            console.log(`检查弹窗条件 - view存在:${!!view}, isWin:${this.isWin}, resultShown:${this.resultShown}`);
+            
+            if (!this.resultShown) {
+                console.log(`弹出胜利弹窗`);
+                this.resultShown = true; // 立即设置标志，防止重复弹窗
                 App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
             }
         }
@@ -401,17 +444,77 @@ export class GameViewCmpt extends BaseViewCmpt {
 
     /** 是否是炸弹 */
     async handleBomb(bc: gridCmpt, isResult: boolean = false) {
+        console.log(`handleBomb 被调用，炸弹类型:${bc.type}, 位置:(${bc.h},${bc.v}), isResult:${isResult}`);
         if (this.isBomb(bc)) {
             let bombList = [];
             let list2 = [];
             let list: gridCmpt[] = await this.getBombList(bc);
+            console.log(`主炸弹影响了${list.length}个元素`);
             bombList.push(list);
+            
+            // 收集所有连锁炸弹，但分别处理五消和其他炸弹
+            let chainedFiveMatches: gridCmpt[] = [];
+            let chainedOtherBombs: gridCmpt[] = [];
+            
+            console.log(`检查${list.length}个元素中的连锁炸弹`);
             for (let i = 0; i < list.length; i++) {
-                if (list[i].h == bc.h && list[i].v == bc.v) continue;
+                console.log(`检查元素${i}: 位置(${list[i].h},${list[i].v}), 类型:${list[i].type}, 是否炸弹:${this.isBomb(list[i])}`);
+                if (list[i].h == bc.h && list[i].v == bc.v) {
+                    console.log("跳过原炸弹位置");
+                    continue;
+                }
                 if (this.isBomb(list[i])) {
-                    bombList.push(await this.getBombList(list[i]));
+                    if (list[i].type === Bomb.allSame) {
+                        console.log(`连锁反应中发现五消，位置:(${list[i].h},${list[i].v})`);
+                        chainedFiveMatches.push(list[i]);
+                    } else {
+                        console.log(`连锁反应中发现其他炸弹，位置:(${list[i].h},${list[i].v}), 类型:${list[i].type}`);
+                        chainedOtherBombs.push(list[i]);
+                    }
                 }
             }
+            
+            // 处理连锁的其他炸弹（非五消），需要递归处理更深层的连锁
+            let processedBombs = new Set<string>(); // 防止重复处理
+            let pendingBombs = [...chainedOtherBombs];
+            
+            while (pendingBombs.length > 0) {
+                let bomb = pendingBombs.shift();
+                let bombKey = `${bomb.h},${bomb.v}`;
+                if (processedBombs.has(bombKey)) continue;
+                
+                console.log(`处理连锁炸弹: 位置(${bomb.h},${bomb.v}), 类型:${bomb.type}`);
+                let chainedList = await this.getBombList(bomb);
+                console.log(`连锁炸弹影响了${chainedList.length}个元素`);
+                bombList.push(chainedList);
+                processedBombs.add(bombKey);
+                
+                // 检查这个连锁炸弹是否又波及了其他炸弹（包括五消）
+                for (let affected of chainedList) {
+                    if (affected.h == bomb.h && affected.v == bomb.v) continue; // 跳过炸弹本身
+                    let affectedKey = `${affected.h},${affected.v}`;
+                    if (this.isBomb(affected) && !processedBombs.has(affectedKey)) {
+                        if (affected.type === Bomb.allSame) {
+                            console.log(`深层连锁发现五消，位置:(${affected.h},${affected.v})`);
+                            if (!chainedFiveMatches.some(fm => fm.h === affected.h && fm.v === affected.v)) {
+                                chainedFiveMatches.push(affected);
+                            }
+                        } else {
+                            console.log(`深层连锁发现其他炸弹，位置:(${affected.h},${affected.v}), 类型:${affected.type}`);
+                            pendingBombs.push(affected);
+                        }
+                    }
+                }
+            }
+            
+            // 单独处理连锁的五消，确保它们的特效100%触发
+            for (let fiveMatch of chainedFiveMatches) {
+                console.log(`单独处理被波及的五消，位置:(${fiveMatch.h},${fiveMatch.v})`);
+                let fiveMatchAffected = await this.getBombList(fiveMatch);
+                console.log(`五消处理完成，影响了${fiveMatchAffected.length}个元素`);
+                bombList.push(fiveMatchAffected);
+            }
+            
             let func = (pc: gridCmpt) => {
                 for (let i = 0; i < list2.length; i++) {
                     if (list2[i].h == pc.h && list2[i].v == pc.v) {
@@ -450,7 +553,11 @@ export class GameViewCmpt extends BaseViewCmpt {
                 App.audio.play("prop_line")
                 let rocket1 = instantiate(this.rocketPre);
                 this.effNode.addChild(rocket1);
-                rocket1.setPosition(bc.node.position);
+                if (bc.node) {
+                    rocket1.setPosition(bc.node.position);
+                } else {
+                    rocket1.setPosition(this.blockPosArr[bc.h][bc.v]);
+                }
                 rocket1.getComponent(rocketCmpt).initData(bc.type);
                 break;
             case Bomb.ver:
@@ -463,7 +570,11 @@ export class GameViewCmpt extends BaseViewCmpt {
                 App.audio.play("prop_line")
                 let rocket = instantiate(this.rocketPre);
                 this.effNode.addChild(rocket);
-                rocket.setPosition(bc.node.position);
+                if (bc.node) {
+                    rocket.setPosition(bc.node.position);
+                } else {
+                    rocket.setPosition(this.blockPosArr[bc.h][bc.v]);
+                }
                 rocket.getComponent(rocketCmpt).initData(bc.type);
                 break;
             case Bomb.bomb:
@@ -479,7 +590,7 @@ export class GameViewCmpt extends BaseViewCmpt {
                 App.audio.play("prop_bomb")
                 break;
             case Bomb.allSame:
-                console.log("五消元素被触发，位置:", bc.h, bc.v);
+                console.log("五消元素被触发，位置:", bc.h, bc.v, "节点状态:", bc.node ? "存在" : "已销毁");
                 let curType: number = -1;
                 // 先尝试从用户选中的元素中获取目标类型（用户主动触发的情况）
                 // 只有当用户选中的两个元素中有一个是当前五消元素时，才使用用户选择的目标类型
@@ -522,14 +633,16 @@ export class GameViewCmpt extends BaseViewCmpt {
                         if (curType >= 0) break;
                     }
                 }
-                let iconNode = bc.node.getChildByName('icon');
-                if (iconNode) {
-                    let node = iconNode.getChildByName('Match11');
-                    if (node) {
-                        node.getComponent(Sprite).enabled = false;
-                        let aNode = node.getChildByName('a');
-                        if (aNode) {
-                            aNode.active = true;
+                if (bc.node) {
+                    let iconNode = bc.node.getChildByName('icon');
+                    if (iconNode) {
+                        let node = iconNode.getChildByName('Match11');
+                        if (node) {
+                            node.getComponent(Sprite).enabled = false;
+                            let aNode = node.getChildByName('a');
+                            if (aNode) {
+                                aNode.active = true;
+                            }
                         }
                     }
                 }
@@ -548,7 +661,11 @@ export class GameViewCmpt extends BaseViewCmpt {
                             eliminatedCount++;
                             let particle = instantiate(this.particlePre);
                             this.effNode.addChild(particle);
-                            particle.setPosition(bc.node.position);
+                            if (bc.node) {
+                                particle.setPosition(bc.node.position);
+                            } else {
+                                particle.setPosition(this.blockPosArr[bc.h][bc.v]);
+                            }
                             particle.children.forEach(item => {
                                 item.active = item.name == "move";
                             });
@@ -565,6 +682,111 @@ export class GameViewCmpt extends BaseViewCmpt {
                 await ToolsHelper.delayTime(0.3);
                 break;
         }
+        return list;
+    }
+
+    /** 获取炸弹炸掉的糖果列表，但只播放特效不销毁炸弹本身 */
+    async getBombListWithoutDestroy(bc: gridCmpt): Promise<gridCmpt[]> {
+        let list: gridCmpt[] = [];
+        switch (bc.type) {
+            case Bomb.hor:
+                for (let i = 0; i < this.H; i++) {
+                    let item = this.blockArr[i][bc.v];
+                    if (item) {
+                        list.push(item.getComponent(gridCmpt));
+                    }
+                }
+                App.audio.play("prop_line")
+                let rocket1 = instantiate(this.rocketPre);
+                this.effNode.addChild(rocket1);
+                rocket1.setPosition(bc.node.position);
+                rocket1.getComponent(rocketCmpt).initData(bc.type);
+                break;
+            case Bomb.ver:
+                for (let i = 0; i < this.V; i++) {
+                    let item = this.blockArr[bc.h][i];
+                    if (item) {
+                        list.push(item.getComponent(gridCmpt));
+                    }
+                }
+                App.audio.play("prop_line")
+                let rocket = instantiate(this.rocketPre);
+                this.effNode.addChild(rocket);
+                rocket.setPosition(bc.node.position);
+                rocket.getComponent(rocketCmpt).initData(bc.type);
+                break;
+            case Bomb.bomb:
+                for (let i = bc.h - 2; i < bc.h + 2 && i < this.V; i++) {
+                    for (let j = bc.v - 2; j < bc.v + 2 && j < this.V; j++) {
+                        if (i < 0 || j < 0) continue;
+                        let item = this.blockArr[i][j];
+                        if (item) {
+                            list.push(item.getComponent(gridCmpt));
+                        }
+                    }
+                }
+                App.audio.play("prop_bomb")
+                break;
+        }
+        return list;
+    }
+
+    /** 只播放炸弹特效，不返回影响列表 */
+    async playBombEffect(bc: gridCmpt): Promise<void> {
+        if (!bc || !bc.node) return;
+        
+        switch (bc.type) {
+            case Bomb.hor:
+            case Bomb.ver:
+                App.audio.play("prop_line");
+                let rocket = instantiate(this.rocketPre);
+                this.effNode.addChild(rocket);
+                rocket.setPosition(bc.node.position);
+                rocket.getComponent(rocketCmpt).initData(bc.type);
+                break;
+            case Bomb.bomb:
+                App.audio.play("prop_bomb");
+                break;
+        }
+    }
+
+    /** 计算炸弹影响的元素，不依赖节点状态 */
+    calculateBombAffectedElements(bc: gridCmpt): gridCmpt[] {
+        let list: gridCmpt[] = [];
+        
+        switch (bc.type) {
+            case Bomb.hor:
+                // 横向消除整行
+                for (let i = 0; i < this.H; i++) {
+                    let item = this.blockArr[i][bc.v];
+                    if (item) {
+                        list.push(item.getComponent(gridCmpt));
+                    }
+                }
+                break;
+            case Bomb.ver:
+                // 竖向消除整列
+                for (let i = 0; i < this.V; i++) {
+                    let item = this.blockArr[bc.h][i];
+                    if (item) {
+                        list.push(item.getComponent(gridCmpt));
+                    }
+                }
+                break;
+            case Bomb.bomb:
+                // 周围区域消除
+                for (let i = bc.h - 2; i < bc.h + 2 && i < this.V; i++) {
+                    for (let j = bc.v - 2; j < bc.v + 2 && j < this.V; j++) {
+                        if (i < 0 || j < 0) continue;
+                        let item = this.blockArr[i][j];
+                        if (item) {
+                            list.push(item.getComponent(gridCmpt));
+                        }
+                    }
+                }
+                break;
+        }
+        
         return list;
     }
 
@@ -597,28 +819,78 @@ export class GameViewCmpt extends BaseViewCmpt {
                 this.changeData(one, two);
                 console.log("交换位置触发炸弹，one:", one ? one.type : 'null', "two:", two ? two.type : 'null', "curTwo:", this.curTwo.map(item => item ? item.type : 'null'));
                 
-                // 检查是否为特效元素交换
-                let specialExchangeHandled = await this.handleSpecialExchange(one, two);
+                // 检查是否有特效元素参与交换
+                const hasBombInExchange = this.isBomb(one) || this.isBomb(two);
+                let specialExchangeHandled = false;
                 let isbomb1 = false, isbomb2 = false;
+                let matchResult = false;
                 
-                if (!specialExchangeHandled) {
-                    // 如果不是特殊交换，按原来的逻辑处理
-                    isbomb1 = await this.handleBomb(one);
-                    isbomb2 = await this.handleBomb(two);
+                if (hasBombInExchange) {
+                    console.log("有特效元素参与交换，检查是否是五消+基础元素的情况");
+                    
+                    // 特殊处理：五消和基础元素交换，需要先处理五消再生成四消
+                    const isFiveBasicExchange = (this.isFiveMatchBomb(one) && !this.isBomb(two)) || 
+                                               (this.isFiveMatchBomb(two) && !this.isBomb(one));
+                    
+                    if (isFiveBasicExchange) {
+                        console.log("检测到五消+基础元素交换，先处理五消特效再生成四消");
+                        
+                        // 确定哪个是五消，哪个是基础元素
+                        const fiveMatch = this.isFiveMatchBomb(one) ? one : two;
+                        const basicElement = this.isFiveMatchBomb(one) ? two : one;
+                        
+                        console.log(`五消位置:(${fiveMatch.h},${fiveMatch.v}), 基础元素位置:(${basicElement.h},${basicElement.v}), 类型:${basicElement.type}`);
+                        
+                        // 先处理五消特效（消除全屏该基础元素类型）
+                        isbomb1 = await this.handleBomb(fiveMatch);
+                        
+                        // 然后在基础元素位置生成四消（如果该位置还存在的话）
+                        if (this.blockArr[basicElement.h] && this.blockArr[basicElement.h][basicElement.v]) {
+                            console.log("在基础元素位置生成四消特效");
+                            // 直接设置为四消类型（这里可以选择横向、竖向或炸弹）
+                            let fourMatchType = Math.random() < 0.33 ? Bomb.hor : (Math.random() < 0.5 ? Bomb.ver : Bomb.bomb);
+                            basicElement.setType(fourMatchType);
+                            
+                            // 触发四消特效
+                            await ToolsHelper.delayTime(0.2); // 短暂延迟让玩家看到四消生成
+                            isbomb2 = await this.handleBomb(basicElement);
+                        }
+                        
+                        specialExchangeHandled = true; // 标记为已特殊处理
+                    } else {
+                        // 其他情况：按原逻辑处理
+                        // 有特效元素参与交换，先检查能否生成新的特效元素
+                        matchResult = await this.startCheckThree();
+                        
+                        // 生成特效元素后，再处理原来的特效元素交换逻辑
+                        if (matchResult) {
+                            console.log("生成了新的特效元素，现在处理原特效元素");
+                            // 检查特效元素之间的特殊交换
+                            specialExchangeHandled = await this.handleSpecialExchange(one, two);
+                            
+                            if (!specialExchangeHandled) {
+                                // 如果不是特殊交换，按原来的逻辑处理特效元素
+                                isbomb1 = await this.handleBomb(one);
+                                isbomb2 = await this.handleBomb(two);
+                            }
+                        } else {
+                            // 没有生成新特效元素，按原逻辑处理
+                            specialExchangeHandled = await this.handleSpecialExchange(one, two);
+                            if (!specialExchangeHandled) {
+                                isbomb1 = await this.handleBomb(one);
+                                isbomb2 = await this.handleBomb(two);
+                            }
+                        }
+                    }
+                } else {
+                    // 没有特效元素参与，按原逻辑处理
+                    matchResult = await this.startCheckThree();
                 }
-                let bool = await this.startCheckThree((bl) => {
-                    if (bl) {
-                        this.stepCount--;
-                        this.updateStep();
-                    }
-                });
                 // 只有成功的操作才扣减步数
-                if ((bool || (isbomb1 || isbomb2) || specialExchangeHandled)) {
-                    // 如果没有通过正常三连扣减步数，但有特效元素触发或特殊交换，则扣减步数
-                    if (!bool && ((isbomb1 || isbomb2) || specialExchangeHandled)) {
-                        this.stepCount--;
-                        this.updateStep();
-                    }
+                if ((matchResult || (isbomb1 || isbomb2) || specialExchangeHandled)) {
+                    // 统一扣减步数逻辑
+                    this.stepCount--;
+                    this.updateStep();
                     this.checkAgain()
                 }
                 else {
@@ -842,15 +1114,21 @@ export class GameViewCmpt extends BaseViewCmpt {
             // 生成特效元素时也要统计目标
             this.flyItem(tp, worldPosition);
             this.addScoreByType(tp);
-            tween(ele.node).to(0.1, { position: this.blockPosArr[center.h][center.v] }).call((target) => {
+            tween(ele.node).to(0.1, { position: this.blockPosArr[center.h][center.v] }).call(async (target) => {
                 let gt = target.getComponent(gridCmpt);
                 console.log(gt.h, gt.v)
                 if (gt.h == center.h && gt.v == center.v) {
                     gt.setType(bombType);
                 }
                 else {
-                    this.blockArr[gt.h][gt.v] = null;
-                    gt.node.destroy();
+                    // 在销毁前检查是否是特效元素，如果是则先触发特效
+                    if (this.isBomb(gt)) {
+                        console.log(`synthesisBomb中发现特效元素，位置:(${gt.h},${gt.v}), 类型:${gt.type}, 先触发特效`);
+                        await this.handleBomb(gt);
+                    } else {
+                        this.blockArr[gt.h][gt.v] = null;
+                        gt.node.destroy();
+                    }
                 }
             }).start();
 
@@ -1253,7 +1531,15 @@ export class GameViewCmpt extends BaseViewCmpt {
     /** 飞舞动画 */
     async flyItem(type: number, pos: Vec3) {
         let idx = this.data.mapData[0].m_id.indexOf(type);
-        if (idx < 0) return;
+        console.log(`flyItem: 元素类型${type}, 在目标中的索引=${idx}, 目标列表=`, this.data.mapData[0].m_id);
+        if (idx < 0) {
+            console.log(`元素类型${type}不是目标，跳过统计`);
+            return;
+        }
+        
+        // 验证目标数组状态
+        console.log(`flyItem前目标状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
+        
         let item = instantiate(this.gridPre);
         let tempPos = new Vec3();
         let targetPos = new Vec3();
@@ -1264,33 +1550,62 @@ export class GameViewCmpt extends BaseViewCmpt {
         this.node.addChild(item);
         item.getComponent(gridCmpt).setType(type);
 
-        let time = 0.5 + Math.random() * 1;
+        // 减少时间随机性，确保更一致的动画完成时间
+        let time = 0.8 + Math.random() * 0.4; // 0.8-1.2秒，范围更小
         item.setScale(0.5, 0.5, 0.5);
         // 开始飞行动画，计数器+1
         this.flyingAnimationCount++;
+        
+        console.log(`开始飞行动画 - 类型:${type}, 动画时间:${time.toFixed(2)}s, 当前飞行数:${this.flyingAnimationCount}`);
+        
         tween(item).to(time, { position: targetPos }, { easing: 'backIn' }).call(() => {
+            console.log(`飞行动画完成 - 类型:${type}, 开始处理目标计数`);
             this.handleLevelTarget(type);
             item.destroy();
             // 动画完成，计数器-1
             this.flyingAnimationCount--;
-            // 检查是否所有动画都完成了，如果是且需要检查则检查游戏状态
-            if (this.flyingAnimationCount <= 0 && this.needCheckAfterAnimation) {
-                this.needCheckAfterAnimation = false;
-                this.checkResult();
+            // 检查是否所有动画都完成了
+            console.log(`飞行动画结束 - 剩余动画:${this.flyingAnimationCount}, 需要检查:${this.needCheckAfterAnimation}, 已胜利:${this.isWin}`);
+            if (this.flyingAnimationCount <= 0) {
+                console.log(`所有飞行动画完成，最终目标状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
+                if (this.needCheckAfterAnimation) {
+                    console.log(`执行延迟检查游戏状态`);
+                    this.needCheckAfterAnimation = false;
+                    this.checkResult();
+                } else if (this.isWin) {
+                    console.log(`胜利状态下强制检查结果弹窗`);
+                    this.checkAllBomb();
+                }
             }
             // App.audio.play('Full');
         }).start();
     }
 
     handleLevelTarget(type: number) {
+        console.log(`=== handleLevelTarget开始 ===`);
+        console.log(`消除目标类型${type}, 消除前目标状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
+        
+        let targetFound = false;
         for (let i = 0; i < this.coutArr.length; i++) {
             if (type == this.coutArr[i][0]) {
+                targetFound = true;
+                let oldCount = this.coutArr[i][1];
                 this.coutArr[i][1]--
                 if (this.coutArr[i][1] < 0) {
                     this.coutArr[i][1] = 0;
                 }
+                console.log(`✓ 找到匹配目标${i}(类型${type}): ${oldCount} -> ${this.coutArr[i][1]}`);
+                break; // 找到匹配的目标后立即跳出循环
             }
         }
+        
+        if (!targetFound) {
+            console.log(`✗ 警告：类型${type}不在目标列表中！`);
+        }
+        
+        console.log(`消除后目标状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
+        console.log(`=== handleLevelTarget结束 ===`);
+        
         this.updateTargetCount();
     }
 
@@ -1953,6 +2268,7 @@ export class GameViewCmpt extends BaseViewCmpt {
                             // 将该元素转换为四消特效
                             gridComp.setType(fourMatch.type);
                             convertedElements.push(gridComp);
+                            console.log(`位置(${i},${j})的元素从类型${targetType}转换为四消类型${fourMatch.type}`);
                         }
                     }
                 }
@@ -1963,11 +2279,16 @@ export class GameViewCmpt extends BaseViewCmpt {
         // 播放五消的视觉效果
         await this.playFiveMatchEffect(fiveMatch);
         
-        // 触发四消特效（原位置的四消和转换后的所有四消一起触发）
-        await this.handleBomb(fourMatch);
-        
-        // 延迟后触发所有转换后的四消特效
+        // 延迟等待转换完成
         await ToolsHelper.delayTime(0.3);
+        
+        // 收集所有需要触发的炸弹（包括原四消和转换后的四消）
+        let bombsToTrigger: gridCmpt[] = [];
+        
+        // 先添加原四消炸弹
+        bombsToTrigger.push(fourMatch);
+        
+        // 再添加所有转换后的四消炸弹（排除原来的四消位置）
         for (let i = 0; i < this.H; i++) {
             for (let j = 0; j < this.V; j++) {
                 let item = this.blockArr[i][j];
@@ -1975,12 +2296,49 @@ export class GameViewCmpt extends BaseViewCmpt {
                     let gridComp = item.getComponent(gridCmpt);
                     if (gridComp && gridComp.type === fourMatch.type && 
                         !(gridComp.h === fourMatch.h && gridComp.v === fourMatch.v)) {
-                        await this.handleBomb(gridComp);
-                        await ToolsHelper.delayTime(0.1);
+                        bombsToTrigger.push(gridComp);
                     }
                 }
             }
         }
+        
+        console.log(`准备触发 ${bombsToTrigger.length} 个四消炸弹（包括原位置和转换后的）`);
+        
+        // 先收集所有炸弹的影响列表和播放所有特效
+        let allAffectedElements: gridCmpt[] = [];
+        let bombEffectPromises = [];
+        
+        for (let bomb of bombsToTrigger) {
+            console.log(`触发位置(${bomb.h},${bomb.v})的四消炸弹，类型:${bomb.type}`);
+            
+            // 播放特效但不获取影响列表（避免节点被销毁问题）
+            bombEffectPromises.push(this.playBombEffect(bomb));
+            
+            // 手动计算影响的元素，避免依赖可能被销毁的节点
+            let affectedList = this.calculateBombAffectedElements(bomb);
+            
+            // 添加到总影响列表（不包括炸弹本身）
+            for (let element of affectedList) {
+                if (!(element.h === bomb.h && element.v === bomb.v)) {
+                    // 避免重复添加
+                    if (!allAffectedElements.find(existing => existing.h === element.h && existing.v === element.v)) {
+                        allAffectedElements.push(element);
+                    }
+                }
+            }
+        }
+        
+        // 等待所有特效播放完成
+        await Promise.all(bombEffectPromises);
+        
+        // 统一处理所有受影响的元素
+        if (allAffectedElements.length > 0) {
+            await this.handleSamelistBomb(allAffectedElements);
+        }
+        
+        // 最后移除所有触发过的炸弹
+        await ToolsHelper.delayTime(0.2);
+        await this.handleSamelistBomb(bombsToTrigger);
     }
 
     /** 处理五消与五消交换 → 全屏消除 */
@@ -2007,7 +2365,34 @@ export class GameViewCmpt extends BaseViewCmpt {
             }
         }
         
-        console.log(`全屏消除 ${allElements.length} 个元素`);
+        // 统计各个类型的元素数量
+        let typeCount = {};
+        let targetTypes = this.data.mapData[0].m_id; // 获取目标类型列表
+        let targetElementsCount = {};
+        
+        allElements.forEach(element => {
+            if (typeCount[element.type]) {
+                typeCount[element.type]++;
+            } else {
+                typeCount[element.type] = 1;
+            }
+            
+            // 单独统计目标类型的元素数量
+            if (targetTypes.includes(element.type)) {
+                if (targetElementsCount[element.type]) {
+                    targetElementsCount[element.type]++;
+                } else {
+                    targetElementsCount[element.type] = 1;
+                }
+            }
+        });
+        
+        console.log(`=== 全屏消除统计 ===`);
+        console.log(`总共消除 ${allElements.length} 个元素`);
+        console.log(`所有类型分布:`, typeCount);
+        console.log(`当前目标类型:`, targetTypes);
+        console.log(`目标类型元素数量:`, targetElementsCount);
+        console.log(`当前目标完成状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
         
         // 播放全屏消除动画
         App.audio.play("prop_missle");
