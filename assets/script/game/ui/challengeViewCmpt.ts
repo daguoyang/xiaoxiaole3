@@ -29,15 +29,8 @@ export class challengeViewCmpt extends BaseViewCmpt {
         this.lbTool1 = this.viewList.get('animNode/content/bg/toolBtn1/prompt/lbTool1');
         this.lbTool2 = this.viewList.get('animNode/content/bg/toolBtn2/prompt/lbTool2');
         this.lbTool3 = this.viewList.get('animNode/content/bg/toolBtn3/prompt/lbTool3');
-        // TODO: 测试模式 - 无限特效道具
-        const isTestMode = true; // 测试完成后改为 false
-        
-        if (isTestMode) {
-            // 测试模式：设置无限道具
-            GlobalFuncHelper.setBomb(Bomb.hor, 999);
-            GlobalFuncHelper.setBomb(Bomb.bomb, 999);
-            GlobalFuncHelper.setBomb(Bomb.allSame, 999);
-        }
+        // 正式模式 - 不设置无限道具
+        const isTestMode = false; // 正式版本设为 false
         
         this.tCount1 = GlobalFuncHelper.getBomb(Bomb.hor) //+ GlobalFuncHelper.getBomb(Bomb.ver);
         this.tCount2 = GlobalFuncHelper.getBomb(Bomb.bomb);
@@ -64,11 +57,10 @@ export class challengeViewCmpt extends BaseViewCmpt {
             }
         });
 
-        // TODO: 测试模式 - 无限特效道具显示
-        const isTestMode = true; // 测试完成后改为 false
+        // 正式模式 - 显示具体道具数量
+        const isTestMode = false; // 正式版本设为 false
         
-        if (isTestMode) {
-            // 测试模式显示无限符号
+        if (false) { // 永久关闭测试模式显示
             CocosHelper.updateLabelText(this.lbTool1, "∞");
             CocosHelper.updateLabelText(this.lbTool2, "∞");
             CocosHelper.updateLabelText(this.lbTool3, "∞");
@@ -110,8 +102,8 @@ export class challengeViewCmpt extends BaseViewCmpt {
     }
 
     setAddStatus() {
-        // TODO: 测试模式 - 无限特效道具，不显示添加按钮
-        const isTestMode = true; // 测试完成后改为 false
+        // 正式模式 - 显示道具数量和添加按钮
+        const isTestMode = false; // 正式版本设为 false
         
         for (let i = 1; i < 4; i++) {
             let add = this.viewList.get(`animNode/content/bg/toolBtn${i}`).getChildByName('add');
