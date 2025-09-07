@@ -91,20 +91,18 @@ export class ResultViewCmpt extends BaseViewCmpt {
         App.view.openView(ViewName.Single.eHomeView, true);
         this.onClick_closeBtn();
     }
-    /** 分享 */
+    /** 获取奖励 - 观看广告 */
     onClick_shareBtn() {
         App.audio.play('button_click');
-        App.event.emit(EventName.Game.Share, App.gameLogic.curLevel);
+        
+        // 直接播放广告，不触发微信分享
         Advertise.showVideoAds();
-        App.backHome();
     }
     /** 购买次数继续游戏 */
     onClick_continueBtn() {
         App.audio.play('button_click');
         let count = +GlobalFuncHelper.getGold();
         if (count < 200) {
-            let lv = LevelConfig.getCurLevel();
-            App.event.emit(EventName.Game.Share, lv);
             App.view.showMsgTips("金币不足")
             Advertise.showVideoAds();
             return;

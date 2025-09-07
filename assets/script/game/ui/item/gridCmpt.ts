@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Vec3, UITransform, Label } from 'cc';
+import { _decorator, Component, Node, Vec3, UITransform, Label, isValid } from 'cc';
 import { App } from '../../../core/app';
 const { ccclass, property } = _decorator;
 
@@ -43,7 +43,7 @@ export class gridCmpt extends Component {
 
     /** 选中状态 */
     setSelected(bool: boolean) {
-        if (!this.isValid) return;
+        if (!isValid(this)) return;
         this.node.getChildByName('icon').children.forEach(item => {
             if (item.active && item.getChildByName('s')) {
                 item.getChildByName('s').active = bool;
@@ -56,7 +56,7 @@ export class gridCmpt extends Component {
     }
 
     setType(type: number) {
-        if (!this.isValid) return;
+        if (!isValid(this)) return;
         this.type = type;
         this.node.getChildByName('icon').children.forEach(item => {
             item.active = false;

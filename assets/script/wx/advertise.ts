@@ -149,6 +149,108 @@ export class Ads {
         });
     }
 
+    /** 显示视频广告获取体力 */
+    showVideoAdsForHeart(onSuccess?: () => void, onFail?: () => void) {
+        if (sys.platform != sys.Platform.WECHAT_GAME) {
+            console.log("非微信小游戏环境，模拟广告播放完成 - 体力奖励");
+            setTimeout(() => {
+                console.log("模拟广告播放完成，给予体力奖励");
+                WxMgr.addHeartReward();
+                onSuccess && onSuccess();
+            }, 1000);
+            return;
+        }
+
+        this.showVideoAdsWithCallback(
+            () => {
+                WxMgr.addHeartReward();
+                onSuccess && onSuccess();
+            },
+            onFail
+        );
+    }
+
+    /** 显示视频广告获取道具 */
+    showVideoAdsForTool(toolType: any, onSuccess?: () => void, onFail?: () => void) {
+        if (sys.platform != sys.Platform.WECHAT_GAME) {
+            console.log("非微信小游戏环境，模拟广告播放完成 - 道具奖励");
+            setTimeout(() => {
+                console.log("模拟广告播放完成，给予道具奖励");
+                WxMgr.addToolReward(toolType);
+                onSuccess && onSuccess();
+            }, 1000);
+            return;
+        }
+
+        this.showVideoAdsWithCallback(
+            () => {
+                WxMgr.addToolReward(toolType);
+                onSuccess && onSuccess();
+            },
+            onFail
+        );
+    }
+
+    /** 通用的带回调的广告显示方法 */
+    private showVideoAdsWithCallback(onSuccess?: () => void, onFail?: () => void) {
+        console.log("开始显示激励视频广告，ID:", this.videoId);
+        
+        if (!this.videoAdv) {
+            console.error("视频广告实例未初始化");
+            onFail && onFail();
+            return;
+        }
+
+        // @ts-ignore
+        let videoAdv = this.videoAdv;
+        
+        // 设置错误处理
+        // @ts-ignore
+        videoAdv.onError((err) => {
+            console.error("激励视频广告错误:", err);
+            console.error("错误详情:", JSON.stringify(err));
+            onFail && onFail();
+        });
+
+        // 设置关闭回调
+        // @ts-ignore
+        videoAdv.onClose((res) => {
+            if (!videoAdv) return;
+            // @ts-ignore
+            videoAdv.offClose();//需要清除回调，否则第N次广告会一次性给N个奖励
+            console.log("广告关闭，结果:", res);
+            
+            //关闭
+            if (res && res.isEnded || res === undefined) {
+                //正常播放结束，需要下发奖励
+                console.log("广告播放完成，给予奖励");
+                onSuccess && onSuccess();
+            } else {
+                //播放退出，不下发奖励
+                console.log("广告未播放完成，不给奖励");
+                onFail && onFail();
+            }
+        });
+
+        // 用户触发广告后，显示激励视频广告
+        // @ts-ignore
+        videoAdv.show().catch((err) => {
+            console.error("广告显示失败，尝试重新加载:", err);
+            // 失败重试
+            // @ts-ignore
+            videoAdv.load()
+                // @ts-ignore
+                .then(() => {
+                    console.log("广告重新加载成功，再次显示");
+                    return videoAdv.show();
+                })
+                .catch(retryErr => {
+                    console.error('激励视频广告显示失败，重试也失败:', retryErr);
+                    onFail && onFail();
+                })
+        });
+    }
+
     // 显示插件广告
     showInterstitialAds() {
         if (sys.platform != sys.Platform.WECHAT_GAME) return;

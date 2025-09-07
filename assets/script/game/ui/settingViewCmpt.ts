@@ -101,22 +101,54 @@ export class settingViewCmpt extends BaseViewCmpt {
     }
 
     onClick_replayBtn() {
-        this.onClick_closeBtn();
         App.audio.play('button_click');
         
-        // 使用新的体力管理器检查和消耗体力
+        // 检查体力是否足够
+        if (!App.heartManager.hasEnoughHeart(1)) {
+            // 体力不足，显示广告获取体力
+            this.showRestartHeartInsufficientDialog();
+            return;
+        }
+        
+        // 体力足够，消耗体力并重新开始
+        this.restartGame();
+    }
+
+    /** 重新开始体力不足直接看广告 */
+    showRestartHeartInsufficientDialog() {
+        console.log("重新开始体力不足，直接跳转观看广告");
+        
+        // 直接观看广告
+        Advertise.showVideoAdsForHeart(
+            () => {
+                // 广告播放成功，获得体力，直接重新开始
+                console.log("广告播放完成，获得体力，重新开始游戏");
+                App.view.showMsgTips("获得1点体力！");
+                // 延迟一下再重新开始游戏
+                setTimeout(() => {
+                    this.restartGame();
+                }, 1000);
+            },
+            () => {
+                // 广告播放失败或用户取消
+                console.log("广告播放失败或用户取消");
+                App.view.showMsgTips("未获得体力，无法重新开始");
+            }
+        );
+    }
+
+    /** 重新开始游戏的逻辑 */
+    private restartGame() {
+        // 再次检查体力并消耗
         if (!App.heartManager.consumeHeart(1)) {
-            // 体力不足，显示提示并跳转到商店
             App.view.showMsgTips("体力不足！");
-            // 体力不足时显示广告而不是跳转商店
-            console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");
-            Advertise.showVideoAds();
             return;
         }
         
         // 通知UI更新体力显示
         App.event.emit(EventName.Game.HeartUpdate);
         
+        this.onClick_closeBtn();
         App.event.emit(EventName.Game.Restart);
     }
 

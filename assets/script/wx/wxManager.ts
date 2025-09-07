@@ -261,6 +261,10 @@ export class WxManager {
 
     public addReward() {
         //主动拉起分享每天限制送三次金币，一次一百
+        // 立即关闭弹窗，让用户能够继续游戏
+        App.event.emit(EventName.Game.ContinueGame);
+        
+        // 延迟发放奖励，保持游戏体验
         setTimeout(() => {
             GlobalFuncHelper.setGold(App.gameLogic.rewardGold);
             GlobalFuncHelper.setBomb(Bomb.hor, 1);
@@ -269,8 +273,23 @@ export class WxManager {
             GlobalFuncHelper.setBomb(Bomb.allSame, 1);
             App.event.emit(EventName.Game.ToolCountRefresh);
             App.event.emit(EventName.Game.UpdataGold);
-            App.event.emit(EventName.Game.ContinueGame);
-        }, 2000);
+        }, 1000);
+    }
+
+    /** 观看广告获取体力 */
+    public addHeartReward() {
+        console.log("观看广告获取体力奖励");
+        // 立即增加体力
+        App.heartManager.addHeart(1);
+        App.event.emit(EventName.Game.HeartUpdate);
+    }
+
+    /** 观看广告获取指定道具 */
+    public addToolReward(toolType: Bomb) {
+        console.log("观看广告获取道具奖励，道具类型:", toolType);
+        // 立即发放道具
+        GlobalFuncHelper.setBomb(toolType, 1);
+        App.event.emit(EventName.Game.ToolCountRefresh);
     }
 
     private _setUserData(res) {

@@ -64,8 +64,95 @@ export class challengeViewCmpt extends BaseViewCmpt {
         App.audio.play('button_click');
         
         // 检查体力是否足够
+        if (!App.heartManager.hasEnoughHeart(1)) {
+            // 体力不足，显示广告获取体力
+            this.showHeartInsufficientDialog();
+            return;
+        }
+        
+        // 体力足够，直接开始游戏
+        this.startGame();
+    }
+
+    onClickToolBtn(btn: Node) {
+        App.audio.play('button_click');
+        let idx = +btn.name.substring(btn.name.length - 1, btn.name.length);
+        if (this[`tCount${idx}`] <= 0) {
+            // 道具不足时显示广告获取道具
+            this.showToolInsufficientDialog(idx);
+            return;
+        }
+        let ac = btn.getChildByName("s").active;
+        btn.getChildByName("s").active = !ac;
+        btn.getChildByName("s1").active = !ac;
+    }
+
+    setAddStatus() {
+        for (let i = 1; i < 4; i++) {
+            let add = this.viewList.get(`animNode/content/bg/toolBtn${i}`).getChildByName('add');
+            add.active = this[`tCount${i}`] <= 0;
+        }
+    }
+
+    /** 体力不足直接看广告 */
+    showHeartInsufficientDialog() {
+        console.log("体力不足，直接跳转观看广告");
+        // 直接观看广告
+        Advertise.showVideoAdsForHeart(
+            () => {
+                // 广告播放成功，获得体力，直接开始游戏
+                console.log("广告播放完成，获得体力，开始游戏");
+                App.view.showMsgTips("获得1点体力！");
+                // 延迟一下再开始游戏，让用户看到获得体力的提示
+                setTimeout(() => {
+                    this.startGame();
+                }, 1000);
+            },
+            () => {
+                // 广告播放失败或用户取消
+                console.log("广告播放失败或用户取消");
+                App.view.showMsgTips("未获得体力，无法开始游戏");
+            }
+        );
+    }
+
+    /** 道具不足直接看广告 */
+    showToolInsufficientDialog(toolIndex: number) {
+        const toolNames = ["", "横向导弹", "炸弹", "五消道具"];
+        const toolTypes = [null, Bomb.hor, Bomb.bomb, Bomb.allSame];
+        
+        console.log(`道具${toolIndex}不足，直接跳转观看广告`);
+        
+        // 直接观看广告
+        Advertise.showVideoAdsForTool(
+            toolTypes[toolIndex],
+            () => {
+                // 广告播放成功，获得道具
+                console.log(`广告播放完成，获得${toolNames[toolIndex]}`);
+                App.view.showMsgTips(`获得${toolNames[toolIndex]}！`);
+                
+                // 更新道具数量显示
+                this[`tCount${toolIndex}`] = GlobalFuncHelper.getBomb(toolTypes[toolIndex]);
+                CocosHelper.updateLabelText(this[`lbTool${toolIndex}`], this[`tCount${toolIndex}`]);
+                this.setAddStatus();
+                
+                // 自动选中该道具
+                let btn = this.viewList.get(`animNode/content/bg/toolBtn${toolIndex}`);
+                btn.getChildByName("s").active = true;
+                btn.getChildByName("s1").active = true;
+            },
+            () => {
+                // 广告播放失败或用户取消
+                console.log("广告播放失败或用户取消");
+                App.view.showMsgTips("未获得道具");
+            }
+        );
+    }
+
+    /** 开始游戏的逻辑 */
+    private startGame() {
+        // 再次检查体力并消耗
         if (!App.heartManager.consumeHeart(1)) {
-            // 体力不足，显示提示
             App.view.showMsgTips("体力不足！");
             return;
         }
@@ -94,30 +181,7 @@ export class challengeViewCmpt extends BaseViewCmpt {
                 }
             }
         }
-        // App.view.closeView(ViewName.Single.eHomeView);
         this.onClick_closeBtn();
         App.view.openView(ViewName.Single.eGameView, this.lv);
-    }
-
-    onClickToolBtn(btn: Node) {
-        App.audio.play('button_click');
-        let idx = +btn.name.substring(btn.name.length - 1, btn.name.length);
-        if (this[`tCount${idx}`] <= 0) {
-            // 道具不足时显示广告而不是跳转商店
-            console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");
-            Advertise.showVideoAds();
-            this.onClick_closeBtn();
-            return;
-        }
-        let ac = btn.getChildByName("s").active;
-        btn.getChildByName("s").active = !ac;
-        btn.getChildByName("s1").active = !ac;
-    }
-
-    setAddStatus() {
-        for (let i = 1; i < 4; i++) {
-            let add = this.viewList.get(`animNode/content/bg/toolBtn${i}`).getChildByName('add');
-            add.active = this[`tCount${i}`] <= 0;
-        }
     }
 }

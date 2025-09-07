@@ -5190,7 +5190,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "花费金币可添加额外5步继续挑战",
+    "_string": "是否增加5步继续闯关？",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 34,
@@ -6186,7 +6186,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "分享",
+    "_string": "获取🎬",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 50,
