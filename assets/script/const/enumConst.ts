@@ -121,7 +121,7 @@ export enum Bomb {
     ver = 8,
     /** 横向 */
     hor = 9,
-    /** 周围爆炸 */
+    /** 周围特效 */
     bomb = 10,
     /** 消灭所有同一类型 */
     allSame = 11,

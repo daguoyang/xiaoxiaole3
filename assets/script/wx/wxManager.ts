@@ -198,14 +198,14 @@ export class WxManager {
         // @ts-ignore
         wx.onShareAppMessage(function () {
             return {
-                title: '小姐姐在糖果世界挑战闯关，快来救救小姐姐',
+                title: '我正在嗨玩消消消火热闯关，快来一起',
                 imageUrl: imgUrl,
             }
         });
         // @ts-ignore
         wx.onShareTimeline(function () {
             return {
-                title: '小姐姐在糖果世界挑战，快来救救小姐姐', //分享标题
+                title: '我在嗨玩消消消被卡住了，快来助力我吧，拜托了！', //分享标题
                 imageUrl: imgUrl,
             }
         })
@@ -227,7 +227,7 @@ export class WxManager {
             })
             // @ts-ignore
             wx.shareAppMessage({
-                title: `小姐姐在糖果世界挑战已经闯过${lv}关，快来挑战小姐姐吧`,
+                title: `我在嗨玩消消消挑战已经闯过${lv}关，快来挑战我呀`,
                 imageUrl: tempFilePath
             })
         } else {

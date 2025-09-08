@@ -519,7 +519,7 @@ export class GameViewCmpt extends BaseViewCmpt {
         return false;
     }
 
-    /** 获取炸弹炸掉的糖果列表 */
+    /** 获取特效影响的元素列表 */
     async getBombList(bc: gridCmpt): Promise<gridCmpt[]> {
         let list: gridCmpt[] = [];
         switch (bc.type) {
@@ -665,7 +665,7 @@ export class GameViewCmpt extends BaseViewCmpt {
         return list;
     }
 
-    /** 获取炸弹炸掉的糖果列表，但只播放特效不销毁炸弹本身 */
+    /** 获取特效影响的元素列表，但只播放特效不销毁特效本身 */
     async getBombListWithoutDestroy(bc: gridCmpt): Promise<gridCmpt[]> {
         let list: gridCmpt[] = [];
         switch (bc.type) {
@@ -1635,8 +1635,23 @@ export class GameViewCmpt extends BaseViewCmpt {
                 type = Bomb.allSame;
                 break;
         }
-        App.backHome(false, PageIndex.shop);
-        // GlobalFuncHelper.setBomb(type,1);
+        // 显示广告获取道具
+        Advertise.showVideoAdsForTool(
+            type,
+            () => {
+                // 广告播放成功，获得道具
+                console.log(`广告播放完成，获得道具！`);
+                App.view.showMsgTips(`获得道具！`);
+                
+                // 更新道具数量显示
+                this.updateToolsInfo();
+            },
+            () => {
+                // 广告播放失败或用户取消
+                console.log("广告播放失败或用户取消");
+                App.view.showMsgTips("未获得道具");
+            }
+        );
     }
     private isUsingBomb: boolean = false;
     /** 道具 */
