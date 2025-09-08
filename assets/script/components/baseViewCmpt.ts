@@ -25,26 +25,26 @@ export class BaseViewCmpt extends Component {
     viewOpenType = WindowOpenType.eSingle;
 
     @property({ displayName: '是否添加全屏Widget' })
-    protected isAddFullWidget = false;
+    protected shouldAddFullWidget = false;
 
     @property({ displayName: '是否遮罩' })
-    protected isMask = false;
+    protected hasMask = false;
 
     @property({ displayName: '点击空白地方是否关闭窗口' })
-    protected isTouchSpaceClose = false;
+    protected canTouchSpaceClose = false;
 
     @property({ displayName: '是否播放打开界面动画,animNode为播放动画的节点' })
-    protected isPlayOpenAnim = false;
+    protected shouldPlayOpenAnim = false;
 
     @property({ displayName: '是否截屏模糊背景' })
-    protected isScreeShoot = false;
+    protected hasScreenShot = false;
 
     private maskPanel: Node;
     private closeCallBack: Function;
     protected extraData: any;
 
     /** 是否在小游戏中 */
-    protected isInGame: boolean = false;
+    protected withinGameContext: boolean = false;
 
     protected onLoad() {
         // 如果需要遍历所有节点，则调用 selectChild 方法
@@ -52,11 +52,11 @@ export class BaseViewCmpt extends Component {
             this.selectChild(this.node);
         }
 
-        if (this.isPlayOpenAnim) {
+        if (this.shouldPlayOpenAnim) {
             this.openAnim();
         }
         this.addEvents();
-        if (this.isAddFullWidget) {
+        if (this.shouldAddFullWidget) {
             // 适配
             let widget = this.node.addComponent(Widget);
             widget.isAlignTop = true;
@@ -69,12 +69,12 @@ export class BaseViewCmpt extends Component {
             widget.right = 0;
         }
 
-        if (this.isMask) {
+        if (this.hasMask) {
             // 添加遮罩
             this.addMask();
         }
 
-        if (this.isTouchSpaceClose) {
+        if (this.canTouchSpaceClose) {
             this.addSpaceEvent();
         }
 
@@ -167,7 +167,7 @@ export class BaseViewCmpt extends Component {
     /** 截屏模糊遮罩 */
     protected async screeShot() {
         // if (App.subGame.isPlayGame) {
-        //     if (!this.isMask) {
+        //     if (!this.hasMask) {
         //         this.addMask();
         //     }
         //     return;

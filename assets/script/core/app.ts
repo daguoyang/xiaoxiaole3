@@ -11,7 +11,7 @@ import { NoticeManager } from "./noticeManager";
 import { StorageHelper } from "../utils/storageHelper";
 import TimeManager from "./timeManager";
 import { SimpleHeartManager } from './simpleHeartManager';
-import { GameLogic } from "../game/logic/gameLogic";
+import { MatchEngine } from "../game/logic/gameLogic";
 import { WxMgr } from "../wx/wxManager";
 import { ViewName } from "../const/viewNameConst";
 import { Node } from "cc";
@@ -30,7 +30,7 @@ class StarMatchGameApp extends SingletonClass<StarMatchGameApp> {
     get notice() { return NoticeManager.getInstance<NoticeManager>(NoticeManager); }
     get timer() { return TimeManager.getInstance<TimeManager>(TimeManager); }
     get heartManager() { return SimpleHeartManager.getInstance<SimpleHeartManager>(SimpleHeartManager); }
-    get gameLogic() { return GameLogic.getInstance<GameLogic>(GameLogic); }
+    get gameLogic() { return MatchEngine.getInstance<MatchEngine>(MatchEngine); }
 
     protected async onInit(canvas: Node) {
         this.user.init();

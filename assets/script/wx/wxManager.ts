@@ -11,7 +11,7 @@ export var IsGetInfo = false;
 export class WxManager {
     private wxCode = '';
     public init() {
-        App.event.on(EventName.Game.Share, this._evtShareToOthers, this);
+        App.event.on(EventName.Game.Share, this._handleShareToOthers, this);
         this._wxLogin();
     }
 
@@ -213,7 +213,7 @@ export class WxManager {
     /**
     * 主动拉起分享
     */
-    private _evtShareToOthers(lv: number, isAdd: boolean = true) {
+    private _handleShareToOthers(lv: number, isAdd: boolean = true) {
         if (sys.platform == sys.Platform.WECHAT_GAME) {
             // @ts-ignore
             let tempFilePath = canvas.toTempFilePathSync({

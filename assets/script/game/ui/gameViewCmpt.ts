@@ -16,8 +16,8 @@ import { gridCmpt } from './item/gridCmpt';
 import { rocketCmpt } from './item/rocketCmpt';
 const { ccclass, property } = _decorator;
 
-@ccclass('gameViewCmpt')
-export class GameViewCmpt extends BaseViewCmpt {
+@ccclass('SweetMatchGameView')
+export class SweetMatchGameView extends BaseViewCmpt {
     /**  ui */
     private gridMgr: gridManagerCmpt = null;
     private gridNode: Node = null;
@@ -47,9 +47,9 @@ export class GameViewCmpt extends BaseViewCmpt {
     /** 行列数 */
     private H: number = Constant.layCount;
     private V: number = Constant.layCount;
-    private isStartTouch: boolean = false;
+    private hasStartedTouch: boolean = false;
     private curTwo: gridCmpt[] = [];
-    private isStartChange: boolean = false;
+    private shouldStartChange: boolean = false;
     /** 关卡数据 */
     private level: number = 0;
     private stepCount: number = 0;
@@ -57,15 +57,15 @@ export class GameViewCmpt extends BaseViewCmpt {
     private coutArr: any[] = [];
     private curScore: number = 0;
     private starCount: number = 0;
-    private isWin: boolean = false;
+    private hasWon: boolean = false;
     private resultShown: boolean = false; // 标记结果弹窗是否已经显示并处理过
     private flyingAnimationCount: number = 0; // 正在飞行的动画数量
-    private needCheckAfterAnimation: boolean = false; // 是否需要在动画完成后检查游戏状态
+    private needCheckAfterAnimation: boolean = false; // Check game state after animation completes
     
     // 提示系统相关变量
     private idleTimer: any = null;
     private hintTimer: any = null;
-    private isShowingHint: boolean = false;
+    private shouldShowHint: boolean = false;
     private hintElements: {pos1: {h: number, v: number}, pos2: {h: number, v: number}} | null = null;
     private readonly IDLE_TIME = 30000; // 30秒无操作
     private readonly HINT_INTERVAL = 1500; // 提示间隔1.5秒
@@ -173,7 +173,7 @@ export class GameViewCmpt extends BaseViewCmpt {
         this.addBtn4.active = allCount <= 0;
     }
 
-    /** 更新消除目标数量 */
+    /** Update elimination target count */
     updateTargetCount() {
         let arr = this.coutArr;
         console.log(`更新目标显示, 当前目标数组:`, arr);
@@ -220,13 +220,13 @@ export class GameViewCmpt extends BaseViewCmpt {
     }
     /** 结束检测 */
     checkResult() {
-        console.log(`checkResult调用 - isWin=${this.isWin}, stepCount=${this.stepCount}, flyingAnimationCount=${this.flyingAnimationCount}, resultShown=${this.resultShown}`);
-        if (this.isWin) {
-            console.log(`游戏已胜利，跳过checkResult检查`);
+        console.log(`checkResult调用 - isWin=${this.hasWon}, stepCount=${this.stepCount}, flyingAnimationCount=${this.flyingAnimationCount}, resultShown=${this.resultShown}`);
+        if (this.hasWon) {
+            console.log(`Game already won, skip checkResult validation`);
             return;
         }
         let count = 0;
-        console.log(`检查游戏结果, 当前目标状态:`, this.coutArr);
+        console.log(`Validate game result, current target status:`, this.coutArr);
         for (let i = 0; i < this.coutArr.length; i++) {
             if (this.coutArr[i][1] == 0) {
                 count++;
@@ -235,7 +235,7 @@ export class GameViewCmpt extends BaseViewCmpt {
         console.log(`完成的目标数量: ${count}/${this.coutArr.length}`);
         if (count == this.coutArr.length) {
             // win
-            this.isWin = true;
+            this.hasWon = true;
             if (this.stepCount > 0) {
                 //丢炸弹
                 this.handleLastSteps();
@@ -287,10 +287,10 @@ export class GameViewCmpt extends BaseViewCmpt {
             }
         }
         await ToolsHelper.delayTime(1);
-        if (!isHaveBomb && this.isWin) {
+        if (!isHaveBomb && this.hasWon) {
             let view = App.view.getViewByName(ViewName.Single.eResultView);
             console.log("没有炸弹了，一切都结束了")
-            console.log(`检查弹窗条件 - view存在:${!!view}, isWin:${this.isWin}, resultShown:${this.resultShown}`);
+            console.log(`检查弹窗条件 - view存在:${!!view}, isWin:${this.hasWon}, resultShown:${this.resultShown}`);
             
             if (!this.resultShown) {
                 console.log(`弹出胜利弹窗`);
@@ -334,10 +334,10 @@ export class GameViewCmpt extends BaseViewCmpt {
 
     evtContinueGame() {
         this.stepCount += 5;
-        this.isStartChange = false;
-        this.isStartTouch = false;
+        this.shouldStartChange = false;
+        this.hasStartedTouch = false;
         this.updateStep();
-        // 关闭结果弹窗，继续游戏
+        // Close result dialog, continue game
         App.view.closeView(ViewName.Single.eResultView);
     }
 
@@ -346,12 +346,12 @@ export class GameViewCmpt extends BaseViewCmpt {
     /*********************************************  gameLogic *********************************************/
     /** 触控事件（开始） */
     async evtTouchStart(p: Vec2) {
-        console.log(this.isStartTouch, this.isStartChange)
+        console.log(this.hasStartedTouch, this.shouldStartChange)
         this.handleProtected();
-        if (this.isStartChange) return;
-        if (this.isStartTouch) return;
+        if (this.shouldStartChange) return;
+        if (this.hasStartedTouch) return;
         // 如果已经胜利，不允许再操作
-        if (this.isWin) return;
+        if (this.hasWon) return;
         if (this.stepCount <= 0) {
             App.view.showMsgTips("步数不足");
             App.view.openView(ViewName.Single.eResultView, this.level, false);
@@ -367,27 +367,27 @@ export class GameViewCmpt extends BaseViewCmpt {
             bc.setSelected(true);
             this.curTwo.push(bc);
             console.log(bc.data);
-            this.isStartTouch = true;
+            this.hasStartedTouch = true;
         }
         // await this.checkMoveDown();
     }
     /** 触控事件（滑动） */
     evtTouchMove(p: Vec2) {
-        if (this.isStartChange) return;
-        if (!this.isStartTouch) return;
+        if (this.shouldStartChange) return;
+        if (!this.hasStartedTouch) return;
         let pos = this.gridNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(p.x, p.y, 1));
         let bc = this.checkClickOnBlock(pos);
         if (bc && App.gameLogic.isNeighbor(bc, this.curTwo[0])) {
             bc.setSelected(true);
             this.curTwo.push(bc);
-            this.isStartChange = true;
+            this.shouldStartChange = true;
             this.startChangeCurTwoPos();
         }
     }
     /** 触控事件（结束 ） */
     async evtTouchEnd(p: Vec2) {
-        if (this.isStartChange) return;
-        if (!this.isStartTouch) return;
+        if (this.shouldStartChange) return;
+        if (!this.hasStartedTouch) return;
         let pos = this.gridNode.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(p.x, p.y, 1));
         let bc = this.checkClickOnBlock(pos);
         /** 点到炸弹 */
@@ -398,21 +398,21 @@ export class GameViewCmpt extends BaseViewCmpt {
             this.updateStep();
             await this.handleBomb(bc);
         }
-        this.isStartTouch = false;
-        this.isStartChange = false;
+        this.hasStartedTouch = false;
+        this.shouldStartChange = false;
         this.resetSelected();
     }
 
     private isRecording: boolean = false;
-    /** 这里做一层保护措施，以防玩家预料之外的骚操作引起的游戏中断 */
+    /** Protection layer to prevent game interruption from unexpected player operations */
     handleProtected() {
-        if ((this.isStartChange || this.isStartTouch) && !this.isRecording) {
+        if ((this.shouldStartChange || this.hasStartedTouch) && !this.isRecording) {
             this.isRecording = true;
             this.scheduleOnce(() => {
                 if (isValid(this)) {
                     this.isRecording = false;
-                    this.isStartChange = false;
-                    this.isStartTouch = false;
+                    this.shouldStartChange = false;
+                    this.hasStartedTouch = false;
                 }
             }, 5)
         }
@@ -630,7 +630,7 @@ export class GameViewCmpt extends BaseViewCmpt {
                     curType = Math.floor(Math.random() * App.gameLogic.blockCount);
                     console.log("随机选择目标类型:", curType);
                 }
-                console.log("最终目标类型:", curType, "开始消除同类型元素");
+                console.log("Final target type:", curType, "Begin eliminating same-type elements");
                 App.audio.play("prop_missle")
                 let eliminatedCount = 0;
                 for (let i = 0; i < this.H; i++) {
@@ -656,7 +656,7 @@ export class GameViewCmpt extends BaseViewCmpt {
                         }
                     }
                 }
-                console.log("五消元素消除了", eliminatedCount, "个同类型元素，加上自身共", eliminatedCount + 1, "个");
+                console.log("Five-match element eliminated", eliminatedCount, "same-type elements, total with self:", eliminatedCount + 1);
                 list.push(bc);
                 // 缩短延迟时间，让四消导弹特效更明显
                 await ToolsHelper.delayTime(0.3);
@@ -736,7 +736,7 @@ export class GameViewCmpt extends BaseViewCmpt {
         
         switch (bc.type) {
             case Bomb.hor:
-                // 横向消除整行
+                // Eliminate entire row horizontally
                 for (let i = 0; i < this.H; i++) {
                     let item = this.blockArr[i][bc.v];
                     if (item) {
@@ -745,7 +745,7 @@ export class GameViewCmpt extends BaseViewCmpt {
                 }
                 break;
             case Bomb.ver:
-                // 竖向消除整列
+                // Eliminate entire column vertically
                 for (let i = 0; i < this.V; i++) {
                     let item = this.blockArr[bc.h][i];
                     if (item) {
@@ -886,8 +886,8 @@ export class GameViewCmpt extends BaseViewCmpt {
             }
             else {
                 this.changeData(one, two);
-                this.isStartChange = false;
-                this.isStartTouch = false;
+                this.shouldStartChange = false;
+                this.hasStartedTouch = false;
                 this.resetSelected();
             }
         }).start();
@@ -915,8 +915,8 @@ export class GameViewCmpt extends BaseViewCmpt {
         }
         else {
             this.resetSelected();
-            this.isStartChange = false;
-            this.isStartTouch = false;
+            this.shouldStartChange = false;
+            this.hasStartedTouch = false;
             if (isResult) {
                 console.log(isResult);
                 this.checkAllBomb();
@@ -1494,10 +1494,10 @@ export class GameViewCmpt extends BaseViewCmpt {
         }
         this.blockArr = [];
         this.blockPosArr = [];
-        this.isStartChange = false;
-        this.isStartTouch = false;
+        this.shouldStartChange = false;
+        this.hasStartedTouch = false;
         this.curScore = 0;
-        this.isWin = false;
+        this.hasWon = false;
     }
     /** 加积分 */
     addScoreByType(type: number) {
@@ -1545,14 +1545,14 @@ export class GameViewCmpt extends BaseViewCmpt {
             // 动画完成，计数器-1
             this.flyingAnimationCount--;
             // 检查是否所有动画都完成了
-            console.log(`飞行动画结束 - 剩余动画:${this.flyingAnimationCount}, 需要检查:${this.needCheckAfterAnimation}, 已胜利:${this.isWin}`);
+            console.log(`飞行动画结束 - 剩余动画:${this.flyingAnimationCount}, 需要检查:${this.needCheckAfterAnimation}, 已胜利:${this.hasWon}`);
             if (this.flyingAnimationCount <= 0) {
                 console.log(`所有飞行动画完成，最终目标状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
                 if (this.needCheckAfterAnimation) {
                     console.log(`执行延迟检查游戏状态`);
                     this.needCheckAfterAnimation = false;
                     this.checkResult();
-                } else if (this.isWin) {
+                } else if (this.hasWon) {
                     console.log(`胜利状态下强制检查结果弹窗`);
                     this.checkAllBomb();
                 }
@@ -1665,8 +1665,8 @@ export class GameViewCmpt extends BaseViewCmpt {
         this.isUsingBomb = true;
         this.scheduleOnce(() => {
             this.isUsingBomb = false;
-            this.isStartChange = false;
-            this.isStartTouch = false;
+            this.shouldStartChange = false;
+            this.hasStartedTouch = false;
         }, 1);
         let type: number = -1;
         switch (btnNode.name) {
@@ -1998,8 +1998,8 @@ export class GameViewCmpt extends BaseViewCmpt {
         }
         
         // 确保用户可以开始游戏
-        this.isStartTouch = false;
-        this.isStartChange = false;
+        this.hasStartedTouch = false;
+        this.shouldStartChange = false;
     }
 
     /**
@@ -2072,8 +2072,8 @@ export class GameViewCmpt extends BaseViewCmpt {
 
     /** 停止提示动画 */
     stopHintAnimation() {
-        if (this.isShowingHint && this.hintElements) {
-            this.isShowingHint = false;
+        if (this.shouldShowHint && this.hintElements) {
+            this.shouldShowHint = false;
             // 恢复被提示元素的正常状态
             this.resetHintElementsScale();
             this.hintElements = null;
@@ -2087,7 +2087,7 @@ export class GameViewCmpt extends BaseViewCmpt {
         const moveInfo = await this.findFirstPossibleMove();
         if (moveInfo) {
             this.hintElements = moveInfo;
-            this.isShowingHint = true;
+            this.shouldShowHint = true;
             console.log(`显示提示：位置(${moveInfo.pos1.h},${moveInfo.pos1.v})与位置(${moveInfo.pos2.h},${moveInfo.pos2.v})`);
             this.startHintAnimation();
         } else {
@@ -2139,7 +2139,7 @@ export class GameViewCmpt extends BaseViewCmpt {
         if (!this.hintElements) return;
         
         this.hintTimer = setInterval(() => {
-            if (!this.isShowingHint || !this.hintElements) {
+            if (!this.shouldShowHint || !this.hintElements) {
                 this.clearAllHintTimers();
                 return;
             }

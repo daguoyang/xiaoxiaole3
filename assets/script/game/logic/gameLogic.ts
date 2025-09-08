@@ -3,7 +3,7 @@ import { Bomb } from "../../const/enumConst";
 import { SingletonClass } from "../../core/singletonClass"
 import { gridCmpt } from "../ui/item/gridCmpt";
 
-export class GameLogic extends SingletonClass<GameLogic> {
+export class MatchEngine extends SingletonClass<MatchEngine> {
     public rewardGold: number = 100;
     public curLevel: number = 1;
     public blockCount: number = 5;
