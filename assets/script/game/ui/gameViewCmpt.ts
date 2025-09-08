@@ -11,7 +11,7 @@ import { GlobalFuncHelper } from '../../utils/globalFuncHelper';
 import { ResLoadHelper } from '../../utils/resLoadHelper';
 import { ToolsHelper } from '../../utils/toolsHelper';
 import { Advertise } from '../../wx/advertise';
-import { gridManagerCmpt } from './gridManagerCmpt';
+import { GameGridManager } from './gridManagerCmpt';
 import { gridCmpt } from './item/gridCmpt';
 import { rocketCmpt } from './item/rocketCmpt';
 const { ccclass, property } = _decorator;
@@ -19,7 +19,7 @@ const { ccclass, property } = _decorator;
 @ccclass('SweetMatchGameView')
 export class SweetMatchGameView extends BaseViewCmpt {
     /**  ui */
-    private gridMgr: gridManagerCmpt = null;
+    private gridMgr: GameGridManager = null;
     private gridNode: Node = null;
     private effNode: Node = null;
     private target1: Node = null;
@@ -71,12 +71,15 @@ export class SweetMatchGameView extends BaseViewCmpt {
     private readonly HINT_INTERVAL = 1500; // 提示间隔1.5秒
     onLoad() {
         for (let i = 1; i < 5; i++) {
+            this[`onAddTool${i}`] = this.onClickAddButton.bind(this);
+            this[`onUseTool${i}`] = this.onClickToolButton.bind(this);
+            // 兼容按钮绑定系统
             this[`onClick_addBtn${i}`] = this.onClickAddButton.bind(this);
             this[`onClick_toolBtn${i}`] = this.onClickToolButton.bind(this);
         }
         super.onLoad();
         App.audio.play('ambient_melody', SoundType.Music, true);
-        this.gridMgr = this.viewList.get('center/gridManager').getComponent(gridManagerCmpt);
+        this.gridMgr = this.viewList.get('center/gridManager').getComponent(GameGridManager);
         this.gridNode = this.viewList.get('center/gridNode');
         this.effNode = this.viewList.get('center/effNode');
         this.targetBg = this.viewList.get('top/content/targetBg');
@@ -154,6 +157,11 @@ export class SweetMatchGameView extends BaseViewCmpt {
     }
     /** 道具信息 */
     updateToolsInfo() {
+        if (!this.viewList || !isValid(this.node)) {
+            console.warn('游戏组件已销毁，跳过 updateToolsInfo');
+            return;
+        }
+        
         // 正式模式 - 正常道具管理
         const isTestMode = false; // 正式版本设为 false
         
@@ -175,6 +183,11 @@ export class SweetMatchGameView extends BaseViewCmpt {
 
     /** Update elimination target count */
     updateTargetCount() {
+        if (!this.viewList || !isValid(this.node)) {
+            console.warn('游戏组件已销毁，跳过 updateTargetCount');
+            return;
+        }
+        
         let arr = this.coutArr;
         console.log(`更新目标显示, 当前目标数组:`, arr);
         this.target1.active = arr.length <= 2;
@@ -192,6 +205,11 @@ export class SweetMatchGameView extends BaseViewCmpt {
     }
     /** 更新星级进度和积分 */
     updateScorePercent() {
+        if (!this.viewList || !isValid(this.node)) {
+            console.warn('游戏组件已销毁，跳过 updateScorePercent');
+            return;
+        }
+        
         let arr = this.data.scores;
         let percent = this.curScore / arr[arr.length - 1] < 1 ? this.curScore / arr[arr.length - 1] : 1;
         let width = 190 * percent;
@@ -215,6 +233,11 @@ export class SweetMatchGameView extends BaseViewCmpt {
 
     /** 更新步数 */
     updateStep() {
+        if (!this.viewList || !isValid(this.node)) {
+            console.warn('游戏组件已销毁，跳过 updateStep');
+            return;
+        }
+        
         if (this.stepCount < 0) this.stepCount = 0;
         CocosHelper.updateLabelText(this.lbStep, this.stepCount);
     }
@@ -1596,24 +1619,24 @@ export class SweetMatchGameView extends BaseViewCmpt {
     evtRestart() {
         this.loadExtraData(this.level);
     }
-    onClick_testBtn() {
+    executeDebugAction() {
         this.loadExtraData(this.level);
         // this.handleLastSteps();
     }
 
     /** 设置 */
-    onClick_setBtn() {
+    openGameSettings() {
         App.view.openView(ViewName.Single.esettingGameView);
     }
 
     /** 购买金币 */
-    onClick_buyBtn() {
+    enterShopMode() {
         App.audio.play('ui_touch_feedback');
         App.view.openView(ViewName.Single.eBuyView);
     }
 
     /** 暂停 */
-    async onClick_pauseBtn() {
+    async pauseGameplay() {
         App.audio.play('ui_touch_feedback');
         App.view.openView(ViewName.Single.esettingGameView);
     }
@@ -2483,5 +2506,15 @@ export class SweetMatchGameView extends BaseViewCmpt {
         super.onDestroy();
         this.clearAllHintTimers();
         this.stopHintAnimation();
+    }
+    
+    // 兼容旧的按钮绑定系统
+    onClick_testBtn() { this.executeDebugAction(); }
+    onClick_setBtn() { this.openGameSettings(); }
+    onClick_buyBtn() { this.enterShopMode(); }
+    async onClick_pauseBtn() { await this.pauseGameplay(); }
+    onClick_closeBtn() { 
+        // 通过视图管理器正确关闭，确保从allView Map中删除
+        App.view.closeView(ViewName.Single.eGameView); 
     }
 }

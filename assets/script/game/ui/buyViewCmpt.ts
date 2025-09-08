@@ -1,6 +1,7 @@
-import { _decorator, Node } from 'cc';
+import { _decorator, Node, isValid } from 'cc';
 import { BaseViewCmpt } from '../../components/baseViewCmpt';
 import { EventName } from '../../const/eventName';
+import { ViewName } from '../../const/viewNameConst';
 import { App } from '../../core/app';
 import { CocosHelper } from '../../utils/cocosHelper';
 import { GlobalFuncHelper } from '../../utils/globalFuncHelper';
@@ -10,8 +11,8 @@ const { ccclass, property } = _decorator;
 /**
  * 商店页面组件 - 已简化为广告奖励系统
  */
-@ccclass('buyViewCmpt')
-export class buyViewCmpt extends BaseViewCmpt {
+@ccclass('ShopController')
+export class ShopController extends BaseViewCmpt {
     private content: Node = null;
     private lbGold: Node = null;
 
@@ -27,6 +28,11 @@ export class buyViewCmpt extends BaseViewCmpt {
     }
 
     updateGoldDisplay() {
+        if (!this.viewList || !isValid(this.node)) {
+            console.warn('商店组件已销毁，跳过 updateGoldDisplay');
+            return;
+        }
+        
         let gold = GlobalFuncHelper.getGold();
         CocosHelper.updateLabelText(this.lbGold, gold);
     }
@@ -69,7 +75,14 @@ export class buyViewCmpt extends BaseViewCmpt {
     /**
      * 兼容旧的按钮点击方法
      */
-    onClick_itemBtn(btn: Node) {
+    purchaseItem(btn: Node) {
         this.handleBtnEvent(btn);
+    }
+    
+    // 兼容旧的按钮绑定系统
+    onClick_itemBtn(btn: Node) { this.purchaseItem(btn); }
+    onClick_closeBtn() { 
+        // 通过视图管理器正确关闭，确保从allView Map中删除
+        App.view.closeView(ViewName.Single.eBuyView); 
     }
 }

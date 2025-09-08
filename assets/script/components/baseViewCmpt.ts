@@ -137,11 +137,11 @@ export class BaseViewCmpt extends Component {
 
     /** 点击空白地方 */
     protected onTouchSpace() {
-        this.onClick_closeBtn();
+        this.handleClosePanel();
     }
 
     /** 默认关闭按钮 */
-    protected onClick_closeBtn() {
+    protected handleClosePanel() {
         let viewName = this.node["viewName"];
         if (viewName) {
             App.view.closeView(viewName);

@@ -6,8 +6,8 @@ import { ResLoadHelper } from '../../utils/resLoadHelper';
 import { blockCmpt } from './item/blockCmpt';
 const { ccclass, property } = _decorator;
 
-@ccclass('gridManagerCmpt')
-export class gridManagerCmpt extends Component {
+@ccclass('GameGridManager')
+export class GameGridManager extends Component {
     private blockPre: Prefab = null;
     private obstacleArr = [];
     private blockArr: Node[][] = [];

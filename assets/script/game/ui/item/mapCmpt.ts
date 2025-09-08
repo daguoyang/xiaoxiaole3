@@ -12,7 +12,9 @@ export class mapCmpt extends ScrollItemCmpt {
     private local: Node = null;
     onLoad() {
         for (let i = 1; i < 9; i++) {
-            this[`onClick_${i}`] = this.onClick_Item.bind(this);
+            this[`onSelectLevel${i}`] = this.activateLevel.bind(this);
+            // 兼容按钮绑定系统
+            this[`onClick_${i}`] = this.activateLevel.bind(this);
         }
         super.onLoad();
         this.local = this.viewList.get('local');
@@ -59,7 +61,7 @@ export class mapCmpt extends ScrollItemCmpt {
         }
     }
 
-    onClick_Item(item: Node) {
+    activateLevel(item: Node) {
         App.audio.play('ui_touch_feedback');
         let lv = App.gameLogic.curLevel;
         let idx = (this.index - 1) * 8 + +item.name;

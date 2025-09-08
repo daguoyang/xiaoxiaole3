@@ -1,8 +1,9 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Node, isValid } from 'cc';
 import { BaseViewCmpt } from '../../components/baseViewCmpt';
 import { PageIndex } from '../../const/enumConst';
 import { EventName } from '../../const/eventName';
 import { LevelConfig } from '../../const/levelConfig';
+import { ViewName } from '../../const/viewNameConst';
 import { App } from '../../core/app';
 import { CocosHelper } from '../../utils/cocosHelper';
 import { GlobalFuncHelper } from '../../utils/globalFuncHelper';
@@ -11,14 +12,16 @@ import { WxManager, WxMgr } from '../../wx/wxManager';
 import { Advertise } from '../../wx/advertise';
 const { ccclass, property } = _decorator;
 
-@ccclass('settingViewCmpt')
-export class settingViewCmpt extends BaseViewCmpt {
+@ccclass('GameConfigController')
+export class GameConfigController extends BaseViewCmpt {
     private lbName: Node = null;
     private lbHeart: Node = null;
     private head: Node = null;
     private content: Node = null;
     onLoad() {
         for (let i = 1; i < 10; i++) {
+            this[`onSelectHead${i}`] = this.onClickHead.bind(this);
+            // 兼容按钮绑定系统
             this[`onClick_head${i}`] = this.onClickHead.bind(this);
         }
         super.onLoad();
@@ -57,13 +60,13 @@ export class settingViewCmpt extends BaseViewCmpt {
         }
     }
 
-    onClick_btnSound() {
+    onToggleSound() {
         App.audio.play('ui_touch_feedback');
         StorageHelper.setBooleanData(StorageHelperKey.Music_Eff_Status, !StorageHelper.getBooleanData(StorageHelperKey.Music_Eff_Status))
         this.updateOperateStatus();
     }
 
-    onClick_btnMusic() {
+    onToggleMusic() {
         App.audio.play('ui_touch_feedback');
         StorageHelper.setBooleanData(StorageHelperKey.Music_Status, !StorageHelper.getBooleanData(StorageHelperKey.Music_Status))
         this.updateOperateStatus();
@@ -82,6 +85,11 @@ export class settingViewCmpt extends BaseViewCmpt {
     
     /** 更新体力显示 - 设置页面只显示数量 */
     updateHeartInfo() {
+        if (!this.viewList || !isValid(this.node)) {
+            console.warn('设置组件已销毁，跳过 updateHeartInfo');
+            return;
+        }
+        
         if (this.lbHeart) {
             const currentHeart = App.heartManager.getCurrentHeart();
             CocosHelper.updateLabelText(this.lbHeart, `x${currentHeart}`);
@@ -100,7 +108,7 @@ export class settingViewCmpt extends BaseViewCmpt {
         });
     }
 
-    onClick_replayBtn() {
+    onRestartGame() {
         App.audio.play('ui_touch_feedback');
         
         // 检查体力是否足够
@@ -148,13 +156,28 @@ export class settingViewCmpt extends BaseViewCmpt {
         // 通知UI更新体力显示
         App.event.emit(EventName.Game.HeartUpdate);
         
-        this.onClick_closeBtn();
+        this.handleClosePanel();
         App.event.emit(EventName.Game.Restart);
     }
 
-    onClick_homeBtn() {
+    onReturnHome() {
         App.audio.play('ui_touch_feedback');
-        this.onClick_closeBtn();
+        this.handleClosePanel();
         App.backHome();
+    }
+    
+    // 兼容旧的按钮绑定系统
+    onClick_btnSound() { this.onToggleSound(); }
+    onClick_btnMusic() { this.onToggleMusic(); }
+    onClick_replayBtn() { this.onRestartGame(); }
+    onClick_homeBtn() { this.onReturnHome(); }
+    onClick_closeBtn() { 
+        // 通过视图管理器正确关闭，确保从allView Map中删除
+        // 检查是游戏内设置还是普通设置页面
+        let viewName = ViewName.Single.eSettingView;
+        if (App.view.getViewByName(ViewName.Single.esettingGameView)) {
+            viewName = ViewName.Single.esettingGameView;
+        }
+        App.view.closeView(viewName); 
     }
 }

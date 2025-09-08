@@ -1,4 +1,4 @@
-import { _decorator, Node } from 'cc';
+import { _decorator, Node, isValid } from 'cc';
 import { BaseViewCmpt } from '../../components/baseViewCmpt';
 import { Bomb, LevelData } from '../../const/enumConst';
 import { EventName } from '../../const/eventName';
@@ -11,8 +11,8 @@ import { Advertise } from '../../wx/advertise';
 import { gridCmpt } from './item/gridCmpt';
 const { ccclass, property } = _decorator;
 
-@ccclass('challengeViewCmpt')
-export class challengeViewCmpt extends BaseViewCmpt {
+@ccclass('LevelSelectController')
+export class LevelSelectController extends BaseViewCmpt {
     private lv: number = 0;
     private lbTool1: Node = null;
     private lbTool2: Node = null;
@@ -23,6 +23,8 @@ export class challengeViewCmpt extends BaseViewCmpt {
     private tCount3: number = 0;
     onLoad() {
         for (let i = 1; i < 4; i++) {
+            this[`onToolAction${i}`] = this.onClickToolBtn.bind(this);
+            // 兼容按钮绑定系统
             this[`onClick_toolBtn${i}`] = this.onClickToolBtn.bind(this);
         }
         super.onLoad();
@@ -74,7 +76,7 @@ export class challengeViewCmpt extends BaseViewCmpt {
         this.setAddStatus();
     }
 
-    onClick_playBtn() {
+    triggerStartGame() {
         App.audio.play('ui_touch_feedback');
         
         // 检查体力是否足够
@@ -202,7 +204,14 @@ export class challengeViewCmpt extends BaseViewCmpt {
                 }
             }
         }
-        this.onClick_closeBtn();
+        this.handleClosePanel();
         App.view.openView(ViewName.Single.eGameView, this.lv);
+    }
+    
+    // 兼容旧的按钮绑定系统  
+    onClick_playBtn() { this.triggerStartGame(); }
+    onClick_closeBtn() { 
+        // 通过视图管理器正确关闭，确保从allView Map中删除
+        App.view.closeView(ViewName.Single.eChallengeView); 
     }
 }

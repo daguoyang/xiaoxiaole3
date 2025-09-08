@@ -9,8 +9,8 @@ import { Advertise } from '../../wx/advertise';
 import { gridCmpt } from './item/gridCmpt';
 const { ccclass, property } = _decorator;
 
-@ccclass('resultViewCmpt')
-export class ResultViewCmpt extends BaseViewCmpt {
+@ccclass('GameResultController')
+export class GameResultController extends BaseViewCmpt {
     private isWin: boolean = false;
     private level: number = 0;
     private starCount: number = 0;
@@ -96,7 +96,7 @@ export class ResultViewCmpt extends BaseViewCmpt {
         }
     }
     /** 下一关 */
-    async onClick_nextBtn() {
+    async handleNextLevel() {
         App.audio.play('ui_touch_feedback');
         GlobalFuncHelper.setGold(App.gameLogic.rewardGold);
         if (this.level == LevelConfig.getCurLevel()) {
@@ -118,14 +118,14 @@ export class ResultViewCmpt extends BaseViewCmpt {
         App.view.openView(ViewName.Single.eHomeView, true);
     }
     /** 获取奖励 - 观看广告 */
-    onClick_shareBtn() {
+    handleShareResult() {
         App.audio.play('ui_touch_feedback');
         
         // 直接播放广告，不触发微信分享
         Advertise.showVideoAds();
     }
     /** 继续游戏按钮 */
-    async onClick_continueBtn() {
+    async handleContinueGame() {
         App.audio.play('ui_touch_feedback');
         
         // 取消自动关闭定时器
@@ -169,7 +169,7 @@ export class ResultViewCmpt extends BaseViewCmpt {
     }
 
     /** 关闭按钮 - 返回主页面 */
-    async onClick_guanbiBtn() {
+    async handleCloseDialog() {
         
         // 取消自动关闭定时器
         this.unscheduleAllCallbacks();
@@ -228,5 +228,15 @@ export class ResultViewCmpt extends BaseViewCmpt {
             App.view.openView(ViewName.Single.eHomeView, true);
             console.log(`自动跳转完成`);
         }
+    }
+    
+    // 兼容旧的按钮绑定系统
+    async onClick_nextBtn() { await this.handleNextLevel(); }
+    onClick_shareBtn() { this.handleShareResult(); }
+    async onClick_continueBtn() { await this.handleContinueGame(); }
+    async onClick_guanbiBtn() { await this.handleCloseDialog(); }
+    onClick_closeBtn() { 
+        // 通过视图管理器正确关闭，确保从allView Map中删除
+        App.view.closeView(ViewName.Single.eResultView); 
     }
 }

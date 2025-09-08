@@ -4,7 +4,7 @@ import { BaseViewCmpt } from "../components/baseViewCmpt";
 import { PrefabPool } from "../components/prefabPool";
 import { WindowOpenType, WindowType } from "../const/enumConst";
 import { ViewName } from "../const/viewNameConst";
-import { tipsViewCmpt } from "../game/ui/tipsViewCmpt";
+import { NotificationWidget } from "../game/ui/tipsViewCmpt";
 import { PrintError, PrintLog } from "../utils/logHelper";
 import { ResLoadHelper } from "../utils/resLoadHelper";
 import { App } from "./app";
@@ -41,7 +41,7 @@ export class ViewManager extends SingletonClass<ViewManager> {
 
     /** 消息框对象池 */
     private msgPool: PrefabPool;
-    private msgCmptArr: tipsViewCmpt[] = [];
+    private msgCmptArr: NotificationWidget[] = [];
 
     /** 遮罩层 */
     private isShowMask: boolean;
@@ -157,7 +157,7 @@ export class ViewManager extends SingletonClass<ViewManager> {
         msgNode.setPosition(new Vec3());
         this.sceneNode.getChildByName('toast').addChild(msgNode);
         // this.getRootView(WindowType.eToast).addChild(msgNode);
-        let msgCmpt = msgNode.getComponent(tipsViewCmpt);
+        let msgCmpt = msgNode.getComponent(NotificationWidget);
         msgCmpt.setTips(text);
         msgCmpt.setCloseFunc(() => {
             this.msgCmptArr.shift();

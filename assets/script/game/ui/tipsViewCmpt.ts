@@ -5,8 +5,8 @@ import { CocosHelper } from '../../utils/cocosHelper';
 import { ToolsHelper } from '../../utils/toolsHelper';
 const { ccclass, property } = _decorator;
 
-@ccclass('tipsViewCmpt')
-export class tipsViewCmpt extends BaseViewCmpt {
+@ccclass('NotificationWidget')
+export class NotificationWidget extends BaseViewCmpt {
     onLoad() {
         super.onLoad();
     }

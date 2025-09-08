@@ -1,4 +1,4 @@
-import { _decorator, Node, Vec3, Prefab, instantiate, v2, ScrollView, PageView, UITransform, Sprite, SpriteFrame, Color } from 'cc';
+import { _decorator, Node, Vec3, Prefab, instantiate, v2, ScrollView, PageView, UITransform, Sprite, SpriteFrame, Color, isValid } from 'cc';
 import { BaseViewCmpt } from '../../components/baseViewCmpt';
 import { ScrollViewCmpt } from '../../components/scrollViewCmpt';
 import { EventName } from '../../const/eventName';
@@ -23,8 +23,8 @@ enum Pages {
 }
 
 
-@ccclass('homeViewCmpt')
-export class homeViewCmpt extends BaseViewCmpt {
+@ccclass('MainMenuController')
+export class MainMenuController extends BaseViewCmpt {
     private scrollview: ScrollViewCmpt = null;
     private btnNode: Node = null;
     private localBtn: Node = null;
@@ -129,6 +129,11 @@ export class homeViewCmpt extends BaseViewCmpt {
     
     /** 更新体力显示 - 主页显示格式为 "3/5" 带倒计时 */
     updateHeartInfo() {
+        if (!this.viewList || !isValid(this.node)) {
+            console.warn('主页组件已销毁，跳过 updateHeartInfo');
+            return;
+        }
+        
         const currentHeart = App.heartManager.getCurrentHeart();
         const maxHeart = App.heartManager.getMaxHeart();
         let heartText = `${currentHeart}/${maxHeart}`;
@@ -218,7 +223,7 @@ export class homeViewCmpt extends BaseViewCmpt {
         App.view.showMsgTips("先完成前面关卡即可解锁更多关卡");
     }
 
-    onClick_localBtn() {
+    pressLocalButton() {
         App.audio.play('ui_touch_feedback');
         let offsetY = this.scrollview.getMaxScrollOffset().y;
         let lv = App.gameLogic.curLevel;
@@ -226,7 +231,7 @@ export class homeViewCmpt extends BaseViewCmpt {
         this.localBtn.active = false;
     }
 
-    onClick_head() {
+    selectPlayerHead() {
         App.audio.play('ui_touch_feedback');
         this.showSelectedBtn('settingBtn');
         this.pageView.getPages().forEach((item, idx) => {
@@ -240,7 +245,7 @@ export class homeViewCmpt extends BaseViewCmpt {
         Advertise.showVideoAds();
     }
 
-    onClick_settingBtn(node: Node) {
+    openSettingsPanel(node: Node) {
         App.audio.play('ui_touch_feedback');
         this.showSelectedBtn(node.name);
         this.pageView.getPages().forEach((item, idx) => {
@@ -248,7 +253,7 @@ export class homeViewCmpt extends BaseViewCmpt {
         });
         this.pageView.scrollToPage(Pages.setting, this.pageTime);
     }
-    onClick_shopBtn(node: Node) {
+    openShopPanel(node: Node) {
         App.audio.play('ui_touch_feedback');
         this.showSelectedBtn(node.name);
         this.pageView.getPages().forEach((item, idx) => {
@@ -256,7 +261,7 @@ export class homeViewCmpt extends BaseViewCmpt {
         });
         this.pageView.scrollToPage(Pages.shop, this.pageTime);
     }
-    onClick_homeBtn(node: Node) {
+    returnToHome(node: Node) {
         App.audio.play('ui_touch_feedback');
         this.showSelectedBtn(node.name);
         this.pageView.getPages().forEach((item, idx) => {
@@ -267,7 +272,7 @@ export class homeViewCmpt extends BaseViewCmpt {
             this.initData();
         }
     }
-    onClick_rankBtn(node: Node) {
+    showRankingList(node: Node) {
         App.audio.play('ui_touch_feedback');
         this.showSelectedBtn(node.name);
         this.pageView.getPages().forEach((item, idx) => {
@@ -275,7 +280,7 @@ export class homeViewCmpt extends BaseViewCmpt {
         });
         this.pageView.scrollToPage(Pages.rank, this.pageTime);
     }
-    onClick_shareBtn(node: Node) {
+    shareGameResult(node: Node) {
         App.audio.play('ui_touch_feedback');
         this.showSelectedBtn(node.name);
         this.pageView.getPages().forEach((item, idx) => {
@@ -338,7 +343,7 @@ export class homeViewCmpt extends BaseViewCmpt {
         });
     }
 
-    onClick_sharePageBtn() {
+    activateSharePage() {
         App.audio.play('ui_touch_feedback');
         console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");
         Advertise.showVideoAds();
@@ -746,6 +751,20 @@ export class homeViewCmpt extends BaseViewCmpt {
         });
         
         console.log('🧹 强制清理完成');
+    }
+    
+    // 兼容旧的按钮绑定系统
+    onClick_localBtn() { this.pressLocalButton(); }
+    onClick_head() { this.selectPlayerHead(); }
+    onClick_settingBtn(node: Node) { this.openSettingsPanel(node); }
+    onClick_shopBtn(node: Node) { this.openShopPanel(node); }
+    onClick_homeBtn(node: Node) { this.returnToHome(node); }
+    onClick_rankBtn(node: Node) { this.showRankingList(node); }
+    onClick_shareBtn(node: Node) { this.shareGameResult(node); }
+    onClick_sharePageBtn() { this.activateSharePage(); }
+    onClick_closeBtn() { 
+        // 通过视图管理器正确关闭，确保从allView Map中删除
+        App.view.closeView(ViewName.Single.eHomeView); 
     }
 
 }
