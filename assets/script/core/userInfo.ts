@@ -30,7 +30,7 @@ export class UserInfo extends SingletonClass<UserInfo> implements UserInfo {
     }
 
     init(...args: any[]): void {
-        this.rankData.name = "Happy Barry";
+        this.rankData.name = "Summer";
         App.event.on(Router.rut_login, this.evtLogin, this)
     }
 
@@ -41,6 +41,5 @@ export class UserInfo extends SingletonClass<UserInfo> implements UserInfo {
         console.log('-------------------- pid -------------------');
         console.log(this.pid);
     }
-}//电子邮件puhalskijsemen@gmail.com
-//源码网站 开vpn全局模式打开 http://web3incubators.com/
-//电报https://t.me/gamecode999
+}//电子邮件zheliyo@qq.com
+//官网https://zheliyo.com

@@ -125,9 +125,8 @@ export class SdkManager {
             });
         }
     }
-//电子邮件puhalskijsemen@gmail.com
-//源码网站 开vpn全局模式打开 http://web3incubators.com/
-//电报https://t.me/gamecode999
+//电子邮件zheliyo@qq.com
+//官网https://zheliyo.com
 
     // 激励展示
     showVideoAd(success: any, fail?: any) {

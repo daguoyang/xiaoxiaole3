@@ -41,7 +41,7 @@ export class RankCmpt extends BaseViewCmpt {
     }
 
     setRankList(list?: RankData[]) {
-        let arr = RankConfig.data;
+        let arr = RankConfig.getData(); // 使用新的getData方法，自动执行每日更新
         if (list) {
             arr = arr.concat(list);
         }

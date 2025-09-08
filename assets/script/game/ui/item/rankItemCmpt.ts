@@ -26,7 +26,14 @@ export class rankItemCmpt extends ScrollItemCmpt {
         CocosHelper.updateLabelText(this.lbBei, data.level);
         CocosHelper.updateLabelText(this.lbName, data.name);
         CocosHelper.updateLabelText(this.lbLevel, data.level);
-        CocosHelper.updateLabelText(this.lbRank, data.rank);
+        
+        // 排名显示逻辑：100名以外显示99+
+        if (data.rank > 100) {
+            CocosHelper.updateLabelText(this.lbRank, "99+");
+        } else {
+            CocosHelper.updateLabelText(this.lbRank, data.rank);
+        }
+        
         this.viewList.get('1').active = data.rank == 1;
         this.viewList.get('2').active = data.rank == 2;
         this.viewList.get('3').active = data.rank == 3;

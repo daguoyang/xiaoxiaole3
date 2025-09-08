@@ -2,8 +2,187 @@ import { StorageHelper, StorageHelperKey } from "../utils/storageHelper";
 import { LevelCfgData, RankData } from "./enumConst";
 
 class config {
-    public data: RankData[] = [{ "id": 1, "name": "专业挖墙角", "level": 11, "gold": 14, "star": 3, "icon": 3 }, { "id": 2, "name": "兎孒菈菈℡", "level": 12, "gold": 15, "star": 14, "icon": 7 }, { "id": 3, "name": "不爱了丶一切解释都是多余", "level": 13, "gold": 16, "star": 15, "icon": 2 }, { "id": 4, "name": "天涯残月", "level": 14, "gold": 17, "star": 16, "icon": 5 }, { "id": 5, "name": "将妓就计", "level": 15, "gold": 18, "star": 17, "icon": 6 }, { "id": 6, "name": "情如薄纱", "level": 16, "gold": 19, "star": 18, "icon": 8 }, { "id": 7, "name": "熊孩子他爹", "level": 17, "gold": 20, "star": 19, "icon": 7 }, { "id": 8, "name": "輿你相遇更美年華", "level": 18, "gold": 21, "star": 110, "icon": 5 }, { "id": 9, "name": "蝶恋花つ", "level": 19, "gold": 22, "star": 111, "icon": 8 }, { "id": 10, "name": "不美不萌照样拽", "level": 20, "gold": 23, "star": 112, "icon": 1 }, { "id": 11, "name": "好男人,爸妈造", "level": 21, "gold": 24, "star": 113, "icon": 2 }, { "id": 12, "name": "缺烟缺酒缺女人ぃ", "level": 22, "gold": 25, "star": 114, "icon": 3 }, { "id": 13, "name": "走路太妖〃小心闪腰", "level": 23, "gold": 26, "star": 115, "icon": 8 }, { "id": 14, "name": "君生我未生", "level": 24, "gold": 27, "star": 116, "icon": 5 }, { "id": 15, "name": "尕糖饾△", "level": 25, "gold": 28, "star": 117, "icon": 7 }, { "id": 16, "name": "风声雨声叫床声", "level": 26, "gold": 29, "star": 118, "icon": 8 }, { "id": 17, "name": "若爱只如初见", "level": 27, "gold": 30, "star": 119, "icon": 3 }, { "id": 18, "name": "别留我孤身一人", "level": 28, "gold": 31, "star": 120, "icon": 8 }, { "id": 19, "name": "好名儿都叫狗起了", "level": 29, "gold": 32, "star": 121, "icon": 8 }, { "id": 20, "name": "弓虽女干", "level": 30, "gold": 22, "star": 122, "icon": 1 }, { "id": 21, "name": "你不配", "level": 31, "gold": 23, "star": 123, "icon": 2 }, { "id": 22, "name": "来包辣条压压惊丶", "level": 32, "gold": 24, "star": 124, "icon": 8 }, { "id": 23, "name": "浮光浅夏ζ", "level": 33, "gold": 25, "star": 125, "icon": 3 }, { "id": 24, "name": "孤街浪途", "level": 34, "gold": 26, "star": 126, "icon": 8 }, { "id": 25, "name": "做我枕边人", "level": 35, "gold": 27, "star": 127, "icon": 7 }, { "id": 26, "name": "好看好听的网络游戏名字", "level": 36, "gold": 28, "star": 128, "icon": 9 }, { "id": 27, "name": "21克的爱情", "level": 37, "gold": 29, "star": 129, "icon": 8 }, { "id": 28, "name": "空谷幽兰", "level": 38, "gold": 30, "star": 17, "icon": 5 }, { "id": 29, "name": "南城忆潇湘", "level": 39, "gold": 31, "star": 17, "icon": 8 }, { "id": 30, "name": "赱ぬ洎巳の璐", "level": 11, "gold": 32, "star": 18, "icon": 8 }, { "id": 31, "name": "脚踏棺材看日落", "level": 11, "gold": 33, "star": 19, "icon": 8 }, { "id": 32, "name": "骑着蜗牛拽天下", "level": 11, "gold": 34, "star": 10, "icon": 8 }, { "id": 33, "name": "各自安好ぃ", "level": 11, "gold": 35, "star": 11, "icon": 5 }, { "id": 34, "name": "兂法觸岌の啈冨", "level": 12, "gold": 36, "star": 12, "icon": 6 }, { "id": 35, "name": "離人涙", "level": 13, "gold": 37, "star": 13, "icon": 7 }, { "id": 36, "name": "清明雨上", "level": 14, "gold": 38, "star": 14, "icon": 8 }, { "id": 37, "name": "夏初染ぃ夜清浅", "level": 15, "gold": 15, "star": 15, "icon": 9 }, { "id": 38, "name": "墨染琉璃殇", "level": 16, "gold": 16, "star": 16, "icon": 8 }, { "id": 39, "name": "此菇凉、你惹不起", "level": 17, "gold": 17, "star": 17, "icon": 8 }, { "id": 40, "name": "蠢呆笨傻丑", "level": 18, "gold": 18, "star": 18, "icon": 8 }, { "id": 41, "name": "饮一盅浊酒", "level": 19, "gold": 19, "star": 19, "icon": 8 }, { "id": 42, "name": "好看好听的网络游戏名字", "level": 20, "gold": 20, "star": 20, "icon": 8 }, { "id": 43, "name": "女子", "level": 21, "gold": 21, "star": 21, "icon": 2 }, { "id": 44, "name": "閉嘴←-╯", "level": 22, "gold": 22, "star": 22, "icon": 7 }, { "id": 45, "name": "芙蓉姐夫(╰_╯)", "level": 23, "gold": 23, "star": 23, "icon": 3 }, { "id": 46, "name": "花开の彼岸", "level": 24, "gold": 24, "star": 24, "icon": 7 }, { "id": 47, "name": "茈籹子、舆尓無関", "level": 25, "gold": 25, "star": 25, "icon": 6 }, { "id": 48, "name": "除了你，什么都不重要", "level": 26, "gold": 26, "star": 26, "icon": 4 }, { "id": 49, "name": "氵孚夸ㄨ", "level": 27, "gold": 27, "star": 27, "icon": 1 }, { "id": 50, "name": "专业挖墙角", "level": 28, "gold": 28, "star": 28, "icon": 9 }, { "id": 51, "name": "輸過敗過但不曾怕過", "level": 29, "gold": 29, "star": 29, "icon": 3 }, { "id": 52, "name": "ㄍ皒只是路过迩的爱情", "level": 30, "gold": 30, "star": 8, "icon": 7 }, { "id": 53, "name": "先森°下个路口见", "level": 31, "gold": 31, "star": 8, "icon": 8 }, { "id": 54, "name": "怀抱清风", "level": 100, "gold": 31, "star": 100, "icon": 2 }, { "id": 55, "name": "一个很有粪量的人", "level": 80, "gold": 32, "star": 80, "icon": 8 }, { "id": 56, "name": "墨云压城っ", "level": 44, "gold": 33, "star": 44, "icon": 8 }, { "id": 57, "name": "咖啡少年不加糖っ°", "level": 62, "gold": 34, "star": 62, "icon": 3 }, { "id": 58, "name": "香疏影", "level": 35, "gold": 35, "star": 35, "icon": 6 }, { "id": 59, "name": "颜如玉", "level": 40, "gold": 36, "star": 40, "icon": 4 }, { "id": 60, "name": "该梦归何处", "level": 170, "gold": 37, "star": 170, "icon": 3 }, { "id": 61, "name": "ゞ今年欢笑乄复明年ぁ", "level": 211, "gold": 38, "star": 211, "icon": 8 }, { "id": 62, "name": "华陀也医不好我的相思病", "level": 210, "gold": 15, "star": 210, "icon": 8 }, { "id": 63, "name": "时隔亿光年。", "level": 99, "gold": 16, "star": 99, "icon": 9 }, { "id": 64, "name": "╬═☆解读青春", "level": 72, "gold": 17, "star": 72, "icon": 3 }, { "id": 65, "name": "南鱼在流浪", "level": 37, "gold": 18, "star": 37, "icon": 1 }, { "id": 66, "name": "时光与猫~", "level": 88, "gold": 19, "star": 88, "icon": 8 }, { "id": 67, "name": "落落清欢", "level": 82, "gold": 20, "star": 82, "icon": 6 }, { "id": 68, "name": "づ墨小白", "level": 31, "gold": 21, "star": 31, "icon": 9 }, { "id": 69, "name": "时光时光你慢慢走", "level": 57, "gold": 22, "star": 57, "icon": 5 }, { "id": 70, "name": "心软是病,不治要命", "level": 78, "gold": 23, "star": 78, "icon": 2 }, { "id": 71, "name": "谁放肆了寂寞", "level": 165, "gold": 24, "star": 165, "icon": 1 }, { "id": 72, "name": "笑而不语痛而不言╮", "level": 76, "gold": 25, "star": 76, "icon": 7 }, { "id": 73, "name": "心软命", "level": 38, "gold": 26, "star": 38, "icon": 5 }, { "id": 74, "name": "寂寞", "level": 65, "gold": 27, "star": 65, "icon": 6 }, { "id": null, "name": "不语不言╮", "level": 176, "gold": 28, "star": 176, "icon": 8 }]
+    public data: RankData[] = [
+        { "id": 1, "name": "阿狸", "level": 800, "gold": 8000, "star": 800, "icon": 1 },
+        { "id": 2, "name": "王大锤Online", "level": 797, "gold": 7970, "star": 797, "icon": 2 },
+        { "id": 3, "name": "小白同学✿", "level": 794, "gold": 7940, "star": 794, "icon": 3 },
+        { "id": 4, "name": "Tony_99", "level": 791, "gold": 7910, "star": 791, "icon": 4 },
+        { "id": 5, "name": "专业挖墙角", "level": 788, "gold": 7880, "star": 788, "icon": 5 },
+        { "id": 6, "name": "兎孒菈菈℡", "level": 785, "gold": 7850, "star": 785, "icon": 6 },
+        { "id": 7, "name": "影子刺客27", "level": 782, "gold": 7820, "star": 782, "icon": 7 },
+        { "id": 8, "name": "旧梦如风﹌", "level": 779, "gold": 7790, "star": 779, "icon": 8 },
+        { "id": 9, "name": "社恐患者一枚", "level": 776, "gold": 7760, "star": 776, "icon": 9 },
+        { "id": 10, "name": "star★light", "level": 773, "gold": 7730, "star": 773, "icon": 1 },
+        { "id": 11, "name": "隔壁老王", "level": 770, "gold": 7700, "star": 770, "icon": 2 },
+        { "id": 12, "name": "Butterflyつ恋", "level": 767, "gold": 7670, "star": 767, "icon": 3 },
+        { "id": 13, "name": "游戏小能手233", "level": 764, "gold": 7640, "star": 764, "icon": 4 },
+        { "id": 14, "name": "o(=•ェ•=)m猫猫头", "level": 761, "gold": 7610, "star": 761, "icon": 5 },
+        { "id": 15, "name": "吃瓜第一线", "level": 758, "gold": 7580, "star": 758, "icon": 6 },
+        { "id": 16, "name": "暖风十里不如你", "level": 755, "gold": 7550, "star": 755, "icon": 7 },
+        { "id": 17, "name": "Lucky丶小七", "level": 752, "gold": 7520, "star": 752, "icon": 8 },
+        { "id": 18, "name": "Q仔", "level": 749, "gold": 7490, "star": 749, "icon": 9 },
+        { "id": 19, "name": "脑袋空空~", "level": 746, "gold": 7460, "star": 746, "icon": 1 },
+        { "id": 20, "name": "轩辕霸气哥", "level": 743, "gold": 7430, "star": 743, "icon": 2 },
+        { "id": 21, "name": "Miss丶Candy", "level": 740, "gold": 7400, "star": 740, "icon": 3 },
+        { "id": 22, "name": "无敌小笼包", "level": 737, "gold": 7370, "star": 737, "icon": 4 },
+        { "id": 23, "name": "烟雨江南℡", "level": 734, "gold": 7340, "star": 734, "icon": 5 },
+        { "id": 24, "name": "忘川秋水", "level": 731, "gold": 7310, "star": 731, "icon": 6 },
+        { "id": 25, "name": "这名字真难起", "level": 728, "gold": 7280, "star": 728, "icon": 7 },
+        { "id": 26, "name": "南城旧梦〆", "level": 725, "gold": 7250, "star": 725, "icon": 8 },
+        { "id": 27, "name": "BigBoss77", "level": 722, "gold": 7220, "star": 722, "icon": 9 },
+        { "id": 28, "name": "哈哈哈哈哈哈", "level": 719, "gold": 7190, "star": 719, "icon": 1 },
+        { "id": 29, "name": "泡泡茶壶ღ", "level": 716, "gold": 7160, "star": 716, "icon": 2 },
+        { "id": 30, "name": "CoolKidX", "level": 713, "gold": 7130, "star": 713, "icon": 3 },
+        { "id": 31, "name": "丶一抹浅笑", "level": 710, "gold": 7100, "star": 710, "icon": 4 },
+        { "id": 32, "name": "梦里有你", "level": 707, "gold": 7070, "star": 707, "icon": 5 },
+        { "id": 33, "name": "笑看风云ミ", "level": 704, "gold": 7040, "star": 704, "icon": 6 },
+        { "id": 34, "name": "吃货联盟", "level": 701, "gold": 7010, "star": 701, "icon": 7 },
+        { "id": 35, "name": "Mr_无所谓", "level": 698, "gold": 6980, "star": 698, "icon": 8 },
+        { "id": 36, "name": "小区扛把子", "level": 695, "gold": 6950, "star": 695, "icon": 9 },
+        { "id": 37, "name": "柠檬不萌", "level": 692, "gold": 6920, "star": 692, "icon": 1 },
+        { "id": 38, "name": "爱打麻将的羊", "level": 689, "gold": 6890, "star": 689, "icon": 2 },
+        { "id": 39, "name": "AngelBaby520", "level": 686, "gold": 6860, "star": 686, "icon": 3 },
+        { "id": 40, "name": "彼岸花开づ", "level": 683, "gold": 6830, "star": 683, "icon": 4 },
+        { "id": 41, "name": "草莓味布丁", "level": 680, "gold": 6800, "star": 680, "icon": 5 },
+        { "id": 42, "name": "夜半星河°", "level": 677, "gold": 6770, "star": 677, "icon": 6 },
+        { "id": 43, "name": "我家WiFi最强", "level": 674, "gold": 6740, "star": 674, "icon": 7 },
+        { "id": 44, "name": "Lonely丶Soul", "level": 671, "gold": 6710, "star": 671, "icon": 8 },
+        { "id": 45, "name": "风吹裤衩凉", "level": 668, "gold": 6680, "star": 668, "icon": 9 },
+        { "id": 46, "name": "叫我大魔王", "level": 665, "gold": 6650, "star": 665, "icon": 1 },
+        { "id": 47, "name": "旧人不覆", "level": 662, "gold": 6620, "star": 662, "icon": 2 },
+        { "id": 48, "name": "随便取的名字", "level": 659, "gold": 6590, "star": 659, "icon": 3 },
+        { "id": 49, "name": "兔兔快跑~", "level": 656, "gold": 6560, "star": 656, "icon": 4 },
+        { "id": 50, "name": "Jack小黑子", "level": 653, "gold": 6530, "star": 653, "icon": 5 },
+        { "id": 51, "name": "夏至未至丶", "level": 650, "gold": 6500, "star": 650, "icon": 6 },
+        { "id": 52, "name": "开心就好233", "level": 647, "gold": 6470, "star": 647, "icon": 7 },
+        { "id": 53, "name": "灵魂画手✿", "level": 644, "gold": 6440, "star": 644, "icon": 8 },
+        { "id": 54, "name": "╰つ黑白调℡", "level": 641, "gold": 6410, "star": 641, "icon": 9 },
+        { "id": 55, "name": "永远滴神√", "level": 638, "gold": 6380, "star": 638, "icon": 1 },
+        { "id": 56, "name": "木子李", "level": 635, "gold": 6350, "star": 635, "icon": 2 },
+        { "id": 57, "name": "我超菜别打我", "level": 632, "gold": 6320, "star": 632, "icon": 3 },
+        { "id": 58, "name": "星河入梦﹏", "level": 629, "gold": 6290, "star": 629, "icon": 4 },
+        { "id": 59, "name": "夜的第七章", "level": 626, "gold": 6260, "star": 626, "icon": 5 },
+        { "id": 60, "name": "瓜皮少年", "level": 623, "gold": 6230, "star": 623, "icon": 6 },
+        { "id": 61, "name": "啦啦啦啦啦啦啦", "level": 620, "gold": 6200, "star": 620, "icon": 7 },
+        { "id": 62, "name": "Crystal冰凌", "level": 617, "gold": 6170, "star": 617, "icon": 8 },
+        { "id": 63, "name": "专业打酱油", "level": 614, "gold": 6140, "star": 614, "icon": 9 },
+        { "id": 64, "name": "╭ァ流年似水", "level": 611, "gold": 6110, "star": 611, "icon": 1 },
+        { "id": 65, "name": "咸鱼翻身日", "level": 608, "gold": 6080, "star": 608, "icon": 2 },
+        { "id": 66, "name": "北海有鱼✧", "level": 605, "gold": 6050, "star": 605, "icon": 3 },
+        { "id": 67, "name": "TONY老六", "level": 602, "gold": 6020, "star": 602, "icon": 4 },
+        { "id": 68, "name": "快乐星球住户", "level": 599, "gold": 5990, "star": 599, "icon": 5 },
+        { "id": 69, "name": "梦醒时分", "level": 596, "gold": 5960, "star": 596, "icon": 6 },
+        { "id": 70, "name": "冷月孤心", "level": 593, "gold": 5930, "star": 593, "icon": 7 },
+        { "id": 71, "name": "社交恐惧晚期", "level": 590, "gold": 5900, "star": 590, "icon": 8 },
+        { "id": 72, "name": "咕咕咕咕咕", "level": 587, "gold": 5870, "star": 587, "icon": 9 },
+        { "id": 73, "name": "爱唱歌的小熊", "level": 584, "gold": 5840, "star": 584, "icon": 1 },
+        { "id": 74, "name": "雷神托尼嘎嘎", "level": 581, "gold": 5810, "star": 581, "icon": 2 },
+        { "id": 75, "name": "o_o小眼睛", "level": 578, "gold": 5780, "star": 578, "icon": 3 },
+        { "id": 76, "name": "旧梦难寻﹏", "level": 575, "gold": 5750, "star": 575, "icon": 4 },
+        { "id": 77, "name": "笑嘻嘻ヅ", "level": 572, "gold": 5720, "star": 572, "icon": 5 },
+        { "id": 78, "name": "星辰大海√", "level": 569, "gold": 5690, "star": 569, "icon": 6 },
+        { "id": 79, "name": "咖啡不加糖", "level": 566, "gold": 5660, "star": 566, "icon": 7 },
+        { "id": 80, "name": "一只小仙女✿", "level": 563, "gold": 5630, "star": 563, "icon": 8 },
+        { "id": 81, "name": "专业坑人大师", "level": 560, "gold": 5600, "star": 560, "icon": 9 },
+        { "id": 82, "name": "渣男本渣233", "level": 557, "gold": 5570, "star": 557, "icon": 1 },
+        { "id": 83, "name": "小黑子别跑", "level": 554, "gold": 5540, "star": 554, "icon": 2 },
+        { "id": 84, "name": "夜未央℡", "level": 551, "gold": 5510, "star": 551, "icon": 3 },
+        { "id": 85, "name": "冰美式不加冰", "level": 548, "gold": 5480, "star": 548, "icon": 4 },
+        { "id": 86, "name": "陈独秀请坐下", "level": 545, "gold": 5450, "star": 545, "icon": 5 },
+        { "id": 87, "name": "无敌小旋风", "level": 542, "gold": 5420, "star": 542, "icon": 6 },
+        { "id": 88, "name": "╰☆小幸运☆╮", "level": 539, "gold": 5390, "star": 539, "icon": 7 },
+        { "id": 89, "name": "糖醋小排骨", "level": 536, "gold": 5360, "star": 536, "icon": 8 },
+        { "id": 90, "name": "不要点我名", "level": 533, "gold": 5330, "star": 533, "icon": 9 },
+        { "id": 91, "name": "哈哈Orz", "level": 530, "gold": 5300, "star": 530, "icon": 1 },
+        { "id": 92, "name": "头号玩家Pro", "level": 527, "gold": 5270, "star": 527, "icon": 2 },
+        { "id": 93, "name": "脑子进水啦", "level": 524, "gold": 5240, "star": 524, "icon": 3 },
+        { "id": 94, "name": "琴心剑魄", "level": 521, "gold": 5210, "star": 521, "icon": 4 },
+        { "id": 95, "name": "一只小迷糊", "level": 518, "gold": 5180, "star": 518, "icon": 5 },
+        { "id": 96, "name": "未来可期✿", "level": 515, "gold": 5150, "star": 515, "icon": 6 },
+        { "id": 97, "name": "燃烧的胸毛", "level": 512, "gold": 5120, "star": 512, "icon": 7 },
+        { "id": 98, "name": "梦回大唐つ", "level": 509, "gold": 5090, "star": 509, "icon": 8 },
+        { "id": 99, "name": "拖延症晚期", "level": 506, "gold": 5060, "star": 506, "icon": 9 },
+        { "id": 100, "name": "随缘吧少年", "level": 503, "gold": 5030, "star": 503, "icon": 1 }
+    ];
 
+    /**
+     * 每日动态更新排行榜等级
+     * 算法：随机选择15-25名玩家，等级增加1-10关
+     * 等级越高，增长幅度越小，最高不超过1700关
+     */
+    public performDailyUpdate(): void {
+        const today = new Date().toDateString();
+        const lastUpdate = StorageHelper.getData("RankLastUpdate", "");
+        
+        // 检查是否需要更新
+        if (lastUpdate === today) {
+            console.log("今日排行榜已更新");
+            return;
+        }
+        
+        console.log("开始执行每日排行榜更新...");
+        
+        // 随机选择15-25名玩家进行更新
+        const updateCount = Math.floor(Math.random() * 11) + 15; // 15-25人
+        const playersToUpdate: number[] = [];
+        
+        // 随机选择玩家索引
+        while (playersToUpdate.length < updateCount) {
+            const randomIndex = Math.floor(Math.random() * this.data.length);
+            if (!playersToUpdate.includes(randomIndex)) {
+                playersToUpdate.push(randomIndex);
+            }
+        }
+        
+        // 更新选中的玩家等级
+        playersToUpdate.forEach(index => {
+            const player = this.data[index];
+            const currentLevel = player.level;
+            
+            // 根据当前等级计算增长幅度
+            let growthRange = { min: 1, max: 10 };
+            if (currentLevel >= 800) {
+                growthRange = { min: 1, max: 3 };      // 800+: 1-3关增长
+            } else if (currentLevel >= 700) {
+                growthRange = { min: 1, max: 5 };      // 700-799: 1-5关增长  
+            } else if (currentLevel >= 600) {
+                growthRange = { min: 2, max: 7 };      // 600-699: 2-7关增长
+            } else {
+                growthRange = { min: 3, max: 10 };     // 550-599: 3-10关增长
+            }
+            
+            const growth = Math.floor(Math.random() * (growthRange.max - growthRange.min + 1)) + growthRange.min;
+            const newLevel = Math.min(currentLevel + growth, 1700); // 不超过1700关
+            
+            // 更新数据
+            player.level = newLevel;
+            player.gold = newLevel * 10;  // 金币按等级*10计算
+            player.star = newLevel;       // 星数等于等级
+            
+            console.log(`玩家 ${player.name} 等级从 ${currentLevel} 提升到 ${newLevel} (+${growth})`);
+        });
+        
+        // 重新排序
+        this.data.sort((a, b) => b.level - a.level);
+        
+        // 更新排名
+        for (let i = 0; i < this.data.length; i++) {
+            this.data[i].rank = i + 1;
+        }
+        
+        // 保存更新时间
+        StorageHelper.setData("RankLastUpdate", today);
+        
+        console.log(`排行榜更新完成，共更新 ${updateCount} 名玩家`);
+    }
+    
+    /**
+     * 获取排行榜数据，自动检查是否需要每日更新
+     */
+    public getData(): RankData[] {
+        this.performDailyUpdate();
+        return this.data;
+    }
 }
 
 export let RankConfig = new config();

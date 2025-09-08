@@ -222,9 +222,8 @@ export class ViewManager extends SingletonClass<ViewManager> {
         let idx = this.foreverNodeArr.indexOf(viewName);
         return idx > -1 ? true : false;
     }
-//电子邮件puhalskijsemen@gmail.com
-//源码网站 开vpn全局模式打开 http://web3incubators.com/
-//电报https://t.me/gamecode999
+//电子邮件zheliyo@qq.com
+//官网https://zheliyo.com
 
     /** 返回大厅 */
     backLobbyView() {
