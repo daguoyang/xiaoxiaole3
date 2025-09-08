@@ -81,7 +81,7 @@ export class BaseNodeCmpt extends Component {
      */
     private _bingButton(node: Node) {
         if (!node.getComponent(Button)) return
-        // App.audio.play('button_click')
+        // App.audio.play('ui_touch_feedback')
         let btn = node.getComponent(Button);
         btn.transition = Button.Transition.SCALE;
         btn.zoomScale = 0.95;

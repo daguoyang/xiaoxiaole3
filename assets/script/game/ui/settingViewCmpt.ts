@@ -48,7 +48,7 @@ export class settingViewCmpt extends BaseViewCmpt {
     }
 
     loadExtraData() {
-        App.audio.play('UI_PopUp');
+        App.audio.play('interface_popup_sound');
     }
 
     updateHead() {
@@ -58,19 +58,19 @@ export class settingViewCmpt extends BaseViewCmpt {
     }
 
     onClick_btnSound() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         StorageHelper.setBooleanData(StorageHelperKey.Music_Eff_Status, !StorageHelper.getBooleanData(StorageHelperKey.Music_Eff_Status))
         this.updateOperateStatus();
     }
 
     onClick_btnMusic() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         StorageHelper.setBooleanData(StorageHelperKey.Music_Status, !StorageHelper.getBooleanData(StorageHelperKey.Music_Status))
         this.updateOperateStatus();
     }
 
     onClickHead(btn: Node) {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         this.updateHeadInfo(btn.name);
         let icon = +btn.name.substring(btn.name.length - 1, btn.name.length);
         App.user.rankData.icon = icon;
@@ -101,7 +101,7 @@ export class settingViewCmpt extends BaseViewCmpt {
     }
 
     onClick_replayBtn() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         
         // 检查体力是否足够
         if (!App.heartManager.hasEnoughHeart(1)) {
@@ -153,7 +153,7 @@ export class settingViewCmpt extends BaseViewCmpt {
     }
 
     onClick_homeBtn() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         this.onClick_closeBtn();
         App.backHome();
     }

@@ -75,7 +75,7 @@ export class challengeViewCmpt extends BaseViewCmpt {
     }
 
     onClick_playBtn() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         
         // 检查体力是否足够
         if (!App.heartManager.hasEnoughHeart(1)) {
@@ -89,7 +89,7 @@ export class challengeViewCmpt extends BaseViewCmpt {
     }
 
     onClickToolBtn(btn: Node) {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         let idx = +btn.name.substring(btn.name.length - 1, btn.name.length);
         if (this[`tCount${idx}`] <= 0) {
             // 道具不足时显示广告获取道具

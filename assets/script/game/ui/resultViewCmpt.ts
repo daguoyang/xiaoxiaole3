@@ -25,10 +25,10 @@ export class ResultViewCmpt extends BaseViewCmpt {
         console.log(`结果弹窗加载数据 - 关卡:${lv}, 胜利:${isWin}, 星数:${starCount}, 目标状态:`, coutArr);
         
         if (isWin) {
-            App.audio.play('win');
+            App.audio.play('level_complete_music');
         }
         else {
-            App.audio.play('lose');
+            App.audio.play('game_over_audio');
         }
         this.level = lv;
         this.starCount = starCount;
@@ -97,7 +97,7 @@ export class ResultViewCmpt extends BaseViewCmpt {
     }
     /** 下一关 */
     async onClick_nextBtn() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         GlobalFuncHelper.setGold(App.gameLogic.rewardGold);
         if (this.level == LevelConfig.getCurLevel()) {
             LevelConfig.nextLevel();
@@ -119,14 +119,14 @@ export class ResultViewCmpt extends BaseViewCmpt {
     }
     /** 获取奖励 - 观看广告 */
     onClick_shareBtn() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         
         // 直接播放广告，不触发微信分享
         Advertise.showVideoAds();
     }
     /** 继续游戏按钮 */
     async onClick_continueBtn() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         
         // 取消自动关闭定时器
         this.unscheduleAllCallbacks();

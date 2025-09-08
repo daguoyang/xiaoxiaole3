@@ -60,7 +60,7 @@ export class mapCmpt extends ScrollItemCmpt {
     }
 
     onClick_Item(item: Node) {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         let lv = App.gameLogic.curLevel;
         let idx = (this.index - 1) * 8 + +item.name;
         if (idx > lv) {

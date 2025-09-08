@@ -75,7 +75,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
             this[`onClick_toolBtn${i}`] = this.onClickToolButton.bind(this);
         }
         super.onLoad();
-        App.audio.play('background1', SoundType.Music, true);
+        App.audio.play('ambient_melody', SoundType.Music, true);
         this.gridMgr = this.viewList.get('center/gridManager').getComponent(gridManagerCmpt);
         this.gridNode = this.viewList.get('center/gridNode');
         this.effNode = this.viewList.get('center/effNode');
@@ -242,9 +242,10 @@ export class SweetMatchGameView extends BaseViewCmpt {
             }
             else {
                 if (!this.resultShown) {
-                    console.log(`立即弹出胜利弹窗`);
+                    console.log(`等待所有动画完成后弹出胜利弹窗`);
                     this.resultShown = true; // 立即设置标志，防止重复弹窗
-                    App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
+                    // 定期检查是否可以弹出胜利弹窗
+                    this.checkAndShowWinDialog();
                 }
             }
         }
@@ -293,15 +294,15 @@ export class SweetMatchGameView extends BaseViewCmpt {
             console.log(`检查弹窗条件 - view存在:${!!view}, isWin:${this.hasWon}, resultShown:${this.resultShown}`);
             
             if (!this.resultShown) {
-                console.log(`弹出胜利弹窗`);
+                console.log(`等待所有动画完成后弹出胜利弹窗`);
                 this.resultShown = true; // 立即设置标志，防止重复弹窗
-                App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
+                this.checkAndShowWinDialog();
             }
         }
     }
 
     throwTools(bombType: number = -1, worldPosition: Vec3 = null) {
-        App.audio.play("prop_missle")
+        App.audio.play("rocket_launch_sound")
         let originPos = worldPosition || this.lbStep.worldPosition;
         let p1 = this.effNode.getComponent(UITransform).convertToNodeSpaceAR(originPos);
         let particle = instantiate(this.particlePre);
@@ -530,7 +531,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
                         list.push(item.getComponent(gridCmpt));
                     }
                 }
-                App.audio.play("prop_line")
+                App.audio.play("line_clear_audio")
                 let rocket1 = instantiate(this.rocketPre);
                 this.effNode.addChild(rocket1);
                 if (bc.node) {
@@ -547,7 +548,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
                         list.push(item.getComponent(gridCmpt));
                     }
                 }
-                App.audio.play("prop_line")
+                App.audio.play("line_clear_audio")
                 let rocket = instantiate(this.rocketPre);
                 this.effNode.addChild(rocket);
                 if (bc.node) {
@@ -567,7 +568,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
                         }
                     }
                 }
-                App.audio.play("prop_bomb")
+                App.audio.play("explosive_blast_fx")
                 break;
             case Bomb.allSame:
                 console.log("五消元素被触发，位置:", bc.h, bc.v, "节点状态:", bc.node ? "存在" : "已销毁");
@@ -631,7 +632,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
                     console.log("随机选择目标类型:", curType);
                 }
                 console.log("Final target type:", curType, "Begin eliminating same-type elements");
-                App.audio.play("prop_missle")
+                App.audio.play("rocket_launch_sound")
                 let eliminatedCount = 0;
                 for (let i = 0; i < this.H; i++) {
                     for (let j = 0; j < this.V; j++) {
@@ -676,7 +677,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
                         list.push(item.getComponent(gridCmpt));
                     }
                 }
-                App.audio.play("prop_line")
+                App.audio.play("line_clear_audio")
                 let rocket1 = instantiate(this.rocketPre);
                 this.effNode.addChild(rocket1);
                 rocket1.setPosition(bc.node.position);
@@ -689,7 +690,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
                         list.push(item.getComponent(gridCmpt));
                     }
                 }
-                App.audio.play("prop_line")
+                App.audio.play("line_clear_audio")
                 let rocket = instantiate(this.rocketPre);
                 this.effNode.addChild(rocket);
                 rocket.setPosition(bc.node.position);
@@ -705,7 +706,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
                         }
                     }
                 }
-                App.audio.play("prop_bomb")
+                App.audio.play("explosive_blast_fx")
                 break;
         }
         return list;
@@ -718,14 +719,14 @@ export class SweetMatchGameView extends BaseViewCmpt {
         switch (bc.type) {
             case Bomb.hor:
             case Bomb.ver:
-                App.audio.play("prop_line");
+                App.audio.play("line_clear_audio");
                 let rocket = instantiate(this.rocketPre);
                 this.effNode.addChild(rocket);
                 rocket.setPosition(bc.node.position);
                 rocket.getComponent(rocketCmpt).initData(bc.type);
                 break;
             case Bomb.bomb:
-                App.audio.play("prop_bomb");
+                App.audio.play("explosive_blast_fx");
                 break;
         }
     }
@@ -787,10 +788,10 @@ export class SweetMatchGameView extends BaseViewCmpt {
         let time = Constant.changeTime;
         let one = this.curTwo[0], two = this.curTwo[1];
         if (!isBack) {
-            App.audio.play("ui_banner_down_show")
+            App.audio.play("banner_appear_fx")
         }
         else {
-            App.audio.play("ui_banner_up_hide")
+            App.audio.play("banner_dismiss_audio")
         }
         if (!one || !two) return;
         tween(one.node).to(time, { position: this.blockPosArr[two.h][two.v] }).start();
@@ -994,8 +995,8 @@ export class SweetMatchGameView extends BaseViewCmpt {
             this._deleteDuplicates(samelist);
             //0:去掉不合法的
             samelist = this.jugetLegitimate(samelist);
-            let soundList = ['combo_cool', 'combo_excellent', 'combo_good', 'combo_great', 'combo_perfect'];
-            let rand = Math.floor(Math.random() * soundList.length);
+            // let soundList = ['combo_cool', 'combo_excellent', 'combo_good', 'combo_great', 'combo_perfect'];
+            // let rand = Math.floor(Math.random() * soundList.length); // 注释掉不存在的combo音效
             //1:移除
             for (let i = 0; i < samelist.length; i++) {
                 let item = samelist[i];
@@ -1005,9 +1006,9 @@ export class SweetMatchGameView extends BaseViewCmpt {
                     continue;
                 }
                 if (item.length > 3) {
-                    App.audio.play(soundList[rand])
+                    // App.audio.play(soundList[rand]) // 注释掉不存在的combo音效
                 } else {
-                    App.audio.play('combo');
+                    App.audio.play('match_elimination');
                 }
                 for (let j = 0; j < item.length; j++) {
                     let ele: gridCmpt = item[j];
@@ -1038,13 +1039,13 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 resolve("");
                 return;
             }
-            let soundList = ['combo_cool', 'combo_excellent', 'combo_good', 'combo_great', 'combo_perfect'];
-            let rand = Math.floor(Math.random() * soundList.length);
-            this.scheduleOnce(() => {
-                if (isValid(this)) {
-                    App.audio.play(soundList[rand])
-                }
-            }, 0.2);
+            // let soundList = ['combo_cool', 'combo_excellent', 'combo_good', 'combo_great', 'combo_perfect'];
+            // let rand = Math.floor(Math.random() * soundList.length);
+            // this.scheduleOnce(() => {
+            //     if (isValid(this)) {
+            //         App.audio.play(soundList[rand])
+            //     }
+            // }, 0.2); // 注释掉不存在的combo音效
             // 移除
             for (let i = 0; i < samelist.length; i++) {
                 let ele: gridCmpt = samelist[i];
@@ -1086,7 +1087,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
             center = item[Math.floor(item.length / 2)];
         }
         let bombType = App.gameLogic.getBombType(item);
-        App.audio.play("ui_banner_up_hide");
+        App.audio.play("banner_dismiss_audio");
         for (let j = 0; j < item.length; j++) {
             let ele: gridCmpt = item[j];
             let tp = ele.type;
@@ -1607,19 +1608,19 @@ export class SweetMatchGameView extends BaseViewCmpt {
 
     /** 购买金币 */
     onClick_buyBtn() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         App.view.openView(ViewName.Single.eBuyView);
     }
 
     /** 暂停 */
     async onClick_pauseBtn() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         App.view.openView(ViewName.Single.esettingGameView);
     }
 
     /** 添加道具，广告位 */
     onClickAddButton(btnNode: Node) {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         let type: number = -1;
         switch (btnNode.name) {
             case "addBtn1":
@@ -1656,7 +1657,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
     private isUsingBomb: boolean = false;
     /** 道具 */
     onClickToolButton(btnNode: Node) {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         if (this.isUsingBomb) return;
         
         // 用户操作，重置提示计时器
@@ -1953,7 +1954,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
             }
             
             // 播放洗牌音效
-            App.audio.play('ui_banner_up_hide');
+            App.audio.play('banner_dismiss_audio');
         });
     }
 
@@ -2390,7 +2391,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
         console.log(`当前目标完成状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
         
         // 播放全屏消除动画
-        App.audio.play("prop_missle");
+        App.audio.play("rocket_launch_sound");
         for (let element of allElements) {
             let particle = instantiate(this.particlePre);
             this.effNode.addChild(particle);
@@ -2451,6 +2452,30 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 }
             }
         }
+    }
+
+    /** 检查并显示胜利弹窗 */
+    private checkAndShowWinDialog() {
+        console.log(`准备检查胜利弹窗 - 当前飞行动画:${this.flyingAnimationCount}, 已胜利:${this.hasWon}`);
+        
+        // 如果飞行动画已经结束，直接弹窗
+        if (this.flyingAnimationCount <= 0) {
+            console.log(`飞行动画已结束，立即弹出胜利弹窗`);
+            App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
+            return;
+        }
+        
+        // 如果还有飞行动画，等待0.5秒再检查
+        this.scheduleOnce(() => {
+            console.log(`延迟检查 - 飞行动画:${this.flyingAnimationCount}`);
+            if (this.flyingAnimationCount <= 0) {
+                console.log(`延迟检查后弹出胜利弹窗`);
+                App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
+            } else {
+                // 递归继续检查
+                this.checkAndShowWinDialog();
+            }
+        }, 0.5);
     }
 
     /** 销毁时清理计时器 */

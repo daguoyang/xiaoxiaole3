@@ -21,7 +21,7 @@ export class gridTargetCmpt extends Component {
         this.originPos = this.node.getPosition();
         let trans = this.node.getComponent(UITransform);
         if (Math.abs(pos.x - this.originPos.x) <= trans.width / 2 && Math.abs(pos.y - this.originPos.y) <= trans.height / 2) {
-            App.audio.play('block_back');
+            App.audio.play('ui_touch_feedback');
             this.isStart = true;
             pos.y += 200;
             this.node.setPosition(pos);

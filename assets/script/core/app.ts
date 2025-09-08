@@ -45,7 +45,7 @@ class StarMatchGameApp extends SingletonClass<StarMatchGameApp> {
 
     backHome(isStart: boolean = false, pageIdx: number = 2) {
         this.view.openView(ViewName.Single.eHomeView, isStart, pageIdx);
-        this.audio.play('background', SoundType.Music, true);
+        this.audio.play('game_theme_music', SoundType.Music, true);
     }
 
     setBackLobby() {

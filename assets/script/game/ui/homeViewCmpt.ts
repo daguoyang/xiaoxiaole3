@@ -219,7 +219,7 @@ export class homeViewCmpt extends BaseViewCmpt {
     }
 
     onClick_localBtn() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         let offsetY = this.scrollview.getMaxScrollOffset().y;
         let lv = App.gameLogic.curLevel;
         this.scrollview.scrollToOffset(v2(0, offsetY - Math.floor(lv / 8) * 1024), 1);
@@ -227,7 +227,7 @@ export class homeViewCmpt extends BaseViewCmpt {
     }
 
     onClick_head() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         this.showSelectedBtn('settingBtn');
         this.pageView.getPages().forEach((item, idx) => {
             item.active = idx == Pages.setting;
@@ -241,7 +241,7 @@ export class homeViewCmpt extends BaseViewCmpt {
     }
 
     onClick_settingBtn(node: Node) {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         this.showSelectedBtn(node.name);
         this.pageView.getPages().forEach((item, idx) => {
             item.active = idx == Pages.setting;
@@ -249,7 +249,7 @@ export class homeViewCmpt extends BaseViewCmpt {
         this.pageView.scrollToPage(Pages.setting, this.pageTime);
     }
     onClick_shopBtn(node: Node) {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         this.showSelectedBtn(node.name);
         this.pageView.getPages().forEach((item, idx) => {
             item.active = idx == Pages.shop;
@@ -257,7 +257,7 @@ export class homeViewCmpt extends BaseViewCmpt {
         this.pageView.scrollToPage(Pages.shop, this.pageTime);
     }
     onClick_homeBtn(node: Node) {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         this.showSelectedBtn(node.name);
         this.pageView.getPages().forEach((item, idx) => {
             item.active = idx == Pages.home;
@@ -268,7 +268,7 @@ export class homeViewCmpt extends BaseViewCmpt {
         }
     }
     onClick_rankBtn(node: Node) {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         this.showSelectedBtn(node.name);
         this.pageView.getPages().forEach((item, idx) => {
             item.active = idx == Pages.rank;
@@ -276,7 +276,7 @@ export class homeViewCmpt extends BaseViewCmpt {
         this.pageView.scrollToPage(Pages.rank, this.pageTime);
     }
     onClick_shareBtn(node: Node) {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         this.showSelectedBtn(node.name);
         this.pageView.getPages().forEach((item, idx) => {
             item.active = idx == Pages.share;
@@ -339,7 +339,7 @@ export class homeViewCmpt extends BaseViewCmpt {
     }
 
     onClick_sharePageBtn() {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");
         Advertise.showVideoAds();
     }

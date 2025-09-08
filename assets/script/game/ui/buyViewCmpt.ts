@@ -22,7 +22,7 @@ export class buyViewCmpt extends BaseViewCmpt {
     }
 
     loadExtraData() {
-        App.audio.play('UI_PopUp');
+        App.audio.play('interface_popup_sound');
         this.updateGoldDisplay();
     }
 
@@ -35,7 +35,7 @@ export class buyViewCmpt extends BaseViewCmpt {
      * 处理所有按钮点击 - 统一显示广告并给奖励
      */
     handleBtnEvent(btn: Node) {
-        App.audio.play('button_click');
+        App.audio.play('ui_touch_feedback');
         
         // 显示广告
         console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");

@@ -20,7 +20,7 @@ export class loadingViewCmpt extends BaseViewCmpt {
         this.spPro.getComponent(UITransform).width = 0;
         CocosHelper.updateLabelText(this.lbPro, "Loading... 0.00%", false);
         this.startLoadResources();
-        App.audio.play('background', SoundType.Music, true);
+        App.audio.play('game_theme_music', SoundType.Music, true);
     }
 
     startLoadResources() {

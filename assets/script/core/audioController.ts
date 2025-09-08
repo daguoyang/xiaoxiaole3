@@ -58,7 +58,7 @@ export class AudioController extends BaseSystem {
         let audioClip = this.audioClips.get(clipName);
         if (!audioClip) {
             try {
-                audioClip = await ResLoadHelper.loadCommonAssetSync(`audio/${clipName}`, AudioClip);
+                audioClip = await ResLoadHelper.loadCommonAssetSync(`sound/${clipName}`, AudioClip);
                 this.audioClips.set(clipName, audioClip);
             } catch (error) {
                 console.error(`Failed to load audio clip: ${clipName}`, error);
