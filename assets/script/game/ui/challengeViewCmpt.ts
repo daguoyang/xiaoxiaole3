@@ -1,6 +1,6 @@
 import { _decorator, Node, isValid } from 'cc';
 import { BaseViewCmpt } from '../../components/baseViewCmpt';
-import { Bomb, LevelData } from '../../const/enumConst';
+import { PowerUpType, Bomb, LevelData } from '../../const/enumConst';
 import { EventName } from '../../const/eventName';
 import { LevelConfig } from '../../const/levelConfig';
 import { ViewName } from '../../const/viewNameConst';
@@ -11,7 +11,7 @@ import { Advertise } from '../../wx/advertise';
 import { gridCmpt } from './item/gridCmpt';
 const { ccclass, property } = _decorator;
 
-@ccclass('LevelSelectController')
+@ccclass('challengeViewCmpt')
 export class LevelSelectController extends BaseViewCmpt {
     private lv: number = 0;
     private lbTool1: Node = null;

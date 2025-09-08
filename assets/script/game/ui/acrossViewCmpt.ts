@@ -3,7 +3,7 @@ const { ccclass, property } = _decorator;
 import { BaseViewCmpt } from '../../components/baseViewCmpt';
 import { ViewName } from '../../const/viewNameConst';
 import { App } from '../../core/app';
-@ccclass('TransitionDialog')
+@ccclass('acrossViewCmpt')
 export class TransitionDialog extends BaseViewCmpt {
     onLoad() {
         super.onLoad();

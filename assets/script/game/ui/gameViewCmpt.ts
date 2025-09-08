@@ -1,6 +1,6 @@
 import { _decorator, Node, v3, UITransform, instantiate, Vec3, tween, Prefab, Vec2, Sprite, isValid } from 'cc';
 import { BaseViewCmpt } from '../../components/baseViewCmpt';
-import { Bomb, Constant, LevelData, PageIndex } from '../../const/enumConst';
+import { PowerUpType, Bomb, Constant, LevelData, NavigationIndex, PageIndex } from '../../const/enumConst';
 import { EventName } from '../../const/eventName';
 import { LevelConfig } from '../../const/levelConfig';
 import { ViewName } from '../../const/viewNameConst';
@@ -16,7 +16,7 @@ import { gridCmpt } from './item/gridCmpt';
 import { rocketCmpt } from './item/rocketCmpt';
 const { ccclass, property } = _decorator;
 
-@ccclass('SweetMatchGameView')
+@ccclass('gameViewCmpt')
 export class SweetMatchGameView extends BaseViewCmpt {
     /**  ui */
     private gridMgr: GameGridManager = null;

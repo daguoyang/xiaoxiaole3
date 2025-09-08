@@ -11,7 +11,7 @@ const { ccclass, property } = _decorator;
 /**
  * 商店页面组件 - 已简化为广告奖励系统
  */
-@ccclass('ShopController')
+@ccclass('buyViewCmpt')
 export class ShopController extends BaseViewCmpt {
     private content: Node = null;
     private lbGold: Node = null;

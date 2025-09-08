@@ -115,23 +115,38 @@ export interface LevelData {
     mapData: mapData[]
 }
 
-/** 炸弹编号 */
-export enum Bomb {
-    /** 竖向 */
-    ver = 8,
-    /** 横向 */
-    hor = 9,
-    /** 周围特效 */
-    bomb = 10,
-    /** 消灭所有同一类型 */
-    allSame = 11,
+/** 能量道具类型枚举 */
+export enum PowerUpType {
+    /** 垂直爆破 */
+    VERTICAL_BLAST = 8,
+    /** 水平爆破 */
+    HORIZONTAL_BLAST = 9,
+    /** 区域炸弹 */
+    AREA_BOMB = 10,
+    /** 彩虹消除 */
+    RAINBOW_STRIKE = 11,
 }
 
-/** 页面跳转索引 */
-export enum PageIndex {
-    shop = 0,
-    rank,
-    home,
-    share,
-    setting,
+/** 向后兼容 - 保持原有接口 */
+export const Bomb = {
+    /** 垂直爆破 */
+    ver: PowerUpType.VERTICAL_BLAST,
+    /** 水平爆破 */
+    hor: PowerUpType.HORIZONTAL_BLAST,
+    /** 区域炸弹 */
+    bomb: PowerUpType.AREA_BOMB,
+    /** 彩虹消除 */
+    allSame: PowerUpType.RAINBOW_STRIKE,
+};
+
+/** 界面导航枚举 */
+export enum NavigationIndex {
+    SHOP_SECTION = 0,
+    RANKING_SECTION,
+    HOME_SECTION,
+    SOCIAL_SECTION,
+    CONFIG_SECTION,
 }
+
+/** 向后兼容 - 保持原有接口 */
+export const PageIndex = NavigationIndex;

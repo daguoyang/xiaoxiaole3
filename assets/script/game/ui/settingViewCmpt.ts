@@ -1,6 +1,6 @@
 import { _decorator, Component, Node, isValid } from 'cc';
 import { BaseViewCmpt } from '../../components/baseViewCmpt';
-import { PageIndex } from '../../const/enumConst';
+import { NavigationIndex, PageIndex } from '../../const/enumConst';
 import { EventName } from '../../const/eventName';
 import { LevelConfig } from '../../const/levelConfig';
 import { ViewName } from '../../const/viewNameConst';
@@ -12,7 +12,7 @@ import { WxManager, WxMgr } from '../../wx/wxManager';
 import { Advertise } from '../../wx/advertise';
 const { ccclass, property } = _decorator;
 
-@ccclass('GameConfigController')
+@ccclass('settingViewCmpt')
 export class GameConfigController extends BaseViewCmpt {
     private lbName: Node = null;
     private lbHeart: Node = null;

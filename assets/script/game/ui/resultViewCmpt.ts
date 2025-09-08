@@ -9,7 +9,7 @@ import { Advertise } from '../../wx/advertise';
 import { gridCmpt } from './item/gridCmpt';
 const { ccclass, property } = _decorator;
 
-@ccclass('GameResultController')
+@ccclass('resultViewCmpt')
 export class GameResultController extends BaseViewCmpt {
     private isWin: boolean = false;
     private level: number = 0;

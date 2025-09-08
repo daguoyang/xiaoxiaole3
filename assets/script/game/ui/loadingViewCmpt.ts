@@ -7,7 +7,7 @@ import { CocosHelper } from '../../utils/cocosHelper';
 import { ResLoadHelper } from '../../utils/resLoadHelper';
 const { ccclass } = _decorator;
 
-@ccclass('LoadingScene')
+@ccclass('loadingViewCmpt')
 export class LoadingScene extends BaseViewCmpt {
     private spPro: Node = null;
     private spProWidth: number = 0;

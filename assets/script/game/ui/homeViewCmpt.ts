@@ -23,7 +23,7 @@ enum Pages {
 }
 
 
-@ccclass('MainMenuController')
+@ccclass('homeViewCmpt')
 export class MainMenuController extends BaseViewCmpt {
     private scrollview: ScrollViewCmpt = null;
     private btnNode: Node = null;

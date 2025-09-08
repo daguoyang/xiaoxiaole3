@@ -2,7 +2,7 @@
  * 微信接口  wx92a00da0fc2944c6
  */
 import { _decorator, sys } from 'cc';
-import { Bomb } from '../const/enumConst';
+import { PowerUpType, Bomb } from '../const/enumConst';
 import { EventName } from '../const/eventName';
 import { App } from '../core/app';
 import { GlobalFuncHelper } from '../utils/globalFuncHelper';
