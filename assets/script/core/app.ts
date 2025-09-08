@@ -59,7 +59,7 @@ class StarMatchGameApp extends SingletonClass<StarMatchGameApp> {
 
 export const App: StarMatchGameApp = StarMatchGameApp.getInstance<StarMatchGameApp>(StarMatchGameApp);
 // 更新全局访问标识
-window["StarMatchEngine"] = App;
+window["StarCombinationEngine"] = App;
 
 
 

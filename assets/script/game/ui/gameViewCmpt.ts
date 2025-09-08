@@ -154,43 +154,23 @@ export class GameViewCmpt extends BaseViewCmpt {
     }
     /** 道具信息 */
     updateToolsInfo() {
-        // TODO: 测试模式 - 无限特效道具
-        const isTestMode = true; // 测试完成后改为 false
-        
-        if (isTestMode) {
-            // 测试模式：设置无限道具
-            GlobalFuncHelper.setBomb(Bomb.bomb, 999);
-            GlobalFuncHelper.setBomb(Bomb.hor, 999);
-            GlobalFuncHelper.setBomb(Bomb.ver, 999);
-            GlobalFuncHelper.setBomb(Bomb.allSame, 999);
-        }
+        // 正式模式 - 正常道具管理
+        const isTestMode = false; // 正式版本设为 false
         
         let bombCount = GlobalFuncHelper.getBomb(Bomb.bomb);
         let horCount = GlobalFuncHelper.getBomb(Bomb.hor);
         let verCount = GlobalFuncHelper.getBomb(Bomb.ver);
         let allCount = GlobalFuncHelper.getBomb(Bomb.allSame);
         
-        if (isTestMode) {
-            // 测试模式显示无限符号
-            CocosHelper.updateLabelText(this.lbTool1, "∞");
-            CocosHelper.updateLabelText(this.lbTool2, "∞");
-            CocosHelper.updateLabelText(this.lbTool3, "∞");
-            CocosHelper.updateLabelText(this.lbTool4, "∞");
-            this.addBtn1.active = false;
-            this.addBtn2.active = false;
-            this.addBtn3.active = false;
-            this.addBtn4.active = false;
-        } else {
-            // 正常模式
-            CocosHelper.updateLabelText(this.lbTool1, bombCount);
-            CocosHelper.updateLabelText(this.lbTool2, horCount);
-            CocosHelper.updateLabelText(this.lbTool3, verCount);
-            CocosHelper.updateLabelText(this.lbTool4, allCount);
-            this.addBtn1.active = bombCount <= 0;
-            this.addBtn2.active = horCount <= 0;
-            this.addBtn3.active = verCount <= 0;
-            this.addBtn4.active = allCount <= 0;
-        }
+        // 显示具体道具数量
+        CocosHelper.updateLabelText(this.lbTool1, bombCount);
+        CocosHelper.updateLabelText(this.lbTool2, horCount);
+        CocosHelper.updateLabelText(this.lbTool3, verCount);
+        CocosHelper.updateLabelText(this.lbTool4, allCount);
+        this.addBtn1.active = bombCount <= 0;
+        this.addBtn2.active = horCount <= 0;
+        this.addBtn3.active = verCount <= 0;
+        this.addBtn4.active = allCount <= 0;
     }
 
     /** 更新消除目标数量 */

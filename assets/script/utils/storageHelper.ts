@@ -38,7 +38,7 @@ class StorageKey {
     Star = "Star";
     /** 炸弹 */
     BombHor = "BombHor";
-    BombVer = "BomVerr";
+    BombVer = "BombVer";
     BombBomb = "BombBomb";
     BombAllSame = "BombAllSame";
     Heart = "Heart";

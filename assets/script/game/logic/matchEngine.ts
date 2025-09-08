@@ -1,9 +1,9 @@
 import { BaseSystem } from '../../core/baseSystem';
 
 /**
- * 简化的匹配引擎 - 用于快速修复构建
+ * 简化的组合引擎 - 用于快速修复构建
  */
-export class MatchEngine extends BaseSystem {
+export class CombinationEngine extends BaseSystem {
     public currentLevel: number = 1;
     public gameConfig = {
         tileTypes: { length: 5 },
@@ -13,7 +13,7 @@ export class MatchEngine extends BaseSystem {
     };
 
     protected async onInitialize(): Promise<void> {
-        console.log('MatchEngine (simple) initialized');
+        console.log('CombinationEngine initialized');
     }
 
     protected async onDestroy(): Promise<void> {

@@ -204,8 +204,8 @@ export class HeartManager extends SingletonClass<HeartManager> {
      */
     private emitHeartUpdateEvent(): void {
         // 使用全局事件管理器，避免直接引用App
-        if (typeof window !== 'undefined' && window['StarMatchEngine']) {
-            window['StarMatchEngine'].event.emit(EventName.Game.HeartUpdate);
+        if (typeof window !== 'undefined' && window['StarCombinationEngine']) {
+            window['StarCombinationEngine'].event.emit(EventName.Game.HeartUpdate);
         }
     }
     
@@ -214,8 +214,8 @@ export class HeartManager extends SingletonClass<HeartManager> {
      */
     private showMessageTips(message: string): void {
         // 使用全局事件管理器，避免直接引用App
-        if (typeof window !== 'undefined' && window['StarMatchEngine']) {
-            window['StarMatchEngine'].view.showMsgTips(message);
+        if (typeof window !== 'undefined' && window['StarCombinationEngine']) {
+            window['StarCombinationEngine'].view.showMsgTips(message);
         }
     }
 }

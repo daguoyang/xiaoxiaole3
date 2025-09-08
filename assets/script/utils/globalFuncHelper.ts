@@ -98,13 +98,13 @@ class Helper {
     getBomb(type: Bomb) {
         switch (type) {
             case Bomb.hor:
-                return +StorageHelper.getData(StorageHelperKey.BombHor);
+                return +StorageHelper.getData(StorageHelperKey.BombHor, 3);
             case Bomb.ver:
-                return +StorageHelper.getData(StorageHelperKey.BombVer);
+                return +StorageHelper.getData(StorageHelperKey.BombVer, 3);
             case Bomb.bomb:
-                return +StorageHelper.getData(StorageHelperKey.BombBomb);
+                return +StorageHelper.getData(StorageHelperKey.BombBomb, 3);
             case Bomb.allSame:
-                return +StorageHelper.getData(StorageHelperKey.BombAllSame);
+                return +StorageHelper.getData(StorageHelperKey.BombAllSame, 3);
         }
     }
 

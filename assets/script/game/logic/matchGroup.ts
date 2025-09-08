@@ -1,9 +1,9 @@
 import { TileComponent } from '../ui/item/tileComponent';
 
 /**
- * 匹配组 - 简化版本
+ * 元素组 - 简化版本
  */
-export class MatchGroup {
+export class ElementGroup {
     private tiles: TileComponent[] = [];
 
     constructor(tiles: TileComponent[] = []) {
@@ -16,7 +16,7 @@ export class MatchGroup {
 
     getCenterTile(): TileComponent {
         if (this.tiles.length === 0) {
-            throw new Error('No tiles in match group');
+            throw new Error('No tiles in element group');
         }
         return this.tiles[Math.floor(this.tiles.length / 2)];
     }
