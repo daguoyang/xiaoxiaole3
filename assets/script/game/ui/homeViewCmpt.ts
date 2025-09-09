@@ -1,16 +1,16 @@
 import { _decorator, Node, Vec3, Prefab, instantiate, v2, ScrollView, PageView, UITransform, Sprite, SpriteFrame, Color, isValid } from 'cc';
-import { BaseViewCmpt } from '../../components/baseViewCmpt';
-import { ScrollViewCmpt } from '../../components/scrollViewCmpt';
-import { EventName } from '../../const/eventName';
+import { BaseViewCmpt } from '../../base/baseViewCmpt';
+import { ScrollViewCmpt } from '../../base/scrollViewCmpt';
+import { EventName } from '../../definitions/eventName';
 import { mapCmpt } from './item/mapCmpt';
-import { LevelConfig } from '../../const/levelConfig';
-import { ViewName } from '../../const/viewNameConst';
+import { LevelConfig } from '../../definitions/levelConfig';
+import { ViewName } from '../../definitions/viewNameConst';
 import { App } from '../../core/app';
-import { CocosHelper } from '../../utils/cocosHelper';
-import { GlobalFuncHelper } from '../../utils/globalFuncHelper';
-import { ResLoadHelper } from '../../utils/resLoadHelper';
-import { StorageHelper, StorageHelperKey } from '../../utils/storageHelper';
-import { ToolsHelper } from '../../utils/toolsHelper';
+import { CocosHelper } from '../../helpers/cocosHelper';
+import { GlobalFuncHelper } from '../../helpers/globalFuncHelper';
+import { ResLoadHelper } from '../../helpers/resLoadHelper';
+import { StorageHelper, StorageHelperKey } from '../../helpers/storageHelper';
+import { ToolsHelper } from '../../helpers/toolsHelper';
 import { Advertise } from '../../wx/advertise';
 const { ccclass, property } = _decorator;
 

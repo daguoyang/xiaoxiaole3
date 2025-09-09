@@ -1,10 +1,10 @@
 import { _decorator, Node, UITransform, AssetManager } from 'cc';
-import { BaseViewCmpt } from '../../components/baseViewCmpt';
-import { ViewName } from '../../const/viewNameConst';
+import { BaseViewCmpt } from '../../base/baseViewCmpt';
+import { ViewName } from '../../definitions/viewNameConst';
 import { App } from '../../core/app';
 import { SoundType } from '../../core/audioManager';
-import { CocosHelper } from '../../utils/cocosHelper';
-import { ResLoadHelper } from '../../utils/resLoadHelper';
+import { CocosHelper } from '../../helpers/cocosHelper';
+import { ResLoadHelper } from '../../helpers/resLoadHelper';
 const { ccclass } = _decorator;
 
 @ccclass('loadingViewCmpt')

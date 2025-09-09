@@ -1,7 +1,7 @@
 import { AudioClip, AudioSource, game, js, JsonAsset, Node } from "cc";
-import { PrintError, PrintLog } from "../utils/logHelper";
-import { ResLoadHelper } from "../utils/resLoadHelper";
-import { StorageHelper, StorageHelperKey } from "../utils/storageHelper";
+import { PrintError, PrintLog } from "../helpers/logHelper";
+import { ResLoadHelper } from "../helpers/resLoadHelper";
+import { StorageHelper, StorageHelperKey } from "../helpers/storageHelper";
 import { App } from "./app";
 import { SingletonClass } from "./singletonClass";
 

@@ -2,10 +2,10 @@
  * 微信接口  wx92a00da0fc2944c6
  */
 import { _decorator, sys } from 'cc';
-import { PowerUpType, Bomb } from '../const/enumConst';
-import { EventName } from '../const/eventName';
+import { PowerUpType, Bomb } from '../definitions/enumConst';
+import { EventName } from '../definitions/eventName';
 import { App } from '../core/app';
-import { GlobalFuncHelper } from '../utils/globalFuncHelper';
+import { GlobalFuncHelper } from '../helpers/globalFuncHelper';
 import { Advertise } from './advertise';
 export var IsGetInfo = false;
 export class WxManager {

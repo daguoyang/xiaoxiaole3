@@ -1,9 +1,9 @@
 import { EventKeyboard, Input, Node, input, _decorator } from 'cc';
-import { BaseNodeCmpt } from '../components/baseNodeCmpt';
-import { Direction } from '../const/enumConst';
-import { EventName } from '../const/eventName';
-import { LevelConfig } from '../const/levelConfig';
-import { ViewName } from '../const/viewNameConst';
+import { BaseNodeCmpt } from '../base/baseNodeCmpt';
+import { Direction } from '../definitions/enumConst';
+import { EventName } from '../definitions/eventName';
+import { LevelConfig } from '../definitions/levelConfig';
+import { ViewName } from '../definitions/viewNameConst';
 import { App } from '../core/app';
 const { ccclass, property } = _decorator;
 

@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Vec3, Vec2, UITransform } from 'cc';
-import { EventName } from '../../../const/eventName';
+import { EventName } from '../../../definitions/eventName';
 import { App } from '../../../core/app';
 const { ccclass, property } = _decorator;
 

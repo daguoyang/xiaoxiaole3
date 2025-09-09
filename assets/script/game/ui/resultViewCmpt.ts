@@ -1,10 +1,10 @@
 import { _decorator, Node, tween, v3 } from 'cc';
-import { BaseViewCmpt } from '../../components/baseViewCmpt';
-import { EventName } from '../../const/eventName';
-import { LevelConfig } from '../../const/levelConfig';
-import { ViewName } from '../../const/viewNameConst';
+import { BaseViewCmpt } from '../../base/baseViewCmpt';
+import { EventName } from '../../definitions/eventName';
+import { LevelConfig } from '../../definitions/levelConfig';
+import { ViewName } from '../../definitions/viewNameConst';
 import { App } from '../../core/app';
-import { GlobalFuncHelper } from '../../utils/globalFuncHelper';
+import { GlobalFuncHelper } from '../../helpers/globalFuncHelper';
 import { Advertise } from '../../wx/advertise';
 import { gridCmpt } from './item/gridCmpt';
 const { ccclass, property } = _decorator;

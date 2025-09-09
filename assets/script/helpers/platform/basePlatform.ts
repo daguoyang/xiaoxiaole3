@@ -1,5 +1,5 @@
 import { AssetManager, Camera, director, game, macro, Material, Rect, RenderTexture, Node, size, Sprite, SpriteFrame, view, ResolutionPolicy, UITransform } from "cc";
-import { ShareInfo } from "../../const/enumConst";
+import { ShareInfo } from "../../definitions/enumConst";
 
 export interface IPlatform {
     /** 加载子游戏 */

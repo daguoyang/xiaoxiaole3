@@ -4,7 +4,7 @@ import { Head, ModelAny } from "./globalUtils";
 import { getIp, IpType } from "./util";
 import { sys } from "cc";
 import { App } from "../core/app";
-import { EventName } from "../const/eventName";
+import { EventName } from "../definitions/eventName";
 
 export default class LLKNet {
     private socket: WebSocket = null as unknown as WebSocket;

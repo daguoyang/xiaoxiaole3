@@ -1,4 +1,4 @@
-import { ResLoadHelper } from "../utils/resLoadHelper";
+import { ResLoadHelper } from "../helpers/resLoadHelper";
 
 import { _decorator, Component, Node, NodePool, Prefab, instantiate, } from 'cc';
 const { ccclass, property } = _decorator;

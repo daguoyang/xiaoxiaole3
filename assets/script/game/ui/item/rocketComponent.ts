@@ -1,5 +1,5 @@
 import { _decorator, Component, Node } from 'cc';
-import { PowerUpType } from '../../../const/gameEnums';
+import { PowerUpType } from '../../../definitions/gameEnums';
 const { ccclass, property } = _decorator;
 
 @ccclass('RocketComponent')

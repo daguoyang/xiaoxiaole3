@@ -1,7 +1,7 @@
 import { _decorator, Component, Node } from 'cc';
 const { ccclass, property } = _decorator;
-import { BaseViewCmpt } from '../../components/baseViewCmpt';
-import { ViewName } from '../../const/viewNameConst';
+import { BaseViewCmpt } from '../../base/baseViewCmpt';
+import { ViewName } from '../../definitions/viewNameConst';
 import { App } from '../../core/app';
 @ccclass('acrossViewCmpt')
 export class TransitionDialog extends BaseViewCmpt {

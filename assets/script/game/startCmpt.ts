@@ -1,5 +1,5 @@
 import { _decorator, Component, Node } from 'cc';
-import { BaseViewCmpt } from '../components/baseViewCmpt';
+import { BaseViewCmpt } from '../base/baseViewCmpt';
 const { ccclass, property } = _decorator;
 
 @ccclass('startCmpt')

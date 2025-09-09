@@ -8,12 +8,12 @@ import { SubGameManager } from "./subGameManager";
 import { PlatformManager } from "./platformManager";
 import { UserInfo } from "./userInfo";
 import { NoticeManager } from "./noticeManager";
-import { StorageHelper } from "../utils/storageHelper";
+import { StorageHelper } from "../helpers/storageHelper";
 import TimeManager from "./timeManager";
 import { SimpleHeartManager } from './simpleHeartManager';
-import { MatchEngine } from "../game/logic/gameLogic";
+import { MatchEngine } from "../game/engine/gameLogic";
 import { WxMgr } from "../wx/wxManager";
-import { ViewName } from "../const/viewNameConst";
+import { ViewName } from "../definitions/viewNameConst";
 import { Node } from "cc";
 
 /**

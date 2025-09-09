@@ -1,5 +1,5 @@
 
-import { EventName } from "../const/eventName";
+import { EventName } from "../definitions/eventName";
 import { App } from "./app";
 import { SingletonClass } from "./singletonClass";
 

@@ -1,8 +1,8 @@
 import { _decorator, Node, Enum, v3, tween, Widget, Sprite, BlockInputEvents, Color, UITransform, EventTouch, Material, Component, Button, TweenAction, easing, EditBox, Layers, director, view, } from 'cc';
-import { WindowOpenType, WindowType } from '../const/enumConst';
+import { WindowOpenType, WindowType } from '../definitions/enumConst';
 import { App } from '../core/app';
-import { CocosHelper } from '../utils/cocosHelper';
-import { PrintLog } from '../utils/logHelper';
+import { CocosHelper } from '../helpers/cocosHelper';
+import { PrintLog } from '../helpers/logHelper';
 const { ccclass, property } = _decorator;
 
 /** 点击按钮等待时间 */

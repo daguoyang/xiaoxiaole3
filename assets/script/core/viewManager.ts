@@ -1,12 +1,12 @@
 
 import { instantiate, Prefab, Node, director, Label, isValid, UITransform, Vec3 } from "cc";
-import { BaseViewCmpt } from "../components/baseViewCmpt";
-import { PrefabPool } from "../components/prefabPool";
-import { WindowOpenType, WindowType } from "../const/enumConst";
-import { ViewName } from "../const/viewNameConst";
+import { BaseViewCmpt } from "../base/baseViewCmpt";
+import { PrefabPool } from "../base/prefabPool";
+import { WindowOpenType, WindowType } from "../definitions/enumConst";
+import { ViewName } from "../definitions/viewNameConst";
 import { NotificationWidget } from "../game/ui/tipsViewCmpt";
-import { PrintError, PrintLog } from "../utils/logHelper";
-import { ResLoadHelper } from "../utils/resLoadHelper";
+import { PrintError, PrintLog } from "../helpers/logHelper";
+import { ResLoadHelper } from "../helpers/resLoadHelper";
 import { App } from "./app";
 import { SingletonClass } from "./singletonClass";
 

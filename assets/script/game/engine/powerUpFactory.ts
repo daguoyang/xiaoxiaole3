@@ -1,4 +1,4 @@
-import { PowerUpType } from '../../const/gameEnums';
+import { PowerUpType } from '../../definitions/gameEnums';
 import { TileComponent } from '../ui/item/tileComponent';
 import { GridMap } from './gridMap';
 

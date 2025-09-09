@@ -1,6 +1,6 @@
 import { game } from "cc";
-import { ShareInfo } from "../../const/enumConst";
-import { EventName } from "../../const/eventName";
+import { ShareInfo } from "../../definitions/enumConst";
+import { EventName } from "../../definitions/eventName";
 import { App } from "../../core/app";
 import { PrintLog } from "../logHelper";
 import { NativePlatform, Native_Operation } from "./nativePlatform";

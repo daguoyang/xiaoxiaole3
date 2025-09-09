@@ -1,5 +1,5 @@
 import { Node, } from "cc";
-import { PowerUpType, Bomb } from "../../const/enumConst";
+import { PowerUpType, Bomb } from "../../definitions/enumConst";
 import { SingletonClass } from "../../core/singletonClass"
 import { gridCmpt } from "../ui/item/gridCmpt";
 

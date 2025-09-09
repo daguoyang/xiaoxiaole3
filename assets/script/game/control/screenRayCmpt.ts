@@ -1,6 +1,6 @@
 import { _decorator, input, Input, EventTouch } from 'cc';
-import { BaseNodeCmpt } from '../../components/baseNodeCmpt';
-import { EventName } from '../../const/eventName';
+import { BaseNodeCmpt } from '../../base/baseNodeCmpt';
+import { EventName } from '../../definitions/eventName';
 import { App } from '../../core/app';
 const { ccclass, property } = _decorator;
 /**

@@ -1,6 +1,6 @@
 
 import { instantiate, Node, ScrollView, size, UITransform, Vec3, Widget, _decorator } from "cc";
-import { EventName } from "../const/eventName";
+import { EventName } from "../definitions/eventName";
 import { App } from "../core/app";
 import ScrollItemCmpt from "./scrollItemCmpt";
 const { ccclass, property } = _decorator;

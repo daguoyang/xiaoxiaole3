@@ -1,7 +1,7 @@
 // import { ProtoMsgId } from "../../plugins/protoMsgId";
-// import { DataOptions, Marqueetype, NtcDataOptions, RechargeReturn, RecommentType } from "../const/enumConst";
-// import { EventName } from "../const/eventName";
-// import { GlobalFuncHelper } from "../utils/globalFuncHelper";
+// import { DataOptions, Marqueetype, NtcDataOptions, RechargeReturn, RecommentType } from "../definitions/enumConst";
+// import { EventName } from "../definitions/eventName";
+// import { GlobalFuncHelper } from "../helpers/globalFuncHelper";
 // import { App } from "./app";
 import { SingletonClass } from "./singletonClass";
 

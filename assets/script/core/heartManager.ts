@@ -1,7 +1,7 @@
 import { SingletonClass } from './singletonClass';
-import { EventName } from '../const/eventName';
-import { GlobalFuncHelper } from '../utils/globalFuncHelper';
-import { StorageHelper, StorageHelperKey } from '../utils/storageHelper';
+import { EventName } from '../definitions/eventName';
+import { GlobalFuncHelper } from '../helpers/globalFuncHelper';
+import { StorageHelper, StorageHelperKey } from '../helpers/storageHelper';
 
 /**
  * 体力管理器 - 完整的体力系统

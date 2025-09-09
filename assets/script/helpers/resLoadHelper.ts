@@ -43,7 +43,7 @@ class Helper {
 
     /** 加载3D模型 */
     async loadModle(name: string) {
-        return await this.loadCommonAssetSync(`modle/${name}`, Prefab);
+        return await this.loadCommonAssetSync(`data/${name}`, Prefab);
     }
     /** 加载3D模型 */
     async loadPieces(name: string) {

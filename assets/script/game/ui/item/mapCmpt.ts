@@ -1,9 +1,9 @@
 import { _decorator, Node, Sprite, UITransform, v3 } from 'cc';
-import ScrollItemCmpt from '../../../components/scrollItemCmpt';
-import { LevelConfig } from '../../../const/levelConfig';
-import { ViewName } from '../../../const/viewNameConst';
+import ScrollItemCmpt from '../../../base/scrollItemCmpt';
+import { LevelConfig } from '../../../definitions/levelConfig';
+import { ViewName } from '../../../definitions/viewNameConst';
 import { App } from '../../../core/app';
-import { CocosHelper } from '../../../utils/cocosHelper';
+import { CocosHelper } from '../../../helpers/cocosHelper';
 const { ccclass, property } = _decorator;
 
 @ccclass('mapCmpt')

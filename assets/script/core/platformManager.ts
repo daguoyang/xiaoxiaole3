@@ -1,12 +1,12 @@
 import { SingletonClass } from "./singletonClass";
-import { IPlatform } from "../utils/platform/basePlatform";
-import { AndroidPlatform } from "../utils/platform/androidPlatform";
-import { IosPlatform } from "../utils/platform/iosPlatform";
-import { WebPlatform } from "../utils/platform/webPlatform";
-import { PrintError } from "../utils/logHelper";
-import { ToolsHelper } from "../utils/toolsHelper";
+import { IPlatform } from "../helpers/platform/basePlatform";
+import { AndroidPlatform } from "../helpers/platform/androidPlatform";
+import { IosPlatform } from "../helpers/platform/iosPlatform";
+import { WebPlatform } from "../helpers/platform/webPlatform";
+import { PrintError } from "../helpers/logHelper";
+import { ToolsHelper } from "../helpers/toolsHelper";
 import { App } from "./app";
-import { PlatFormType, ShareInfo } from "../const/enumConst";
+import { PlatFormType, ShareInfo } from "../definitions/enumConst";
 import { AssetManager, Material, Node, sys } from "cc";
 
 /**

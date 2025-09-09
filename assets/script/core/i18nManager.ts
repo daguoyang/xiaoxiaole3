@@ -1,8 +1,8 @@
 import { Component, isValid, JsonAsset, Label, Node, RichText, SpriteFrame } from "cc";
-import i18nLabel from "../components/i18nLabel";
-import i18nSprite from "../components/i18nSprite";
-import { PrintError, PrintLog } from "../utils/logHelper";
-import { ResLoadHelper } from "../utils/resLoadHelper";
+import i18nLabel from "../base/i18nLabel";
+import i18nSprite from "../base/i18nSprite";
+import { PrintError, PrintLog } from "../helpers/logHelper";
+import { ResLoadHelper } from "../helpers/resLoadHelper";
 import { SingletonClass } from "./singletonClass";
 
 /**

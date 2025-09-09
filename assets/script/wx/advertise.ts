@@ -1,5 +1,5 @@
 import { sys } from "cc";
-import { EventName } from "../const/eventName";
+import { EventName } from "../definitions/eventName";
 import { App } from "../core/app";
 import { WxMgr } from "./wxManager";
 

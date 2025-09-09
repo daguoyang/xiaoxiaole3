@@ -1,8 +1,8 @@
 import { _decorator, Component, Node, tween, Vec3 } from 'cc';
-import { BaseNodeCmpt } from '../../components/baseNodeCmpt';
-import { BaseViewCmpt } from '../../components/baseViewCmpt';
-import { CocosHelper } from '../../utils/cocosHelper';
-import { ToolsHelper } from '../../utils/toolsHelper';
+import { BaseNodeCmpt } from '../../base/baseNodeCmpt';
+import { BaseViewCmpt } from '../../base/baseViewCmpt';
+import { CocosHelper } from '../../helpers/cocosHelper';
+import { ToolsHelper } from '../../helpers/toolsHelper';
 const { ccclass, property } = _decorator;
 
 @ccclass('tipsViewCmpt')

@@ -1,4 +1,4 @@
-import { CocosHelper } from "../utils/cocosHelper";
+import { CocosHelper } from "../helpers/cocosHelper";
 
 
 import { _decorator, Component, Node, Button, EditBox } from 'cc';

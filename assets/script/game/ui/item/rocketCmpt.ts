@@ -1,6 +1,6 @@
 import { _decorator, Component, Node, tween, v3 } from 'cc';
-import { BaseNodeCmpt } from '../../../components/baseNodeCmpt';
-import { PowerUpType, Bomb } from '../../../const/enumConst';
+import { BaseNodeCmpt } from '../../../base/baseNodeCmpt';
+import { PowerUpType, Bomb } from '../../../definitions/enumConst';
 const { ccclass, property } = _decorator;
 
 @ccclass('rocketCmpt')

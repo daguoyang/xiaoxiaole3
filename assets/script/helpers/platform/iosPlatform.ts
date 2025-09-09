@@ -1,4 +1,4 @@
-import { ShareInfo } from "../../const/enumConst";
+import { ShareInfo } from "../../definitions/enumConst";
 import { NativePlatform } from "./nativePlatform";
 
 export class IosPlatform extends NativePlatform {

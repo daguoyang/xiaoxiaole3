@@ -1,5 +1,5 @@
-// import { HeadIcon } from "../const/enumConst";
-// import { LobbyConfig } from "../const/lobbyConfig";
+// import { HeadIcon } from "../definitions/enumConst";
+// import { LobbyConfig } from "../definitions/lobbyConfig";
 // import { App } from "../core/app";
 // import { PrintError, PrintLog } from "./logHelper";
 // import { ResLoadHelper } from "./resLoadHelper";

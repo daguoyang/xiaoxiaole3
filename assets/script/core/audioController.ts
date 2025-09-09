@@ -1,6 +1,6 @@
 import { Node, AudioClip, AudioSource } from 'cc';
 import { BaseSystem } from './baseSystem';
-import { ResLoadHelper } from '../utils/resLoadHelper';
+import { ResLoadHelper } from '../helpers/resLoadHelper';
 
 /**
  * 音频控制器 - 全新的音频管理系统

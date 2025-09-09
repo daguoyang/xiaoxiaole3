@@ -1,10 +1,10 @@
 import { _decorator, Node, isValid } from 'cc';
-import { BaseViewCmpt } from '../../components/baseViewCmpt';
-import { EventName } from '../../const/eventName';
-import { ViewName } from '../../const/viewNameConst';
+import { BaseViewCmpt } from '../../base/baseViewCmpt';
+import { EventName } from '../../definitions/eventName';
+import { ViewName } from '../../definitions/viewNameConst';
 import { App } from '../../core/app';
-import { CocosHelper } from '../../utils/cocosHelper';
-import { GlobalFuncHelper } from '../../utils/globalFuncHelper';
+import { CocosHelper } from '../../helpers/cocosHelper';
+import { GlobalFuncHelper } from '../../helpers/globalFuncHelper';
 import { Advertise } from '../../wx/advertise';
 const { ccclass, property } = _decorator;
 

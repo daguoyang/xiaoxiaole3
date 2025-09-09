@@ -1,8 +1,8 @@
 import { _decorator, Component, Node } from 'cc';
-import ScrollItemCmpt from '../../../components/scrollItemCmpt';
-import { RankData } from '../../../const/enumConst';
+import ScrollItemCmpt from '../../../base/scrollItemCmpt';
+import { RankData } from '../../../definitions/enumConst';
 import { App } from '../../../core/app';
-import { CocosHelper } from '../../../utils/cocosHelper';
+import { CocosHelper } from '../../../helpers/cocosHelper';
 const { ccclass, property } = _decorator;
 
 @ccclass('rankItemCmpt')

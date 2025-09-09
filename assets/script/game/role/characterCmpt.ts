@@ -1,7 +1,7 @@
 import { _decorator, Component, Node } from 'cc';
-import { BaseNodeCmpt } from '../../components/baseNodeCmpt';
-import { Direction } from '../../const/enumConst';
-import { EventName } from '../../const/eventName';
+import { BaseNodeCmpt } from '../../base/baseNodeCmpt';
+import { Direction } from '../../definitions/enumConst';
+import { EventName } from '../../definitions/eventName';
 import { App } from '../../core/app';
 const { ccclass, property } = _decorator;
 

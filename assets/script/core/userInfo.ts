@@ -1,9 +1,9 @@
 import { sys } from "cc";
-import { RankData } from "../const/enumConst";
-import { EventName } from "../const/eventName";
+import { RankData } from "../definitions/enumConst";
+import { EventName } from "../definitions/eventName";
 import { Router } from "../net/routers";
-import { GlobalFuncHelper } from "../utils/globalFuncHelper";
-import { StorageHelper, StorageHelperKey } from "../utils/storageHelper";
+import { GlobalFuncHelper } from "../helpers/globalFuncHelper";
+import { StorageHelper, StorageHelperKey } from "../helpers/storageHelper";
 import { App } from "./app";
 import { SingletonClass } from "./singletonClass";
 

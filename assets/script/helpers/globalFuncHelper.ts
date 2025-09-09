@@ -1,5 +1,5 @@
-import { PowerUpType, Bomb } from "../const/enumConst";
-import { ViewName } from "../const/viewNameConst";
+import { PowerUpType, Bomb } from "../definitions/enumConst";
+import { ViewName } from "../definitions/viewNameConst";
 import { App } from "../core/app";
 import { StorageHelper, StorageHelperKey } from "./storageHelper";
 

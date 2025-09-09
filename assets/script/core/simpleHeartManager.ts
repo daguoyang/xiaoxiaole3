@@ -1,6 +1,6 @@
 import { SingletonClass } from './singletonClass';
-import { GlobalFuncHelper } from '../utils/globalFuncHelper';
-import { StorageHelper, StorageHelperKey } from '../utils/storageHelper';
+import { GlobalFuncHelper } from '../helpers/globalFuncHelper';
+import { StorageHelper, StorageHelperKey } from '../helpers/storageHelper';
 
 /**
  * 简化版体力管理器 - 避免循环依赖

@@ -1,14 +1,14 @@
 import { _decorator, Component, Node } from 'cc';
-import { BaseViewCmpt } from '../../components/baseViewCmpt';
-import { ScrollViewCmpt } from '../../components/scrollViewCmpt';
-import { RankData } from '../../const/enumConst';
-import { LevelConfig } from '../../const/levelConfig';
-import { RankConfig } from '../../const/rankConfig';
+import { BaseViewCmpt } from '../../base/baseViewCmpt';
+import { ScrollViewCmpt } from '../../base/scrollViewCmpt';
+import { RankData } from '../../definitions/enumConst';
+import { LevelConfig } from '../../definitions/levelConfig';
+import { RankConfig } from '../../definitions/rankConfig';
 import { App } from '../../core/app';
 import { Net } from '../../net/net';
 import { Router } from '../../net/routers';
-import { GlobalFuncHelper } from '../../utils/globalFuncHelper';
-import { StorageHelper, StorageHelperKey } from '../../utils/storageHelper';
+import { GlobalFuncHelper } from '../../helpers/globalFuncHelper';
+import { StorageHelper, StorageHelperKey } from '../../helpers/storageHelper';
 import { rankItemCmpt } from './item/rankItemCmpt';
 const { ccclass, property } = _decorator;
 

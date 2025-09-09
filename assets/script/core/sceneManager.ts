@@ -1,7 +1,7 @@
 import { Node, Prefab, instantiate } from 'cc';
 import { BaseSystem } from './baseSystem';
-import { ResLoadHelper } from '../utils/resLoadHelper';
-import { BaseSceneController } from '../components/baseSceneController';
+import { ResLoadHelper } from '../helpers/resLoadHelper';
+import { BaseSceneController } from '../base/baseSceneController';
 
 /**
  * 场景管理器 - 全新的场景管理系统

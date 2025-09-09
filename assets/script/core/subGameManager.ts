@@ -1,8 +1,8 @@
 // import { ProtoMsgId } from "../../plugins/protoMsgId";
-// import { EventName } from "../const/eventName";
-// import { PrintError } from "../utils/logHelper";
-// import { ResLoadHelper } from "../utils/resLoadHelper";
-// import { ToolsHelper } from "../utils/toolsHelper";
+// import { EventName } from "../definitions/eventName";
+// import { PrintError } from "../helpers/logHelper";
+// import { ResLoadHelper } from "../helpers/resLoadHelper";
+// import { ToolsHelper } from "../helpers/toolsHelper";
 // import { App } from "./app";
 import { SingletonClass } from "./singletonClass"
 

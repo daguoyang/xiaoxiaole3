@@ -1,5 +1,5 @@
 import { BaseSystem } from './baseSystem';
-import { StorageHelper, StorageHelperKey } from '../utils/storageHelper';
+import { StorageHelper, StorageHelperKey } from '../helpers/storageHelper';
 
 /**
  * 用户档案 - 全新的用户数据管理系统

@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Vec3, Camera } from 'cc';
-import { BaseNodeCmpt } from '../components/baseNodeCmpt';
+import { BaseNodeCmpt } from '../base/baseNodeCmpt';
 import { App } from '../core/app';
 import { EventName } from './eventName';
 const { ccclass, property } = _decorator;

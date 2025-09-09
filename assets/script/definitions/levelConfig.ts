@@ -1,7 +1,7 @@
 import { js, JsonAsset } from "cc";
 import { App } from "../core/app";
-import { ResLoadHelper } from "../utils/resLoadHelper";
-import { StorageHelper, StorageHelperKey } from "../utils/storageHelper";
+import { ResLoadHelper } from "../helpers/resLoadHelper";
+import { StorageHelper, StorageHelperKey } from "../helpers/storageHelper";
 import { LevelData } from "./enumConst";
 
 class config {

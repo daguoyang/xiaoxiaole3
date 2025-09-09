@@ -1,8 +1,8 @@
 import { _decorator, Component, Node, Prefab, Vec3, v3, instantiate } from 'cc';
-import { Constant } from '../../const/enumConst';
-import { ViewName } from '../../const/viewNameConst';
+import { Constant } from '../../definitions/enumConst';
+import { ViewName } from '../../definitions/viewNameConst';
 import { App } from '../../core/app';
-import { ResLoadHelper } from '../../utils/resLoadHelper';
+import { ResLoadHelper } from '../../helpers/resLoadHelper';
 import { blockCmpt } from './item/blockCmpt';
 const { ccclass, property } = _decorator;
 

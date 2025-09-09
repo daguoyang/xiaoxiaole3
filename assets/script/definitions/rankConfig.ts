@@ -1,4 +1,4 @@
-import { StorageHelper, StorageHelperKey } from "../utils/storageHelper";
+import { StorageHelper, StorageHelperKey } from "../helpers/storageHelper";
 import { LevelCfgData, RankData } from "./enumConst";
 
 class config {
