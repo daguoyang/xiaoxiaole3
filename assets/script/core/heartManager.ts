@@ -10,8 +10,8 @@ export class HeartManager extends SingletonClass<HeartManager> {
     /** 最大体力值 */
     public static readonly MAX_HEART = 5;
     
-    /** 体力恢复间隔（毫秒）- 5分钟恢复1点体力 */
-    public static readonly HEART_RECOVER_INTERVAL = 5 * 60 * 1000;
+    /** 体力恢复间隔（毫秒）- 2分钟恢复1点体力 */
+    public static readonly HEART_RECOVER_INTERVAL = 2 * 60 * 1000;
     
     /** 检查间隔（毫秒）- 每1分钟检查一次 */
     private static readonly CHECK_INTERVAL = 60 * 1000;

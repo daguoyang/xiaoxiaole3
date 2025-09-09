@@ -266,10 +266,12 @@ export class WxManager {
         // 延迟发放奖励，保持游戏体验
         setTimeout(() => {
             GlobalFuncHelper.setGold(App.gameLogic.rewardGold);
-            GlobalFuncHelper.setBomb(Bomb.hor, 1);
-            GlobalFuncHelper.setBomb(Bomb.ver, 1);
-            GlobalFuncHelper.setBomb(Bomb.bomb, 1);
-            GlobalFuncHelper.setBomb(Bomb.allSame, 1);
+            // 注释掉道具奖励，避免重复闯关时意外获得道具
+            // GlobalFuncHelper.setBomb(Bomb.hor, 1);
+            // GlobalFuncHelper.setBomb(Bomb.ver, 1);
+            // GlobalFuncHelper.setBomb(Bomb.bomb, 1);
+            // GlobalFuncHelper.setBomb(Bomb.allSame, 1);
+            console.log("广告奖励：只发放金币，不发放道具");
             App.event.emit(EventName.Game.ToolCountRefresh);
             App.event.emit(EventName.Game.UpdataGold);
         }, 1000);

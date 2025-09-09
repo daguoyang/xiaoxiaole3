@@ -177,6 +177,21 @@ export class MainMenuController extends BaseViewCmpt {
             
             let heartText = `${currentHeart}/${maxHeart}`;
             const countdown = App.heartManager.getNextRecoverCountdown();
+            
+            // 关键修复：如果倒计时<=1秒，主动触发体力检查
+            if (countdown <= 1) {
+                console.log('倒计时即将结束，主动检查体力恢复');
+                App.heartManager.checkHeartRecover();
+                // 重新获取更新后的数据
+                const newHeart = App.heartManager.getCurrentHeart();
+                if (newHeart > currentHeart) {
+                    // 体力已恢复，直接更新UI
+                    console.log(`体力已恢复: ${currentHeart} -> ${newHeart}`);
+                    this.updateHeartInfo();
+                    return;
+                }
+            }
+            
             if (countdown > 0) {
                 const timeStr = App.heartManager.formatCountdown(countdown);
                 heartText += `\n${timeStr}`;

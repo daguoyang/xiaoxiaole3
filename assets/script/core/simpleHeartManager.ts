@@ -1,6 +1,7 @@
 import { SingletonClass } from './singletonClass';
 import { GlobalFuncHelper } from '../helpers/globalFuncHelper';
 import { StorageHelper, StorageHelperKey } from '../helpers/storageHelper';
+import { EventName } from '../definitions/eventName';
 
 /**
  * 简化版体力管理器 - 避免循环依赖
@@ -9,8 +10,8 @@ export class SimpleHeartManager extends SingletonClass<SimpleHeartManager> {
     /** 最大体力值 */
     public static readonly MAX_HEART = 5;
     
-    /** 体力恢复间隔（毫秒）- 5分钟恢复1点体力 */
-    public static readonly HEART_RECOVER_INTERVAL = 5 * 60 * 1000;
+    /** 体力恢复间隔（毫秒）- 2分钟恢复1点体力 */
+    public static readonly HEART_RECOVER_INTERVAL = 2 * 60 * 1000;
     
     private checkTimerInterval: any = null;
     
@@ -25,10 +26,10 @@ export class SimpleHeartManager extends SingletonClass<SimpleHeartManager> {
         // 启动时检查一次体力恢复
         this.checkHeartRecover();
         
-        // 设置定期检查（每分钟）
+        // 设置定期检查（每1秒 - 与UI倒计时同步）
         this.checkTimerInterval = setInterval(() => {
             this.checkHeartRecover();
-        }, 60 * 1000);
+        }, 1 * 1000);
     }
     
     protected onDestroy() {
@@ -40,9 +41,9 @@ export class SimpleHeartManager extends SingletonClass<SimpleHeartManager> {
     }
     
     /**
-     * 检查体力恢复
+     * 检查体力恢复 - 公开方法，允许UI主动调用
      */
-    private checkHeartRecover(): void {
+    checkHeartRecover(): void {
         const currentHeart = this.getCurrentHeart();
         if (currentHeart >= SimpleHeartManager.MAX_HEART) {
             return; // 体力已满，无需恢复
@@ -64,7 +65,20 @@ export class SimpleHeartManager extends SingletonClass<SimpleHeartManager> {
             StorageHelper.setData(StorageHelperKey.HeartRecoverTime, newRecoverTime.toString());
             
             console.log(`体力恢复：${currentHeart} -> ${newHeart}`);
+            
+            // 立即触发UI更新 - 通过事件系统（避免循环依赖）
+            try {
+                const App = (globalThis as any).App || (window as any).App;
+                if (App && App.event) {
+                    App.event.emit(EventName.Game.HeartUpdate);
+                    console.log('体力恢复事件已发送');
+                }
+            } catch (e) {
+                console.warn('发送体力恢复事件失败:', e);
+            }
+            return true; // 返回true表示有体力恢复
         }
+        return false; // 返回false表示没有体力恢复
     }
     
     /**
