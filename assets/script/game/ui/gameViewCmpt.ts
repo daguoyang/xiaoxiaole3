@@ -1992,12 +1992,36 @@ export class SweetMatchGameView extends BaseViewCmpt {
             console.log("没有可移动的元素，开始洗牌");
             await this.shuffleBoard();
             
-            // 洗牌后再次检查，避免无限循环
-            let hasMovesAfterShuffle = await this.detectPossibleMoves();
-            console.log("洗牌后可移动元素检查结果:", hasMovesAfterShuffle);
-            if (!hasMovesAfterShuffle) {
-                console.log("洗牌后仍无可移动元素，再次洗牌");
-                await this.shuffleBoard();
+            // 洗牌后检查是否有可以直接消除的元素
+            let hasMatchesAfterShuffle = await this.detectMatches();
+            console.log("洗牌后可消除元素检查结果:", hasMatchesAfterShuffle);
+            
+            if (hasMatchesAfterShuffle) {
+                console.log("洗牌后发现可消除元素，开始自动消除");
+                // 自动消除洗牌后产生的匹配
+                let matchResult = await this.startCheckThree();
+                if (matchResult) {
+                    // 如果有消除，继续检查是否有连锁消除
+                    this.checkAgain();
+                }
+            } else {
+                // 洗牌后没有可消除元素，再次检查可移动性，避免无限循环
+                let hasMovesAfterShuffle = await this.detectPossibleMoves();
+                console.log("洗牌后可移动元素检查结果:", hasMovesAfterShuffle);
+                if (!hasMovesAfterShuffle) {
+                    console.log("洗牌后仍无可移动元素，再次洗牌");
+                    await this.shuffleBoard();
+                    
+                    // 再次洗牌后也要检查是否有可消除元素
+                    let hasMatchesAfterSecondShuffle = await this.detectMatches();
+                    if (hasMatchesAfterSecondShuffle) {
+                        console.log("二次洗牌后发现可消除元素，开始自动消除");
+                        let matchResult = await this.startCheckThree();
+                        if (matchResult) {
+                            this.checkAgain();
+                        }
+                    }
+                }
             }
         } else {
             console.log("发现可移动元素，无需洗牌");
