@@ -5,6 +5,7 @@ import { gridCmpt } from "../ui/item/gridCmpt";
 import { RegionMatchDetector, MatchResult } from "./regionMatchDetector";
 import { EffectEventQueue, EffectEvent } from "./effectEventQueue";
 import { ScoreCalculator } from "./scoreCalculator";
+import { DynamicLevelGenerator } from "../level/dynamicLevelGenerator";
 
 export class MatchEngine extends SingletonClass<MatchEngine> {
     public rewardGold: number = 100;
@@ -20,6 +21,7 @@ export class MatchEngine extends SingletonClass<MatchEngine> {
     private regionDetector: RegionMatchDetector;
     private effectQueue: EffectEventQueue;
     private scoreCalculator: ScoreCalculator;
+    private levelGenerator: DynamicLevelGenerator;
     private gridMap: gridCmpt[][] = [];
     private gridWidth: number = 9;
     private gridHeight: number = 9;
@@ -30,6 +32,7 @@ export class MatchEngine extends SingletonClass<MatchEngine> {
         this.regionDetector = new RegionMatchDetector();
         this.effectQueue = new EffectEventQueue();
         this.scoreCalculator = new ScoreCalculator();
+        this.levelGenerator = new DynamicLevelGenerator();
     }
 
     protected onInit(...args: any[]) {
@@ -278,21 +281,36 @@ export class MatchEngine extends SingletonClass<MatchEngine> {
         return bool;
     }
 
+    /**
+     * 动态生成关卡地图 - 完全替代硬编码的defaultHidelist
+     */
     resetHdeList(lv: number) {
-        if (this.defaultHidelist[lv - 1]) {
-            this.hideList = this.defaultHidelist[lv - 1];
-            return;
+        console.log(`生成动态关卡: 第${lv}关`);
+        
+        // 使用动态生成器替代硬编码数组
+        this.hideList = this.levelGenerator.generateLevel(lv);
+        
+        console.log(`关卡${lv}生成完成，共${this.hideList.length}个障碍点`);
+        
+        // 可选：如果需要fallback，可以保留一个简单的默认模式
+        if (this.hideList.length === 0) {
+            console.warn(`关卡${lv}生成失败，使用默认模式`);
+            this.hideList = this.generateFallbackLevel(lv);
         }
-        if (this.hideFullList.length == 0) {
-            this.hideList = this.defaultHidelist[0];
-            return;
-        }
-        this.hideList = [];
-        let rand = Math.floor(Math.random() * 25);
-        for (let i = 0; i < rand; i++) {
-            let idx = Math.floor(Math.random() * this.hideFullList.length);
-            this.hideList.push(this.hideFullList[idx])
-        }
+    }
+
+    /**
+     * 简单的备用关卡生成（作为安全后备）
+     */
+    private generateFallbackLevel(lv: number): number[][] {
+        const fallbackPatterns = [
+            [[0, 0], [0, 8], [8, 0], [8, 8]], // 四角
+            [[4, 0], [4, 8], [0, 4], [8, 4]], // 十字边缘
+            [[2, 2], [2, 6], [6, 2], [6, 6]], // 内四角
+        ];
+        
+        const patternIndex = (lv - 1) % fallbackPatterns.length;
+        return fallbackPatterns[patternIndex];
     }
     /** 是否相邻 */
     isNeighbor(gc1: gridCmpt, gc2: gridCmpt) {
@@ -339,43 +357,6 @@ export class MatchEngine extends SingletonClass<MatchEngine> {
 
     }
 
-    /** 默认地图固定格式 */
-    private defaultHidelist = [
-        [[0, 0], [0, 1], [1, 0], [0, 8], [0, 7], [1, 8], [8, 0], [8, 1], [7, 0], [8, 8], [8, 7], [7, 8]],
-        [
-            [0, 0], [0, 1], [0, 2], [1, 0], [2, 0], [1, 1], [0, 8], [8, 8],
-            [6, 0], [7, 1], [8, 2], [7, 0], [8, 0], [8, 1],
-        ],
-        [[4, 5], [4, 6], [4, 7], [4, 8], [4, 0], [4, 1], [4, 2], [4, 3]],
-        [
-            [2, 8], [3, 8], [4, 8], [5, 8], [6, 8],
-            [3, 7], [5, 7], [4, 7], [4, 6]
-        ],
-        [[0, 4], [1, 4], [2, 4], [3, 4], [5, 4], [6, 4], [7, 4], [8, 4]],
-        [
-            [0, 4], [1, 4], [2, 4], [3, 4], [5, 4], [6, 4], [7, 4], [8, 4],
-            [4, 5], [4, 6], [4, 7], [4, 8], [4, 0], [4, 1], [4, 2], [4, 3]
-        ],
-        [
-            [3, 8], [4, 8], [5, 8], [3, 1], [4, 1], [5, 1],
-            [3, 7], [4, 7], [5, 7], [3, 0], [4, 0], [5, 0],
-            [0, 5], [1, 5], [2, 5], [6, 5], [7, 5], [8, 5],
-            [0, 4], [1, 4], [2, 4], [6, 4], [7, 4], [8, 4],
-            [0, 3], [1, 3], [2, 3], [6, 3], [7, 3], [8, 3]
-        ],
-        [
-            [0, 2], [1, 2], [2, 2], [6, 2], [7, 2], [8, 2], [0, 8], [1, 8], [2, 8], [6, 8], [7, 8], [8, 8],
-            [0, 1], [1, 1], [2, 1], [6, 1], [7, 1], [8, 1], [0, 7], [1, 7], [2, 7], [6, 7], [7, 7], [8, 7],
-            [0, 0], [1, 0], [2, 0], [6, 0], [7, 0], [8, 0], [0, 6], [1, 6], [2, 6], [6, 6], [7, 6], [8, 6]
-        ],
-        [
-            [0, 5], [1, 5], [2, 5], [6, 5], [7, 5], [8, 5],
-            [0, 4], [1, 4], [2, 4], [6, 4], [7, 4], [8, 4],
-            [0, 3], [1, 3], [2, 3], [6, 3], [7, 3], [8, 3]
-        ],
-        [
-            [0, 0], [1, 0], [2, 1], [3, 1], [4, 2], [5, 2], [6, 3], [7, 3], [8, 4], [6, 5], [7, 5], [4, 6], [5, 6], [2, 7], [3, 7], [0, 8], [1, 8]
-        ],
-    ]
+    // 硬编码的地图数据已移除 - 现在使用动态生成器
 }
 
