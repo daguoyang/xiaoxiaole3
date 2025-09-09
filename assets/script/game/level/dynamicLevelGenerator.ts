@@ -129,9 +129,14 @@ export class DynamicLevelGenerator {
      * 生成基础地图
      */
     private generateBaseMap(template: LevelTemplate): boolean[][] {
-        const map: boolean[][] = Array(this.gridHeight).fill(null).map(() => 
-            Array(this.gridWidth).fill(false)
-        );
+        // 修复数组初始化问题 - 确保每行都是独立的数组
+        const map: boolean[][] = [];
+        for (let i = 0; i < this.gridHeight; i++) {
+            map[i] = [];
+            for (let j = 0; j < this.gridWidth; j++) {
+                map[i][j] = false;
+            }
+        }
 
         // 应用所有模式规则
         for (const pattern of template.patterns) {
@@ -243,7 +248,8 @@ export class DynamicLevelGenerator {
             const h = Math.floor(centerH + radius * Math.sin(angle));
             const w = Math.floor(centerW + radius * Math.cos(angle));
 
-            if (h >= 0 && h < this.gridHeight && w >= 0 && w < this.gridWidth) {
+            // 确保边界检查
+            if (h >= 0 && h < this.gridHeight && w >= 0 && w < this.gridWidth && map[h] && map[h][w] !== undefined) {
                 map[h][w] = true;
             }
         }
@@ -262,7 +268,8 @@ export class DynamicLevelGenerator {
 
             for (let offset = -1; offset <= 1; offset++) {
                 const h = baseH + offset;
-                if (h >= 0 && h < this.gridHeight) {
+                // 确保边界检查
+                if (h >= 0 && h < this.gridHeight && j >= 0 && j < this.gridWidth && map[h] && map[h][j] !== undefined) {
                     map[h][j] = true;
                 }
             }
@@ -326,9 +333,18 @@ export class DynamicLevelGenerator {
         const targetHoles = Math.floor(totalCells * density);
 
         for (let count = 0; count < targetHoles; count++) {
-            const h = Math.floor(this.seededRandom() * this.gridHeight);
-            const w = Math.floor(this.seededRandom() * this.gridWidth);
-            map[h][w] = true;
+            let attempts = 0;
+            while (attempts < 10) { // 防止无限循环
+                const h = Math.floor(this.seededRandom() * this.gridHeight);
+                const w = Math.floor(this.seededRandom() * this.gridWidth);
+                
+                // 边界检查
+                if (h >= 0 && h < this.gridHeight && w >= 0 && w < this.gridWidth) {
+                    map[h][w] = true;
+                    break;
+                }
+                attempts++;
+            }
         }
     }
 
