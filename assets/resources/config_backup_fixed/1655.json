@@ -1,0 +1,30 @@
+{
+  "mapCount": 1,
+  "blockCount": 5,
+  "moveCount": 67,
+  "scores": [
+    1405,
+    6708,
+    6862
+  ],
+  "blockRatio": [
+    86,
+    100,
+    96,
+    93,
+    99
+  ],
+  "mapData": [
+    {
+      "m_id": [
+        420
+      ],
+      "m_ct": [
+        6
+      ],
+      "m_mk": [
+        13
+      ]
+    }
+  ]
+}

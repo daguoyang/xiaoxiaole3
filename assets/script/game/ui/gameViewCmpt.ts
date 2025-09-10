@@ -647,6 +647,14 @@ export class SweetMatchGameView extends BaseViewCmpt {
                             if (aNode) {
                                 aNode.active = true;
                             }
+                            // 停止五消元素的旋转动画
+                            let rotateComponent = node.getComponent('rotateSelf');
+                            if (rotateComponent) {
+                                node.removeComponent('rotateSelf');
+                                console.log("移除五消元素旋转组件");
+                            }
+                            // 重置角度为0，确保不再旋转
+                            node.angle = 0;
                         }
                     }
                 }
@@ -1929,11 +1937,11 @@ export class SweetMatchGameView extends BaseViewCmpt {
     }
 
     /**
-     * 播放洗牌特效动画
+     * 播放洗牌特效动画 - 优化版本
      */
     async playShuffleAnimation(): Promise<void> {
         return new Promise(resolve => {
-            // 所有元素随机旋转和缩放动画
+            // 所有元素随机旋转和缩放动画，增加波浪效果
             let animationCount = 0;
             let totalAnimations = 0;
             
@@ -1944,19 +1952,36 @@ export class SweetMatchGameView extends BaseViewCmpt {
                         if (grid && !this.isBomb(grid)) {
                             totalAnimations++;
                             
-                            // 随机延迟开始动画
-                            let delay = Math.random() * 0.5;
+                            // 基于位置计算波浪延迟，从左上角向右下角传播
+                            let waveDelay = (h + v) * 0.05;
+                            // 添加随机因子，让动画更自然
+                            let randomDelay = Math.random() * 0.3;
+                            let finalDelay = waveDelay + randomDelay;
                             
                             this.scheduleOnce(() => {
-                                // 旋转 + 缩放动画
+                                // 更生动的旋转 + 缩放 + 弹性动画
+                                let rotationAngle = (Math.random() - 0.5) * 720; // 更大的旋转角度
+                                
                                 tween(this.blockArr[h][v])
-                                    .to(0.2, { 
-                                        scale: v3(0.1, 0.1, 1),
-                                        angle: Math.random() * 360 
+                                    // 第一阶段：旋转并缩小，添加轻微的位置偏移
+                                    .to(0.15, { 
+                                        scale: v3(0.05, 0.05, 1),
+                                        angle: rotationAngle,
+                                        position: v3(
+                                            this.blockArr[h][v].position.x + (Math.random() - 0.5) * 20,
+                                            this.blockArr[h][v].position.y + (Math.random() - 0.5) * 20,
+                                            this.blockArr[h][v].position.z
+                                        )
                                     })
-                                    .to(0.2, { 
-                                        scale: v3(1, 1, 1),
-                                        angle: 0 
+                                    // 第二阶段：弹性恢复，回到原位
+                                    .to(0.25, { 
+                                        scale: v3(1.1, 1.1, 1),
+                                        angle: 0,
+                                        position: this.blockPosArr[h][v]
+                                    })
+                                    // 第三阶段：轻微回弹
+                                    .to(0.1, { 
+                                        scale: v3(1, 1, 1)
                                     })
                                     .call(() => {
                                         animationCount++;
@@ -1965,7 +1990,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
                                         }
                                     })
                                     .start();
-                            }, delay);
+                            }, finalDelay);
                         }
                     }
                 }
@@ -2497,6 +2522,14 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 if (aNode) {
                     aNode.active = true;
                 }
+                // 停止五消元素的旋转动画
+                let rotateComponent = node.getComponent('rotateSelf');
+                if (rotateComponent) {
+                    node.removeComponent('rotateSelf');
+                    console.log("移除五消元素旋转组件");
+                }
+                // 重置角度为0，确保不再旋转
+                node.angle = 0;
             }
         }
     }

@@ -39,7 +39,7 @@ export class DynamicLevelGenerator {
                 { type: 'border', weight: 0.7, params: { thickness: 2, corners: true } },
                 { type: 'scattered', weight: 0.3, params: { density: 0.1 } }
             ],
-            constraints: { minHoles: 8, maxHoles: 15, minConnectedRegions: 2, maxConnectedRegions: 4 }
+            constraints: { minHoles: 2, maxHoles: 6, minConnectedRegions: 1, maxConnectedRegions: 2 }
         },
         {
             name: 'cross_pattern',
@@ -48,7 +48,7 @@ export class DynamicLevelGenerator {
                 { type: 'cross', weight: 0.8, params: { thickness: 1, centerSize: 3 } },
                 { type: 'scattered', weight: 0.2, params: { density: 0.05 } }
             ],
-            constraints: { minHoles: 10, maxHoles: 20, minConnectedRegions: 1, maxConnectedRegions: 3 }
+            constraints: { minHoles: 4, maxHoles: 10, minConnectedRegions: 1, maxConnectedRegions: 3 }
         },
         {
             name: 'spiral_challenge',
@@ -57,7 +57,7 @@ export class DynamicLevelGenerator {
                 { type: 'spiral', weight: 0.6, params: { turns: 2, startRadius: 1 } },
                 { type: 'diamond', weight: 0.4, params: { size: 2 } }
             ],
-            constraints: { minHoles: 15, maxHoles: 25, minConnectedRegions: 2, maxConnectedRegions: 5 }
+            constraints: { minHoles: 6, maxHoles: 15, minConnectedRegions: 2, maxConnectedRegions: 4 }
         },
         {
             name: 'wave_formation',
@@ -66,7 +66,7 @@ export class DynamicLevelGenerator {
                 { type: 'wave', weight: 0.7, params: { amplitude: 2, frequency: 1.5 } },
                 { type: 'border', weight: 0.3, params: { thickness: 1, corners: false } }
             ],
-            constraints: { minHoles: 12, maxHoles: 22, minConnectedRegions: 3, maxConnectedRegions: 6 }
+            constraints: { minHoles: 8, maxHoles: 18, minConnectedRegions: 2, maxConnectedRegions: 5 }
         },
         {
             name: 'symmetry_master',
@@ -135,7 +135,7 @@ export class DynamicLevelGenerator {
     }
 
     /**
-     * 选择关卡模板
+     * 选择关卡模板 - 新的阶段划分
      */
     private selectTemplate(level: number): number {
         const maxTemplates = this.levelTemplates.length;
@@ -147,23 +147,27 @@ export class DynamicLevelGenerator {
         }
         
         let selectedIndex = 0;
+        let templateName = '';
         
-        // 前几关使用简单模板
-        if (level <= 5) {
-            selectedIndex = 0; // corner_focus
-        } else if (level <= 15) {
-            // 确保索引不会越界
-            const index = (level - 6) % 2 + 1;
-            selectedIndex = Math.min(index, maxTemplates - 1);
+        // 新的阶段划分
+        if (level <= 50) {
+            selectedIndex = 0; // corner_focus (1-50关)
+            templateName = 'corner_focus';
+        } else if (level <= 500) {
+            selectedIndex = 1; // cross_pattern (51-500关)
+            templateName = 'cross_pattern';
+        } else if (level <= 1000) {
+            selectedIndex = 2; // spiral_challenge (501-1000关)
+            templateName = 'spiral_challenge';
         } else {
-            // 高级关卡使用复杂模板 + 随机变化
-            const random = this.seededRandom();
-            const index = Math.floor(random * maxTemplates);
-            // 确保索引有效
-            selectedIndex = Math.max(0, Math.min(index, maxTemplates - 1));
+            selectedIndex = 3; // wave_formation (1000+关)
+            templateName = 'wave_formation';
         }
         
-        console.log(`🎯 选中模板索引: ${selectedIndex} (${this.levelTemplates[selectedIndex]?.name || '未知'})`);
+        // 确保索引不会越界
+        selectedIndex = Math.min(selectedIndex, maxTemplates - 1);
+        
+        console.log(`🎯 选中模板索引: ${selectedIndex} (${templateName}) - 关卡${level}`);
         return selectedIndex;
     }
 
