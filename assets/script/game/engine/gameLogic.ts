@@ -287,16 +287,117 @@ export class MatchEngine extends SingletonClass<MatchEngine> {
     resetHdeList(lv: number) {
         console.log(`生成动态关卡: 第${lv}关`);
         
-        // 使用动态生成器替代硬编码数组
-        this.hideList = this.levelGenerator.generateLevel(lv);
-        
-        console.log(`关卡${lv}生成完成，共${this.hideList.length}个障碍点`);
-        
-        // 可选：如果需要fallback，可以保留一个简单的默认模式
-        if (this.hideList.length === 0) {
-            console.warn(`关卡${lv}生成失败，使用默认模式`);
-            this.hideList = this.generateFallbackLevel(lv);
+        try {
+            // 输入验证
+            if (!lv || lv < 1 || lv > 10000) {
+                console.warn(`⚠️ 关卡号异常: ${lv}，使用关卡1`);
+                lv = 1;
+            }
+            
+            // 确保生成器存在
+            if (!this.levelGenerator) {
+                console.error('❌ 动态关卡生成器未初始化，重新创建');
+                this.levelGenerator = new DynamicLevelGenerator();
+            }
+            
+            // 使用动态生成器替代硬编码数组
+            const generatedLevel = this.levelGenerator.generateLevel(lv);
+            
+            // 验证生成结果
+            if (!generatedLevel || !Array.isArray(generatedLevel)) {
+                throw new Error(`生成器返回无效结果: ${generatedLevel}`);
+            }
+            
+            // 验证结果格式
+            for (const hole of generatedLevel) {
+                if (!Array.isArray(hole) || hole.length !== 2 || 
+                    typeof hole[0] !== 'number' || typeof hole[1] !== 'number' ||
+                    hole[0] < 0 || hole[0] >= this.gridHeight || 
+                    hole[1] < 0 || hole[1] >= this.gridWidth) {
+                    throw new Error(`生成的地图数据格式错误: ${JSON.stringify(hole)}`);
+                }
+            }
+            
+            this.hideList = generatedLevel;
+            console.log(`✅ 关卡${lv}生成成功，共${this.hideList.length}个障碍点`);
+            
+        } catch (error) {
+            console.error(`❌ 关卡${lv}生成异常:`, error);
+            console.warn(`使用安全的后备关卡模式`);
+            this.hideList = this.generateSafeFallbackLevel(lv);
         }
+        
+        // 最终验证 - 确保至少有一些障碍点
+        if (this.hideList.length === 0) {
+            console.warn(`⚠️ 关卡${lv}没有障碍点，添加基础障碍`);
+            this.hideList = this.generateMinimalLevel();
+        }
+    }
+
+    /**
+     * 安全的后备关卡生成
+     */
+    private generateSafeFallbackLevel(level: number): number[][] {
+        console.log(`🛡️ 生成安全后备关卡: ${level}`);
+        
+        const obstacles: number[][] = [];
+        const gridW = this.gridWidth;
+        const gridH = this.gridHeight;
+        
+        try {
+            // 根据关卡级别调整障碍密度
+            const density = Math.min(0.1 + (level - 1) * 0.02, 0.4); // 10%-40%
+            const targetCount = Math.floor(gridW * gridH * density);
+            
+            // 优先在边缘放置障碍
+            for (let i = 0; i < gridH; i++) {
+                for (let j = 0; j < gridW; j++) {
+                    const isEdge = i === 0 || i === gridH - 1 || j === 0 || j === gridW - 1;
+                    const isCorner = (i === 0 || i === gridH - 1) && (j === 0 || j === gridW - 1);
+                    
+                    // 边缘和角落放置概率更高
+                    let placeProbability = 0.1;
+                    if (isCorner) placeProbability = 0.8;
+                    else if (isEdge) placeProbability = 0.4;
+                    
+                    if (Math.random() < placeProbability && obstacles.length < targetCount) {
+                        obstacles.push([i, j]);
+                    }
+                }
+            }
+            
+            // 如果障碍不够，随机添加
+            while (obstacles.length < Math.max(5, Math.floor(targetCount * 0.8))) {
+                const h = Math.floor(Math.random() * gridH);
+                const w = Math.floor(Math.random() * gridW);
+                
+                // 避免重复
+                const exists = obstacles.some(([oh, ow]) => oh === h && ow === w);
+                if (!exists) {
+                    obstacles.push([h, w]);
+                }
+            }
+            
+            console.log(`🛡️ 安全后备关卡生成完成: ${obstacles.length}个障碍`);
+            return obstacles;
+            
+        } catch (error) {
+            console.error('❌ 安全后备关卡生成失败:', error);
+            return this.generateMinimalLevel();
+        }
+    }
+
+    /**
+     * 生成最小化安全关卡
+     */
+    private generateMinimalLevel(): number[][] {
+        console.log('🔧 生成最小安全关卡');
+        
+        // 最简单的关卡：四个角落有障碍
+        return [
+            [0, 0], [0, this.gridWidth - 1],
+            [this.gridHeight - 1, 0], [this.gridHeight - 1, this.gridWidth - 1]
+        ];
     }
 
     /**

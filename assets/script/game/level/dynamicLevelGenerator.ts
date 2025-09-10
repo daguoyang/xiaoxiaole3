@@ -89,7 +89,30 @@ export class DynamicLevelGenerator {
         const templateIndex = this.selectTemplate(level);
         const template = this.levelTemplates[templateIndex];
         
-        console.log(`生成关卡${level}：使用模板"${template.name}"，种子${this.seed}`);
+        // 防御性检查，确保模板存在
+        if (!template) {
+            console.warn(`⚠️ 关卡${level}模板不存在(索引${templateIndex})，使用默认模板`);
+            const fallbackTemplate = this.levelTemplates[0]; // 使用第一个模板作为后备
+            return this.generateWithTemplate(fallbackTemplate, level);
+        }
+        
+        console.log(`生成动态关卡: 第${level}关，使用模板"${template.name}"，种子${this.seed}`);
+        
+        // 生成基础地图
+        const holeMap = this.generateBaseMap(template);
+        
+        // 应用约束验证和调整
+        const validatedMap = this.validateAndAdjust(holeMap, template.constraints);
+        
+        // 转换为游戏需要的格式
+        return this.convertToGameFormat(validatedMap);
+    }
+
+    /**
+     * 使用指定模板生成关卡
+     */
+    private generateWithTemplate(template: LevelTemplate, level: number): number[][] {
+        console.log(`使用模板"${template.name}"生成第${level}关`);
         
         // 生成基础地图
         const holeMap = this.generateBaseMap(template);
@@ -106,23 +129,42 @@ export class DynamicLevelGenerator {
      */
     private createSeedFromLevel(level: number): number {
         // 使用数学函数创建伪随机但可重现的种子
-        return Math.floor(Math.sin(level * 12.9898 + 78.233) * 43758.5453 % 1000000);
+        const rawSeed = Math.sin(level * 12.9898 + 78.233) * 43758.5453;
+        // 确保种子为正数
+        return Math.abs(Math.floor(rawSeed % 1000000));
     }
 
     /**
      * 选择关卡模板
      */
     private selectTemplate(level: number): number {
+        const maxTemplates = this.levelTemplates.length;
+        console.log(`📋 选择模板: 关卡${level}, 可用模板数${maxTemplates}`);
+        
+        if (maxTemplates === 0) {
+            console.error('❌ 没有可用的关卡模板！');
+            return 0;
+        }
+        
+        let selectedIndex = 0;
+        
         // 前几关使用简单模板
         if (level <= 5) {
-            return 0; // corner_focus
+            selectedIndex = 0; // corner_focus
         } else if (level <= 15) {
-            return (level - 6) % 2 + 1; // cross_pattern 或 spiral_challenge
+            // 确保索引不会越界
+            const index = (level - 6) % 2 + 1;
+            selectedIndex = Math.min(index, maxTemplates - 1);
         } else {
             // 高级关卡使用复杂模板 + 随机变化
             const random = this.seededRandom();
-            return Math.floor(random * this.levelTemplates.length);
+            const index = Math.floor(random * maxTemplates);
+            // 确保索引有效
+            selectedIndex = Math.max(0, Math.min(index, maxTemplates - 1));
         }
+        
+        console.log(`🎯 选中模板索引: ${selectedIndex} (${this.levelTemplates[selectedIndex]?.name || '未知'})`);
+        return selectedIndex;
     }
 
     /**
@@ -308,16 +350,34 @@ export class DynamicLevelGenerator {
         for (let i = 0; i < halfH; i++) {
             for (let j = 0; j < (axis === 'both' ? halfW : this.gridWidth); j++) {
                 if (this.seededRandom() < complexity * 0.1) {
-                    map[i][j] = true;
+                    // 设置原始位置
+                    if (i >= 0 && i < this.gridHeight && j >= 0 && j < this.gridWidth && map[i]) {
+                        map[i][j] = true;
+                    }
                     
+                    // 水平镜像
                     if (axis === 'horizontal' || axis === 'both') {
-                        map[this.gridHeight - 1 - i][j] = true;
+                        const mirrorH = this.gridHeight - 1 - i;
+                        if (mirrorH >= 0 && mirrorH < this.gridHeight && j >= 0 && j < this.gridWidth && map[mirrorH]) {
+                            map[mirrorH][j] = true;
+                        }
                     }
+                    
+                    // 垂直镜像
                     if (axis === 'vertical' || axis === 'both') {
-                        map[i][this.gridWidth - 1 - j] = true;
+                        const mirrorW = this.gridWidth - 1 - j;
+                        if (i >= 0 && i < this.gridHeight && mirrorW >= 0 && mirrorW < this.gridWidth && map[i]) {
+                            map[i][mirrorW] = true;
+                        }
                     }
+                    
+                    // 对角镜像
                     if (axis === 'both') {
-                        map[this.gridHeight - 1 - i][this.gridWidth - 1 - j] = true;
+                        const mirrorH = this.gridHeight - 1 - i;
+                        const mirrorW = this.gridWidth - 1 - j;
+                        if (mirrorH >= 0 && mirrorH < this.gridHeight && mirrorW >= 0 && mirrorW < this.gridWidth && map[mirrorH]) {
+                            map[mirrorH][mirrorW] = true;
+                        }
                     }
                 }
             }
@@ -352,6 +412,12 @@ export class DynamicLevelGenerator {
      * 验证和调整地图
      */
     private validateAndAdjust(map: boolean[][], constraints: LevelConstraints): boolean[][] {
+        // 首先验证地图完整性
+        if (!this.validateMapIntegrity(map)) {
+            console.warn('⚠️ 地图完整性验证失败，重新生成基础地图');
+            map = this.generateEmptyMap();
+        }
+
         const holeCount = this.countHoles(map);
         
         // 如果洞太少，添加一些
@@ -369,6 +435,69 @@ export class DynamicLevelGenerator {
             this.ensureCenterPlayable(map, constraints.centerKeepRadius);
         }
 
+        // 最终验证
+        if (!this.validateMapIntegrity(map)) {
+            console.warn('⚠️ 最终验证失败，使用安全的默认地图');
+            return this.generateSafeDefaultMap();
+        }
+
+        return map;
+    }
+
+    /**
+     * 验证地图完整性
+     */
+    private validateMapIntegrity(map: boolean[][]): boolean {
+        if (!map || map.length !== this.gridHeight) {
+            return false;
+        }
+        
+        for (let i = 0; i < this.gridHeight; i++) {
+            if (!map[i] || map[i].length !== this.gridWidth) {
+                return false;
+            }
+            
+            for (let j = 0; j < this.gridWidth; j++) {
+                if (typeof map[i][j] !== 'boolean') {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * 生成空地图
+     */
+    private generateEmptyMap(): boolean[][] {
+        const map: boolean[][] = [];
+        for (let i = 0; i < this.gridHeight; i++) {
+            map[i] = [];
+            for (let j = 0; j < this.gridWidth; j++) {
+                map[i][j] = false;
+            }
+        }
+        return map;
+    }
+
+    /**
+     * 生成安全的默认地图
+     */
+    private generateSafeDefaultMap(): boolean[][] {
+        const map = this.generateEmptyMap();
+        
+        // 在边框放置一些洞，确保有基本的挑战性
+        for (let i = 0; i < this.gridHeight; i++) {
+            for (let j = 0; j < this.gridWidth; j++) {
+                if (i === 0 || i === this.gridHeight - 1 || j === 0 || j === this.gridWidth - 1) {
+                    if ((i + j) % 3 === 0) { // 每3个位置放一个洞
+                        map[i][j] = true;
+                    }
+                }
+            }
+        }
+        
         return map;
     }
 
@@ -411,7 +540,10 @@ export class DynamicLevelGenerator {
             while (attempts < 50) {
                 const h = Math.floor(this.seededRandom() * this.gridHeight);
                 const w = Math.floor(this.seededRandom() * this.gridWidth);
-                if (!map[h][w]) {
+                
+                // 边界检查和空位检查
+                if (h >= 0 && h < this.gridHeight && w >= 0 && w < this.gridWidth && 
+                    map[h] && map[h][w] !== undefined && !map[h][w]) {
                     map[h][w] = true;
                     break;
                 }
@@ -422,18 +554,30 @@ export class DynamicLevelGenerator {
 
     private removeRandomHoles(map: boolean[][], count: number): void {
         const holes: [number, number][] = [];
+        
+        // 安全地收集所有洞的位置
         for (let i = 0; i < this.gridHeight; i++) {
-            for (let j = 0; j < this.gridWidth; j++) {
-                if (map[i][j]) {
-                    holes.push([i, j]);
+            if (map[i]) {
+                for (let j = 0; j < this.gridWidth; j++) {
+                    if (map[i][j] === true) {
+                        holes.push([i, j]);
+                    }
                 }
             }
         }
 
+        // 安全地移除洞
         for (let i = 0; i < count && holes.length > 0; i++) {
             const index = Math.floor(this.seededRandom() * holes.length);
-            const [h, w] = holes.splice(index, 1)[0];
-            map[h][w] = false;
+            if (index >= 0 && index < holes.length) {
+                const removed = holes.splice(index, 1);
+                if (removed.length > 0) {
+                    const [h, w] = removed[0];
+                    if (h >= 0 && h < this.gridHeight && w >= 0 && w < this.gridWidth && map[h] && map[h][w] !== undefined) {
+                        map[h][w] = false;
+                    }
+                }
+            }
         }
     }
 
@@ -447,6 +591,93 @@ export class DynamicLevelGenerator {
                     map[i][j] = false; // 确保中心可玩
                 }
             }
+        }
+    }
+
+    /**
+     * 测试关卡生成器是否正常工作
+     */
+    public testLevelGeneration(startLevel: number = 1, endLevel: number = 100): boolean {
+        console.log(`🧪 开始测试关卡生成器 (${startLevel}-${endLevel})`);
+        
+        let successCount = 0;
+        let failCount = 0;
+        
+        for (let level = startLevel; level <= endLevel; level++) {
+            try {
+                const result = this.generateLevel(level);
+                
+                if (!result || !Array.isArray(result)) {
+                    console.error(`❌ 第${level}关生成失败：结果为空或非数组`);
+                    failCount++;
+                    continue;
+                }
+                
+                // 验证结果格式
+                let validResult = true;
+                for (const hole of result) {
+                    if (!Array.isArray(hole) || hole.length !== 2 || 
+                        typeof hole[0] !== 'number' || typeof hole[1] !== 'number' ||
+                        hole[0] < 0 || hole[0] >= this.gridHeight || 
+                        hole[1] < 0 || hole[1] >= this.gridWidth) {
+                        validResult = false;
+                        break;
+                    }
+                }
+                
+                if (validResult) {
+                    successCount++;
+                    if (level % 10 === 0) {
+                        console.log(`✅ 第${level}关生成成功，洞数量：${result.length}`);
+                    }
+                } else {
+                    console.error(`❌ 第${level}关生成失败：结果格式不正确`);
+                    failCount++;
+                }
+                
+            } catch (error) {
+                console.error(`❌ 第${level}关生成异常:`, error);
+                failCount++;
+            }
+        }
+        
+        const total = endLevel - startLevel + 1;
+        console.log(`📊 测试完成: ${successCount}/${total} 成功, ${failCount}/${total} 失败`);
+        console.log(`📊 成功率: ${(successCount / total * 100).toFixed(2)}%`);
+        
+        return failCount === 0;
+    }
+
+    /**
+     * 获取关卡生成器状态信息
+     */
+    public getGeneratorStatus(): { templateCount: number; gridSize: { width: number; height: number } } {
+        return {
+            templateCount: this.levelTemplates.length,
+            gridSize: { width: this.gridWidth, height: this.gridHeight }
+        };
+    }
+
+    /**
+     * 重置关卡生成器到安全状态
+     */
+    public resetToSafeState(): void {
+        console.log('🔄 重置关卡生成器到安全状态');
+        this.gridWidth = 9;
+        this.gridHeight = 9;
+        this.seed = 12345; // 安全的默认种子
+        
+        // 确保至少有一个模板可用
+        if (this.levelTemplates.length === 0) {
+            console.warn('⚠️ 没有可用模板，添加默认模板');
+            this.levelTemplates.push({
+                name: 'emergency_default',
+                difficulty: 1,
+                patterns: [
+                    { type: 'border', weight: 0.5, params: { thickness: 1, corners: false } }
+                ],
+                constraints: { minHoles: 5, maxHoles: 15, minConnectedRegions: 1, maxConnectedRegions: 3 }
+            });
         }
     }
 }
