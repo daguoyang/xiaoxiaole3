@@ -1,1 +1,1 @@
-{"mapCount": 1, "blockCount": 5, "moveCount": 48, "scores": [1875, 6250, 12500], "blockRatio": [100, 100, 100, 100, 100], "mapData": [{"m_id": [409, 411, 418], "m_ct": [12, 14, 14], "m_mk": [12, 14, 14]}]}
+{"mapCount":1,"blockCount":5,"moveCount":55,"scores":[1206,4982,9375],"blockRatio":[94,96,97,97,100],"mapData":[{"m_id":[409,411,418],"m_ct":[12,8,9],"m_mk":[12,14,14]}]}

@@ -2505,9 +2505,12 @@ export class SweetMatchGameView extends BaseViewCmpt {
     private checkAndShowWinDialog() {
         console.log(`准备检查胜利弹窗 - 当前飞行动画:${this.flyingAnimationCount}, 已胜利:${this.hasWon}`);
         
-        // 如果飞行动画已经结束，直接弹窗
+        // 如果飞行动画已经结束，立即弹窗
         if (this.flyingAnimationCount <= 0) {
             console.log(`飞行动画已结束，立即弹出胜利弹窗`);
+            // 在显示结果弹窗前最终更新星级计算
+            this.updateScorePercent();
+            console.log(`最终星级计算: ${this.starCount}, 当前分数: ${this.curScore}, 分数阈值:`, this.data?.scores);
             App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
             return;
         }
@@ -2517,6 +2520,9 @@ export class SweetMatchGameView extends BaseViewCmpt {
             console.log(`延迟检查 - 飞行动画:${this.flyingAnimationCount}`);
             if (this.flyingAnimationCount <= 0) {
                 console.log(`延迟检查后弹出胜利弹窗`);
+                // 在显示结果弹窗前最终更新星级计算
+                this.updateScorePercent();
+                console.log(`延迟检查后的最终星级计算: ${this.starCount}, 当前分数: ${this.curScore}, 分数阈值:`, this.data?.scores);
                 App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
             } else {
                 // 递归继续检查
