@@ -80,10 +80,17 @@ export class DynamicLevelGenerator {
     ];
 
     /**
-     * 生成动态关卡 - 替代原有的defaultHidelist[level]
+     * 生成动态关卡 - 替代原有的defaultHidelist[level] - 支持多尺寸
      */
-    generateLevel(level: number, customSeed?: number): number[][] {
+    generateLevel(level: number, customSeed?: number, gridSize?: {width: number, height: number}): number[][] {
         this.seed = customSeed || this.createSeedFromLevel(level);
+        
+        // 🎯 如果传入了尺寸参数，使用传入的尺寸
+        if (gridSize) {
+            this.gridWidth = gridSize.width;
+            this.gridHeight = gridSize.height;
+            console.log(`🔧 动态生成器使用外部尺寸: ${this.gridWidth}x${this.gridHeight}`);
+        }
         
         // 选择关卡模板（基于等级的循环模式 + 随机变化）
         const templateIndex = this.selectTemplate(level);

@@ -12,9 +12,9 @@ export class GameGridManager extends Component {
     private obstacleArr = [];
     private blockArr: Node[][] = [];
     private blockPosArr: Vec3[][] = [];
-    /** 行列数 */
-    private H: number = Constant.layCount;
-    private V: number = Constant.layCount;
+    /** 行列数 - 固定9x9棋盘 */
+    private H: number = 9;
+    private V: number = 9;
     private rectWidth: number = Constant.Width;
     private hideList = [];
     public async initGrid() {

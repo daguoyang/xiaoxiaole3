@@ -141,14 +141,17 @@ export class SweetMatchGameView extends BaseViewCmpt {
         console.log(`关卡${this.level}初始化目标数据:`, {idArr, ctArr, mkArr});
         this.coutArr = [];
         for (let i = 0; i < idArr.length; i++) {
-            // 🎯 使用m_mk作为目标数量，这才是正确的配置
-            let temp = [idArr[i], mkArr[i]];
-            console.log(`目标${i}: 类型${idArr[i]}, 目标数量${temp[1]}`);
+            // 🎯 恢复原始显示逻辑公式
+            let temp = [idArr[i], ctArr[i] + 10];
+            if (ctArr[i] < 10) {
+                temp = [idArr[i], ctArr[i] + 30];
+            }
+            console.log(`目标${i}: 类型${idArr[i]}, 配置数量${ctArr[i]}, 显示数量${temp[1]}`);
             this.coutArr.push(temp);
         }
         console.log(`关卡${this.level}最终目标数组:`, this.coutArr);
-        // 🎯 使用配置文件中的原始步数，不再减少步数
-        let steps = this.data.moveCount;
+        // 🎯 恢复原始步数显示逻辑公式
+        let steps = this.data.moveCount - 10 > 0 ? this.data.moveCount - 10 : this.data.moveCount;
         this.stepCount = steps;
         this.updateTargetCount();
         this.updateStep();
@@ -1594,11 +1597,8 @@ export class SweetMatchGameView extends BaseViewCmpt {
             if (this.flyingAnimationCount <= 0) {
                 console.log(`✅ 所有飞行动画完成 - 胜利:${this.hasWon}, 剩余步数:${this.stepCount}, 需要延迟检查:${this.needCheckAfterAnimation}`);
                 
-                if (this.needCheckAfterAnimation) {
-                    this.needCheckAfterAnimation = false;
-                    this.checkResult();
-                } else if (this.hasWon) {
-                    // 胜利状态下，继续处理剩余步数或弹窗
+                if (this.hasWon) {
+                    // 胜利状态优先处理：继续处理剩余步数或弹窗
                     if (this.stepCount > 0) {
                         console.log(`📦 动画完成后，还有剩余步数，执行handleLastSteps`);
                         this.handleLastSteps();
@@ -1607,6 +1607,9 @@ export class SweetMatchGameView extends BaseViewCmpt {
                         this.resultShown = true;
                         this.checkAndShowWinDialog();
                     }
+                } else if (this.needCheckAfterAnimation) {
+                    this.needCheckAfterAnimation = false;
+                    this.checkResult();
                 }
             }
             // App.audio.play('Full');

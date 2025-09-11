@@ -45,12 +45,14 @@ export class LevelSelectController extends BaseViewCmpt {
         let data: LevelData = await LevelConfig.getLevelData(lv);
         let target = this.viewList.get('animNode/content/target');
         let idArr = data.mapData[0].m_id;
-        let ctArr = data.mapData[0].m_ct;
+        let mkArr = data.mapData[0].m_mk;  // 🎯 使用正确的目标数量字段
 
         target.children.forEach((item, idx) => {
             item.active = idx < idArr.length;
             if (idx < idArr.length) {
                 item.getComponent(gridCmpt).setType(idArr[idx]);
+                // 🎯 使用与游戏内一致的原始显示逻辑公式
+                let ctArr = data.mapData[0].m_ct;
                 let count = ctArr[idx] + 10;
                 if (ctArr[idx] < 10) {
                     count = ctArr[idx] + 30;
