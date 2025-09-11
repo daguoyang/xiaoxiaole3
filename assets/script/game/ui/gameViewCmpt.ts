@@ -44,9 +44,9 @@ export class SweetMatchGameView extends BaseViewCmpt {
     private blockArr: Node[][] = []
     private blockPosArr: Vec3[][] = [];
     private hideList = [];
-    /** 行列数 */
-    private H: number = Constant.layCount;
-    private V: number = Constant.layCount;
+    /** 行列数 - 固定9x9棋盘 */
+    private H: number = 9;
+    private V: number = 9;
     private hasStartedTouch: boolean = false;
     private curTwo: gridCmpt[] = [];
     private shouldStartChange: boolean = false;
@@ -137,18 +137,18 @@ export class SweetMatchGameView extends BaseViewCmpt {
         let data = this.data;
         let idArr = data.mapData[0].m_id;
         let ctArr = data.mapData[0].m_ct;
-        console.log(`关卡${this.level}初始化目标数据:`, {idArr, ctArr});
+        let mkArr = data.mapData[0].m_mk;  // 🎯 使用正确的目标数量字段
+        console.log(`关卡${this.level}初始化目标数据:`, {idArr, ctArr, mkArr});
         this.coutArr = [];
         for (let i = 0; i < idArr.length; i++) {
-            let temp = [idArr[i], ctArr[i] + 10];
-            if (ctArr[i] < 10) {
-                temp = [idArr[i], ctArr[i] + 30];
-            }
-            console.log(`目标${i}: 类型${idArr[i]}, 原始数量${ctArr[i]}, 最终数量${temp[1]}`);
+            // 🎯 使用m_mk作为目标数量，这才是正确的配置
+            let temp = [idArr[i], mkArr[i]];
+            console.log(`目标${i}: 类型${idArr[i]}, 目标数量${temp[1]}`);
             this.coutArr.push(temp);
         }
         console.log(`关卡${this.level}最终目标数组:`, this.coutArr);
-        let steps = this.data.moveCount - 10 > 0 ? this.data.moveCount - 10 : this.data.moveCount;
+        // 🎯 使用配置文件中的原始步数，不再减少步数
+        let steps = this.data.moveCount;
         this.stepCount = steps;
         this.updateTargetCount();
         this.updateStep();
@@ -243,31 +243,35 @@ export class SweetMatchGameView extends BaseViewCmpt {
     }
     /** 结束检测 */
     checkResult() {
-        console.log(`checkResult调用 - isWin=${this.hasWon}, stepCount=${this.stepCount}, flyingAnimationCount=${this.flyingAnimationCount}, resultShown=${this.resultShown}`);
-        if (this.hasWon) {
-            console.log(`Game already won, skip checkResult validation`);
-            return;
-        }
+        console.log(`🔍 checkResult调用 - 关卡${this.level}, 已胜利:${this.hasWon}, 剩余步数:${this.stepCount}, 飞行动画:${this.flyingAnimationCount}`);
+        if (this.hasWon) return;
         let count = 0;
-        console.log(`Validate game result, current target status:`, this.coutArr);
         for (let i = 0; i < this.coutArr.length; i++) {
             if (this.coutArr[i][1] == 0) {
                 count++;
             }
         }
-        console.log(`完成的目标数量: ${count}/${this.coutArr.length}`);
+        console.log(`📊 目标完成情况: ${count}/${this.coutArr.length}`);
         if (count == this.coutArr.length) {
             // win
             this.hasWon = true;
-            if (this.stepCount > 0) {
-                //丢炸弹
-                this.handleLastSteps();
+            console.log(`🏆 游戏胜利！关卡${this.level}, 剩余步数:${this.stepCount}, 当前飞行动画:${this.flyingAnimationCount}`);
+            
+            // 统一处理：无论是否有剩余步数，都先等待当前所有动画完成
+            if (this.flyingAnimationCount > 0) {
+                console.log(`🔄 还有${this.flyingAnimationCount}个飞行动画，等待完成后再处理胜利逻辑`);
+                // 在动画完成的回调中会检查hasWon状态并继续处理
+                return;
             }
-            else {
+            
+            // 如果没有飞行动画，立即处理剩余步数或弹窗
+            if (this.stepCount > 0) {
+                console.log(`📦 有剩余步数，执行handleLastSteps`);
+                this.handleLastSteps();
+            } else {
+                console.log(`⚡ 没有剩余步数，等待所有动画完成后弹出胜利弹窗`);
                 if (!this.resultShown) {
-                    console.log(`等待所有动画完成后弹出胜利弹窗`);
-                    this.resultShown = true; // 立即设置标志，防止重复弹窗
-                    // 定期检查是否可以弹出胜利弹窗
+                    this.resultShown = true;
                     this.checkAndShowWinDialog();
                 }
             }
@@ -287,6 +291,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
     /** 过关，处理剩余步数 */
     async handleLastSteps() {
         let step = this.stepCount;
+        
         for (let i = 0; i < step; i++) {
             await ToolsHelper.delayTime(0.1);
             this.stepCount--;
@@ -295,6 +300,18 @@ export class SweetMatchGameView extends BaseViewCmpt {
         }
         await ToolsHelper.delayTime(1);
         this.checkAllBomb();
+    }
+    
+    /**
+     * 计算剩余步数的总奖励分数
+     */
+    private calculateTotalStepBonus(remainingSteps: number): number {
+        // 基于当前关卡的分数配置计算总奖励
+        const maxRatio = Math.max(...this.data.blockRatio);
+        const bonusPerStep = Math.floor(maxRatio * 2); // 每步奖励倍数
+        const totalBonus = bonusPerStep * remainingSteps;
+        console.log(`步数奖励计算: 最高分数${maxRatio} × 2倍 × ${remainingSteps}步 = ${totalBonus}分`);
+        return totalBonus;
     }
 
     /** 检测网格中是否还有炸弹 */
@@ -311,20 +328,13 @@ export class SweetMatchGameView extends BaseViewCmpt {
             }
         }
         await ToolsHelper.delayTime(1);
-        if (!isHaveBomb && this.hasWon) {
-            let view = App.view.getViewByName(ViewName.Single.eResultView);
-            console.log("没有炸弹了，一切都结束了")
-            console.log(`检查弹窗条件 - view存在:${!!view}, isWin:${this.hasWon}, resultShown:${this.resultShown}`);
-            
-            if (!this.resultShown) {
-                console.log(`等待所有动画完成后弹出胜利弹窗`);
-                this.resultShown = true; // 立即设置标志，防止重复弹窗
-                this.checkAndShowWinDialog();
-            }
+        if (!isHaveBomb && this.hasWon && !this.resultShown) {
+            this.resultShown = true;
+            this.checkAndShowWinDialog();
         }
     }
 
-    throwTools(bombType: number = -1, worldPosition: Vec3 = null) {
+    throwTools(bombType: number = -1, worldPosition: Vec3 = null, isRemainingStep: boolean = false) {
         App.audio.play("rocket_launch_sound")
         let originPos = worldPosition || this.lbStep.worldPosition;
         let p1 = this.effNode.getComponent(UITransform).convertToNodeSpaceAR(originPos);
@@ -337,10 +347,17 @@ export class SweetMatchGameView extends BaseViewCmpt {
         let item: gridCmpt = this.getRandomBlock();
         if (item) {
             let p2 = this.effNode.getComponent(UITransform).convertToNodeSpaceAR(item.node.worldPosition);
-            tween(particle).to(1, { position: p2 }).call(() => {
+            tween(particle).to(1, { position: p2 }).call(async () => {
                 particle.destroy();
                 let rand = bombType == -1 ? Math.floor(Math.random() * 3) + 8 : bombType;
                 item && item.setType(rand);
+                
+                // 🎯 只有剩余步数的炸弹才自动爆炸，玩家道具不自动爆炸
+                if (item && this.isBomb(item) && isRemainingStep) {
+                    console.log(`剩余步数炸弹立即爆炸: 位置(${item.h},${item.v}), 类型:${item.type}`);
+                    await ToolsHelper.delayTime(0.3); // 短暂延迟让玩家看到炸弹
+                    await this.handleBomb(item, true);
+                }
             }).start();
         }
     }
@@ -1568,25 +1585,28 @@ export class SweetMatchGameView extends BaseViewCmpt {
         // 开始飞行动画，计数器+1
         this.flyingAnimationCount++;
         
-        console.log(`开始飞行动画 - 类型:${type}, 动画时间:${time.toFixed(2)}s, 当前飞行数:${this.flyingAnimationCount}`);
-        
         tween(item).to(time, { position: targetPos }, { easing: 'backIn' }).call(() => {
-            console.log(`飞行动画完成 - 类型:${type}, 开始处理目标计数`);
             this.handleLevelTarget(type);
             item.destroy();
             // 动画完成，计数器-1
             this.flyingAnimationCount--;
             // 检查是否所有动画都完成了
-            console.log(`飞行动画结束 - 剩余动画:${this.flyingAnimationCount}, 需要检查:${this.needCheckAfterAnimation}, 已胜利:${this.hasWon}`);
             if (this.flyingAnimationCount <= 0) {
-                console.log(`所有飞行动画完成，最终目标状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
+                console.log(`✅ 所有飞行动画完成 - 胜利:${this.hasWon}, 剩余步数:${this.stepCount}, 需要延迟检查:${this.needCheckAfterAnimation}`);
+                
                 if (this.needCheckAfterAnimation) {
-                    console.log(`执行延迟检查游戏状态`);
                     this.needCheckAfterAnimation = false;
                     this.checkResult();
                 } else if (this.hasWon) {
-                    console.log(`胜利状态下强制检查结果弹窗`);
-                    this.checkAllBomb();
+                    // 胜利状态下，继续处理剩余步数或弹窗
+                    if (this.stepCount > 0) {
+                        console.log(`📦 动画完成后，还有剩余步数，执行handleLastSteps`);
+                        this.handleLastSteps();
+                    } else if (!this.resultShown) {
+                        console.log(`🏆 动画完成后弹出胜利弹窗 - 关卡${this.level}`);
+                        this.resultShown = true;
+                        this.checkAndShowWinDialog();
+                    }
                 }
             }
             // App.audio.play('Full');
@@ -1594,29 +1614,15 @@ export class SweetMatchGameView extends BaseViewCmpt {
     }
 
     handleLevelTarget(type: number) {
-        console.log(`=== handleLevelTarget开始 ===`);
-        console.log(`消除目标类型${type}, 消除前目标状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
+        // 如果游戏已经胜利，不再处理目标计数
+        if (this.hasWon) return;
         
-        let targetFound = false;
         for (let i = 0; i < this.coutArr.length; i++) {
-            if (type == this.coutArr[i][0]) {
-                targetFound = true;
-                let oldCount = this.coutArr[i][1];
-                this.coutArr[i][1]--
-                if (this.coutArr[i][1] < 0) {
-                    this.coutArr[i][1] = 0;
-                }
-                console.log(`✓ 找到匹配目标${i}(类型${type}): ${oldCount} -> ${this.coutArr[i][1]}`);
+            if (type == this.coutArr[i][0] && this.coutArr[i][1] > 0) {
+                this.coutArr[i][1]--;
                 break; // 找到匹配的目标后立即跳出循环
             }
         }
-        
-        if (!targetFound) {
-            console.log(`✗ 警告：类型${type}不在目标列表中！`);
-        }
-        
-        console.log(`消除后目标状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
-        console.log(`=== handleLevelTarget结束 ===`);
         
         this.updateTargetCount();
     }
@@ -2543,7 +2549,11 @@ export class SweetMatchGameView extends BaseViewCmpt {
             console.log(`飞行动画已结束，立即弹出胜利弹窗`);
             // 在显示结果弹窗前最终更新星级计算
             this.updateScorePercent();
-            console.log(`最终星级计算: ${this.starCount}, 当前分数: ${this.curScore}, 分数阈值:`, this.data?.scores);
+            console.log(`🌟 最终星级计算详情:`);
+            console.log(`  当前分数: ${this.curScore}`);
+            console.log(`  分数阈值: [${this.data?.scores?.join(', ')}]`);
+            console.log(`  计算出的星数: ${this.starCount}`);
+            console.log(`🎯 传递给胜利弹窗的数据: 关卡${this.level}, 星数${this.starCount}`);
             App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
             return;
         }
@@ -2555,7 +2565,11 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 console.log(`延迟检查后弹出胜利弹窗`);
                 // 在显示结果弹窗前最终更新星级计算
                 this.updateScorePercent();
-                console.log(`延迟检查后的最终星级计算: ${this.starCount}, 当前分数: ${this.curScore}, 分数阈值:`, this.data?.scores);
+                console.log(`🌟 延迟检查后星级计算详情:`);
+                console.log(`  当前分数: ${this.curScore}`);
+                console.log(`  分数阈值: [${this.data?.scores?.join(', ')}]`);
+                console.log(`  计算出的星数: ${this.starCount}`);
+                console.log(`🎯 延迟检查传递给胜利弹窗的数据: 关卡${this.level}, 星数${this.starCount}`);
                 App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
             } else {
                 // 递归继续检查
