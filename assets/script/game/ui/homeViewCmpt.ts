@@ -12,6 +12,7 @@ import { ResLoadHelper } from '../../helpers/resLoadHelper';
 import { StorageHelper, StorageHelperKey } from '../../helpers/storageHelper';
 import { ToolsHelper } from '../../helpers/toolsHelper';
 import { Advertise } from '../../wx/advertise';
+import { SoundType } from '../../core/audioManager';
 const { ccclass, property } = _decorator;
 
 enum Pages {
@@ -45,6 +46,10 @@ export class MainMenuController extends BaseViewCmpt {
     }
     onLoad() {
         super.onLoad();
+        
+        // 播放主页面背景音乐
+        App.audio.play('game_theme_music', SoundType.Music, true);
+        
         this.btnNode = this.viewList.get("bottom/btn");
         this.pageView = this.viewList.get("page").getComponent(PageView);
         this.home = this.viewList.get("page/view/content/home");

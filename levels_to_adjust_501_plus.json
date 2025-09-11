@@ -1,0 +1,122 @@
+[
+  {
+    "level": 956,
+    "current_move_count": 38,
+    "current_steps": 28,
+    "current_targets": 146,
+    "current_ratio": 5.214285714285714,
+    "new_move_count": 43,
+    "new_steps": 33,
+    "original_data": {
+      "mapCount": 1,
+      "blockCount": 5,
+      "moveCount": 38,
+      "scores": [
+        472,
+        3604,
+        6048
+      ],
+      "blockRatio": [
+        96,
+        100,
+        95,
+        90,
+        96
+      ],
+      "mapData": [
+        {
+          "m_id": [
+            201
+          ],
+          "m_ct": [
+            136
+          ],
+          "m_mk": [
+            134
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "level": 961,
+    "current_move_count": 34,
+    "current_steps": 24,
+    "current_targets": 129,
+    "current_ratio": 5.375,
+    "new_move_count": 39,
+    "new_steps": 29,
+    "original_data": {
+      "mapCount": 1,
+      "blockCount": 5,
+      "moveCount": 34,
+      "scores": [
+        1019,
+        5676,
+        5742
+      ],
+      "blockRatio": [
+        84,
+        99,
+        98,
+        100,
+        100
+      ],
+      "mapData": [
+        {
+          "m_id": [
+            201
+          ],
+          "m_ct": [
+            119
+          ],
+          "m_mk": [
+            117
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "level": 989,
+    "current_move_count": 32,
+    "current_steps": 22,
+    "current_targets": 116,
+    "current_ratio": 5.2727272727272725,
+    "new_move_count": 36,
+    "new_steps": 26,
+    "original_data": {
+      "mapCount": 1,
+      "blockCount": 5,
+      "moveCount": 32,
+      "scores": [
+        404,
+        2524,
+        5124
+      ],
+      "blockRatio": [
+        86,
+        89,
+        100,
+        100,
+        96
+      ],
+      "mapData": [
+        {
+          "m_id": [
+            201,
+            400
+          ],
+          "m_ct": [
+            106,
+            20
+          ],
+          "m_mk": [
+            104,
+            18
+          ]
+        }
+      ]
+    }
+  }
+]

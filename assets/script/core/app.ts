@@ -17,9 +17,9 @@ import { ViewName } from "../definitions/viewNameConst";
 import { Node } from "cc";
 
 /**
- * 星光消除引擎 - 原创游戏管理器
+ * 游戏应用管理器
  */
-class StarMatchGameApp extends SingletonClass<StarMatchGameApp> {
+class GameApplication extends SingletonClass<GameApplication> {
     get user() { return UserInfo.getInstance<UserInfo>(UserInfo); }
     get platform() { return PlatformManager.getInstance<PlatformManager>(PlatformManager); }
     get subGame() { return SubGameManager.getInstance<SubGameManager>(SubGameManager); }
@@ -57,9 +57,9 @@ class StarMatchGameApp extends SingletonClass<StarMatchGameApp> {
     }
 }
 
-export const App: StarMatchGameApp = StarMatchGameApp.getInstance<StarMatchGameApp>(StarMatchGameApp);
-// 更新全局访问标识
-window["StarCombinationEngine"] = App;
+export const App: GameApplication = GameApplication.getInstance<GameApplication>(GameApplication);
+// 全局游戏引擎访问
+window["GameEngine"] = App;
 
 
 
