@@ -106,9 +106,9 @@ export class GameResultController extends BaseViewCmpt {
         // 标记结果已处理，防止重复弹窗
         let gameView = App.view.getViewByName(ViewName.Single.eGameView);
         if (gameView) {
-            let sweetMatchGameView = gameView.getComponent('SweetMatchGameView');
-            if (sweetMatchGameView) {
-                sweetMatchGameView.resultShown = true;
+            let puzzleGameView = gameView.getComponent('PuzzleGameView');
+            if (puzzleGameView) {
+                puzzleGameView.resultShown = true;
             }
         }
         
@@ -143,9 +143,9 @@ export class GameResultController extends BaseViewCmpt {
             // 标记结果已处理，防止重复弹窗
             let gameView = App.view.getViewByName(ViewName.Single.eGameView);
             if (gameView) {
-                let sweetMatchGameView = gameView.getComponent('SweetMatchGameView');
-                if (sweetMatchGameView) {
-                    sweetMatchGameView.resultShown = true;
+                let puzzleGameView = gameView.getComponent('PuzzleGameView');
+                if (puzzleGameView) {
+                    puzzleGameView.resultShown = true;
                 }
             }
             
@@ -188,9 +188,9 @@ export class GameResultController extends BaseViewCmpt {
         // 标记结果已处理，防止重复弹窗
         let gameView = App.view.getViewByName(ViewName.Single.eGameView);
         if (gameView) {
-            let sweetMatchGameView = gameView.getComponent('SweetMatchGameView');
-            if (sweetMatchGameView) {
-                sweetMatchGameView.resultShown = true;
+            let puzzleGameView = gameView.getComponent('PuzzleGameView');
+            if (puzzleGameView) {
+                puzzleGameView.resultShown = true;
                 console.log(`关闭按钮设置resultShown=true`);
             }
         }
@@ -216,9 +216,9 @@ export class GameResultController extends BaseViewCmpt {
             // 标记结果已处理
             let gameView = App.view.getViewByName(ViewName.Single.eGameView);
             if (gameView) {
-                let sweetMatchGameView = gameView.getComponent('SweetMatchGameView');
-                if (sweetMatchGameView) {
-                    sweetMatchGameView.resultShown = true;
+                let puzzleGameView = gameView.getComponent('PuzzleGameView');
+                if (puzzleGameView) {
+                    puzzleGameView.resultShown = true;
                 }
             }
             

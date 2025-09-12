@@ -2,12 +2,12 @@ import { Node, } from "cc";
 import { PowerUpType, Bomb } from "../../definitions/enumConst";
 import { SingletonClass } from "../../core/singletonClass"
 import { gridCmpt } from "../ui/item/gridCmpt";
-import { RegionMatchDetector, MatchResult } from "./regionMatchDetector";
+import { RegionDetector, MatchResult } from "./regionMatchDetector";
 import { EffectEventQueue, EffectEvent } from "./effectEventQueue";
 import { ScoreCalculator } from "./scoreCalculator";
 import { DynamicLevelGenerator } from "../level/dynamicLevelGenerator";
 
-export class MatchEngine extends SingletonClass<MatchEngine> {
+export class GameCore extends SingletonClass<GameCore> {
     public rewardGold: number = 100;
     public curLevel: number = 1;
     public blockCount: number = 5;
@@ -18,7 +18,7 @@ export class MatchEngine extends SingletonClass<MatchEngine> {
     public hideList = [];
     
     // 新增：区域化匹配检测器和网格管理
-    private regionDetector: RegionMatchDetector;
+    private regionDetector: RegionDetector;
     private effectQueue: EffectEventQueue;
     private scoreCalculator: ScoreCalculator;
     private levelGenerator: DynamicLevelGenerator;
@@ -69,7 +69,7 @@ export class MatchEngine extends SingletonClass<MatchEngine> {
     constructor() {
         super();
         // 在构造函数中初始化所有必要的属性
-        this.regionDetector = new RegionMatchDetector();
+        this.regionDetector = new RegionDetector();
         this.effectQueue = new EffectEventQueue();
         this.scoreCalculator = new ScoreCalculator();
         this.levelGenerator = new DynamicLevelGenerator();
@@ -276,7 +276,6 @@ export class MatchEngine extends SingletonClass<MatchEngine> {
      */
     adjustScoreConfig(config: any): void {
         this.scoreCalculator.updateConfig(config);
-        console.log("游戏分数配置已调整，以保持与原版体感一致");
     }
 
     // 占位方法 - 需要根据具体游戏逻辑实现
@@ -477,7 +476,6 @@ export class MatchEngine extends SingletonClass<MatchEngine> {
      * 生成最小化安全关卡
      */
     private generateMinimalLevel(): number[][] {
-        console.log('🔧 生成最小安全关卡');
         
         // 最简单的关卡：四个角落有障碍
         return [

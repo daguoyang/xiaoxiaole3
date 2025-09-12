@@ -1,0 +1,58 @@
+{
+    "start_scene": "db://assets/scenes/MainMenu.scene",
+    "group_list": [
+        {
+            "name": "default",
+            "first": true
+        },
+        {
+            "name": "ui",
+            "first": false
+        },
+        {
+            "name": "game",
+            "first": false
+        },
+        {
+            "name": "effects",
+            "first": false
+        },
+        {
+            "name": "audio",
+            "first": false
+        }
+    ],
+    "collision_matrix": [
+        [
+            true
+        ]
+    ],
+    "excluded_modules": [],
+    "last_opened_scene": "db://assets/scenes/MainMenu.scene",
+    "physics_enabled": false,
+    "excluded_asset_types": [],
+    "preview-port": 7456,
+    "use-customize-simulator": false,
+    "simulator-screen-size": 960,
+    "simulator-orientation": false,
+    "use-project-simulator-setting": false,
+    "excluded_modules_in_editor": [],
+    "simulator-resolution": {
+        "height": 1704,
+        "width": 960
+    },
+    "designer-resolution": {
+        "height": 1920,
+        "width": 1080
+    },
+    "fit-height": true,
+    "fit-width": false,
+    "optimize-hotupdate": false,
+    "facebook": {
+        "enable": false,
+        "appID": "",
+        "live": {
+            "enable": false
+        }
+    }
+}

@@ -11,7 +11,7 @@ import { NoticeManager } from "./noticeManager";
 import { StorageHelper } from "../helpers/storageHelper";
 import TimeManager from "./timeManager";
 import { SimpleHeartManager } from './simpleHeartManager';
-import { MatchEngine } from "../game/engine/gameLogic";
+import { GameCore } from "../game/engine/gameLogic";
 import { WxMgr } from "../wx/wxManager";
 import { ViewName } from "../definitions/viewNameConst";
 import { Node } from "cc";
@@ -30,7 +30,7 @@ class GameApplication extends SingletonClass<GameApplication> {
     get notice() { return NoticeManager.getInstance<NoticeManager>(NoticeManager); }
     get timer() { return TimeManager.getInstance<TimeManager>(TimeManager); }
     get heartManager() { return SimpleHeartManager.getInstance<SimpleHeartManager>(SimpleHeartManager); }
-    get gameLogic() { return MatchEngine.getInstance<MatchEngine>(MatchEngine); }
+    get gameLogic() { return GameCore.getInstance<GameCore>(GameCore); }
 
     protected async onInit(canvas: Node) {
         this.user.init();

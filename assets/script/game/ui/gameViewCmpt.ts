@@ -17,7 +17,7 @@ import { rocketCmpt } from './item/rocketCmpt';
 const { ccclass, property } = _decorator;
 
 @ccclass('gameViewCmpt')
-export class SweetMatchGameView extends BaseViewCmpt {
+export class PuzzleGameView extends BaseViewCmpt {
     /**  ui */
     private gridMgr: GameGridManager = null;
     private gridNode: Node = null;
@@ -138,7 +138,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
         let idArr = data.mapData[0].m_id;
         let ctArr = data.mapData[0].m_ct;
         let mkArr = data.mapData[0].m_mk;  // 🎯 使用正确的目标数量字段
-        console.log(`关卡${this.level}初始化目标数据:`, {idArr, ctArr, mkArr});
         this.coutArr = [];
         for (let i = 0; i < idArr.length; i++) {
             // 🎯 恢复原始显示逻辑公式
@@ -146,10 +145,8 @@ export class SweetMatchGameView extends BaseViewCmpt {
             if (ctArr[i] < 10) {
                 temp = [idArr[i], ctArr[i] + 30];
             }
-            console.log(`目标${i}: 类型${idArr[i]}, 配置数量${ctArr[i]}, 显示数量${temp[1]}`);
             this.coutArr.push(temp);
         }
-        console.log(`关卡${this.level}最终目标数组:`, this.coutArr);
         // 🎯 恢复原始步数显示逻辑公式
         let steps = this.data.moveCount - 10 > 0 ? this.data.moveCount - 10 : this.data.moveCount;
         this.stepCount = steps;
@@ -192,14 +189,12 @@ export class SweetMatchGameView extends BaseViewCmpt {
         }
         
         let arr = this.coutArr;
-        console.log(`更新目标显示, 当前目标数组:`, arr);
         this.target1.active = arr.length <= 2;
         this.target2.active = arr.length > 2;
         let target = arr.length <= 2 ? this.target1 : this.target2;
         target.children.forEach((item, idx) => {
             item.active = idx < arr.length;
             if (idx < arr.length) {
-                console.log(`设置目标${idx}: 类型${arr[idx][0]}, 数量${arr[idx][1]}`);
                 item.getComponent(gridCmpt).setType(arr[idx][0]);
                 item.getComponent(gridCmpt).setCount(arr[idx][1]);
             }
@@ -246,7 +241,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
     }
     /** 结束检测 */
     checkResult() {
-        console.log(`🔍 checkResult调用 - 关卡${this.level}, 已胜利:${this.hasWon}, 剩余步数:${this.stepCount}, 飞行动画:${this.flyingAnimationCount}`);
         if (this.hasWon) return;
         let count = 0;
         for (let i = 0; i < this.coutArr.length; i++) {
@@ -254,25 +248,20 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 count++;
             }
         }
-        console.log(`📊 目标完成情况: ${count}/${this.coutArr.length}`);
         if (count == this.coutArr.length) {
             // win
             this.hasWon = true;
-            console.log(`🏆 游戏胜利！关卡${this.level}, 剩余步数:${this.stepCount}, 当前飞行动画:${this.flyingAnimationCount}`);
             
             // 统一处理：无论是否有剩余步数，都先等待当前所有动画完成
             if (this.flyingAnimationCount > 0) {
-                console.log(`🔄 还有${this.flyingAnimationCount}个飞行动画，等待完成后再处理胜利逻辑`);
                 // 在动画完成的回调中会检查hasWon状态并继续处理
                 return;
             }
             
             // 如果没有飞行动画，立即处理剩余步数或弹窗
             if (this.stepCount > 0) {
-                console.log(`📦 有剩余步数，执行handleLastSteps`);
                 this.handleLastSteps();
             } else {
-                console.log(`⚡ 没有剩余步数，等待所有动画完成后弹出胜利弹窗`);
                 if (!this.resultShown) {
                     this.resultShown = true;
                     this.checkAndShowWinDialog();
@@ -313,7 +302,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
         const maxRatio = Math.max(...this.data.blockRatio);
         const bonusPerStep = Math.floor(maxRatio * 2); // 每步奖励倍数
         const totalBonus = bonusPerStep * remainingSteps;
-        console.log(`步数奖励计算: 最高分数${maxRatio} × 2倍 × ${remainingSteps}步 = ${totalBonus}分`);
         return totalBonus;
     }
 
@@ -357,7 +345,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 
                 // 🎯 只有剩余步数的炸弹才自动爆炸，玩家道具不自动爆炸
                 if (item && this.isBomb(item) && isRemainingStep) {
-                    console.log(`剩余步数炸弹立即爆炸: 位置(${item.h},${item.v}), 类型:${item.type}`);
                     await ToolsHelper.delayTime(0.3); // 短暂延迟让玩家看到炸弹
                     await this.handleBomb(item, true);
                 }
@@ -436,7 +423,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
         let bc = this.checkClickOnBlock(pos);
         /** 点到炸弹 */
         if (bc && (this.isBomb(bc)) && this.curTwo.length == 1) {
-            console.log("直接点击炸弹，类型:", bc.type, "位置:", bc.h, bc.v, "curTwo:", this.curTwo.map(item => item ? item.type : 'null'));
             // 点击特效元素触发，扣减步数
             this.stepCount--;
             this.updateStep();
@@ -468,31 +454,24 @@ export class SweetMatchGameView extends BaseViewCmpt {
 
     /** 是否是炸弹 */
     async handleBomb(bc: gridCmpt, isResult: boolean = false) {
-        console.log(`handleBomb 被调用，炸弹类型:${bc.type}, 位置:(${bc.h},${bc.v}), isResult:${isResult}`);
         if (this.isBomb(bc)) {
             let bombList = [];
             let list2 = [];
             let list: gridCmpt[] = await this.getBombList(bc);
-            console.log(`主炸弹影响了${list.length}个元素`);
             bombList.push(list);
             
             // 收集所有连锁炸弹，但分别处理五消和其他炸弹
             let chainedFiveMatches: gridCmpt[] = [];
             let chainedOtherBombs: gridCmpt[] = [];
             
-            console.log(`检查${list.length}个元素中的连锁炸弹`);
             for (let i = 0; i < list.length; i++) {
-                console.log(`检查元素${i}: 位置(${list[i].h},${list[i].v}), 类型:${list[i].type}, 是否炸弹:${this.isBomb(list[i])}`);
                 if (list[i].h == bc.h && list[i].v == bc.v) {
-                    console.log("跳过原炸弹位置");
                     continue;
                 }
                 if (this.isBomb(list[i])) {
                     if (list[i].type === Bomb.allSame) {
-                        console.log(`连锁反应中发现五消，位置:(${list[i].h},${list[i].v})`);
                         chainedFiveMatches.push(list[i]);
                     } else {
-                        console.log(`连锁反应中发现其他炸弹，位置:(${list[i].h},${list[i].v}), 类型:${list[i].type}`);
                         chainedOtherBombs.push(list[i]);
                     }
                 }
@@ -507,9 +486,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 let bombKey = `${bomb.h},${bomb.v}`;
                 if (processedBombs.has(bombKey)) continue;
                 
-                console.log(`处理连锁炸弹: 位置(${bomb.h},${bomb.v}), 类型:${bomb.type}`);
                 let chainedList = await this.getBombList(bomb);
-                console.log(`连锁炸弹影响了${chainedList.length}个元素`);
                 bombList.push(chainedList);
                 processedBombs.add(bombKey);
                 
@@ -519,12 +496,10 @@ export class SweetMatchGameView extends BaseViewCmpt {
                     let affectedKey = `${affected.h},${affected.v}`;
                     if (this.isBomb(affected) && !processedBombs.has(affectedKey)) {
                         if (affected.type === Bomb.allSame) {
-                            console.log(`深层连锁发现五消，位置:(${affected.h},${affected.v})`);
                             if (!chainedFiveMatches.some(fm => fm.h === affected.h && fm.v === affected.v)) {
                                 chainedFiveMatches.push(affected);
                             }
                         } else {
-                            console.log(`深层连锁发现其他炸弹，位置:(${affected.h},${affected.v}), 类型:${affected.type}`);
                             pendingBombs.push(affected);
                         }
                     }
@@ -533,9 +508,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
             
             // 单独处理连锁的五消，确保它们的特效100%触发
             for (let fiveMatch of chainedFiveMatches) {
-                console.log(`单独处理被波及的五消，位置:(${fiveMatch.h},${fiveMatch.v})`);
                 let fiveMatchAffected = await this.getBombList(fiveMatch);
-                console.log(`五消处理完成，影响了${fiveMatchAffected.length}个元素`);
                 bombList.push(fiveMatchAffected);
             }
             
@@ -614,7 +587,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 App.audio.play("explosive_blast_fx")
                 break;
             case Bomb.allSame:
-                console.log("五消元素被触发，位置:", bc.h, bc.v, "节点状态:", bc.node ? "存在" : "已销毁");
                 let curType: number = -1;
                 // 先尝试从用户选中的元素中获取目标类型（用户主动触发的情况）
                 // 只有当用户选中的两个元素中有一个是当前五消元素时，才使用用户选择的目标类型
@@ -633,13 +605,10 @@ export class SweetMatchGameView extends BaseViewCmpt {
                             curType = this.curTwo[i].type;
                         }
                     }
-                    console.log("从用户选中元素获取目标类型:", curType);
                 } else {
-                    console.log("五消元素被其他炸弹波及");
                 }
                 // 如果没有找到目标类型，说明是被其他炸弹波及，随机选择一个类型
                 if (curType < 0) {
-                    console.log("五消元素被波及，寻找目标类型");
                     // 先尝试从周围找一个非炸弹类型
                     for (let i = bc.h - 1; i <= bc.h + 1 && i < this.H; i++) {
                         for (let j = bc.v - 1; j <= bc.v + 1 && j < this.V; j++) {
@@ -649,7 +618,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
                                 let gridComp = item.getComponent(gridCmpt);
                                 if (gridComp && !this.isBomb(gridComp) && curType < 0) {
                                     curType = gridComp.type;
-                                    console.log("找到周围目标类型:", curType);
                                     break;
                                 }
                             }
@@ -671,7 +639,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
                             let rotateComponent = node.getComponent('rotateSelf');
                             if (rotateComponent) {
                                 node.removeComponent('rotateSelf');
-                                console.log("移除五消元素旋转组件");
                             }
                             // 重置角度为0，确保不再旋转
                             node.angle = 0;
@@ -680,7 +647,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 }
                 if (curType < 0) {
                     curType = Math.floor(Math.random() * App.gameLogic.blockCount);
-                    console.log("随机选择目标类型:", curType);
                 }
                 console.log("Final target type:", curType, "Begin eliminating same-type elements");
                 App.audio.play("rocket_launch_sound")
@@ -849,7 +815,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
         tween(two.node).to(time, { position: this.blockPosArr[one.h][one.v] }).call(async () => {
             if (!isBack) {
                 this.changeData(one, two);
-                console.log("交换位置触发炸弹，one:", one ? one.type : 'null', "two:", two ? two.type : 'null', "curTwo:", this.curTwo.map(item => item ? item.type : 'null'));
                 
                 // 检查是否有特效元素参与交换
                 const hasBombInExchange = this.isBomb(one) || this.isBomb(two);
@@ -858,27 +823,23 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 let matchResult = false;
                 
                 if (hasBombInExchange) {
-                    console.log("有特效元素参与交换，检查是否是五消+基础元素的情况");
                     
                     // 特殊处理：五消和基础元素交换，需要先处理五消再生成四消
                     const isFiveBasicExchange = (this.isFiveMatchBomb(one) && !this.isBomb(two)) || 
                                                (this.isFiveMatchBomb(two) && !this.isBomb(one));
                     
                     if (isFiveBasicExchange) {
-                        console.log("检测到五消+基础元素交换，先处理五消特效再生成四消");
                         
                         // 确定哪个是五消，哪个是基础元素
                         const fiveMatch = this.isFiveMatchBomb(one) ? one : two;
                         const basicElement = this.isFiveMatchBomb(one) ? two : one;
                         
-                        console.log(`五消位置:(${fiveMatch.h},${fiveMatch.v}), 基础元素位置:(${basicElement.h},${basicElement.v}), 类型:${basicElement.type}`);
                         
                         // 先处理五消特效（消除全屏该基础元素类型）
                         isbomb1 = await this.handleBomb(fiveMatch);
                         
                         // 然后在基础元素位置生成四消（如果该位置还存在的话）
                         if (this.blockArr[basicElement.h] && this.blockArr[basicElement.h][basicElement.v]) {
-                            console.log("在基础元素位置生成四消特效");
                             // 直接设置为四消类型（这里可以选择横向、竖向或炸弹）
                             let fourMatchType = Math.random() < 0.33 ? Bomb.hor : (Math.random() < 0.5 ? Bomb.ver : Bomb.bomb);
                             basicElement.setType(fourMatchType);
@@ -896,7 +857,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
                         
                         // 生成特效元素后，再处理原来的特效元素交换逻辑
                         if (matchResult) {
-                            console.log("生成了新的特效元素，现在处理原特效元素");
                             // 检查特效元素之间的特殊交换
                             specialExchangeHandled = await this.handleSpecialExchange(one, two);
                             
@@ -1155,7 +1115,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 else {
                     // 在销毁前检查是否是特效元素，如果是则先触发特效
                     if (this.isBomb(gt)) {
-                        console.log(`synthesisBomb中发现特效元素，位置:(${gt.h},${gt.v}), 类型:${gt.type}, 先触发特效`);
                         await this.handleBomb(gt);
                     } else {
                         this.blockArr[gt.h][gt.v] = null;
@@ -1563,14 +1522,11 @@ export class SweetMatchGameView extends BaseViewCmpt {
     /** 飞舞动画 */
     async flyItem(type: number, pos: Vec3) {
         let idx = this.data.mapData[0].m_id.indexOf(type);
-        console.log(`flyItem: 元素类型${type}, 在目标中的索引=${idx}, 目标列表=`, this.data.mapData[0].m_id);
         if (idx < 0) {
-            console.log(`元素类型${type}不是目标，跳过统计`);
             return;
         }
         
         // 验证目标数组状态
-        console.log(`flyItem前目标状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
         
         let item = instantiate(this.gridPre);
         let tempPos = new Vec3();
@@ -1595,15 +1551,12 @@ export class SweetMatchGameView extends BaseViewCmpt {
             this.flyingAnimationCount--;
             // 检查是否所有动画都完成了
             if (this.flyingAnimationCount <= 0) {
-                console.log(`✅ 所有飞行动画完成 - 胜利:${this.hasWon}, 剩余步数:${this.stepCount}, 需要延迟检查:${this.needCheckAfterAnimation}`);
                 
                 if (this.hasWon) {
                     // 胜利状态优先处理：继续处理剩余步数或弹窗
                     if (this.stepCount > 0) {
-                        console.log(`📦 动画完成后，还有剩余步数，执行handleLastSteps`);
                         this.handleLastSteps();
                     } else if (!this.resultShown) {
-                        console.log(`🏆 动画完成后弹出胜利弹窗 - 关卡${this.level}`);
                         this.resultShown = true;
                         this.checkAndShowWinDialog();
                     }
@@ -1681,7 +1634,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
             type,
             () => {
                 // 广告播放成功，获得道具
-                console.log(`广告播放完成，获得道具！`);
                 App.view.showMsgTips(`获得道具！`);
                 
                 // 更新道具数量显示
@@ -1689,7 +1641,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
             },
             () => {
                 // 广告播放失败或用户取消
-                console.log("广告播放失败或用户取消");
                 App.view.showMsgTips("未获得道具");
             }
         );
@@ -1745,14 +1696,12 @@ export class SweetMatchGameView extends BaseViewCmpt {
             [Bomb.allSame]: "五消道具"
         };
         
-        console.log(`游戏中道具${toolType}不足，直接跳转观看广告`);
         
         // 直接观看广告
         Advertise.showVideoAdsForTool(
             toolType,
             () => {
                 // 广告播放成功，获得道具
-                console.log(`广告播放完成，获得${toolNames[toolType]}`);
                 App.view.showMsgTips(`获得${toolNames[toolType]}！`);
                 
                 // 更新道具显示
@@ -1768,7 +1717,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
             },
             () => {
                 // 广告播放失败或用户取消
-                console.log("广告播放失败或用户取消");
                 App.view.showMsgTips("未获得道具");
             }
         );
@@ -1780,7 +1728,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
      */
     async detectPossibleMoves(): Promise<boolean> {
         return new Promise(resolve => {
-            console.log("开始检测可能的移动...");
             let totalChecked = 0;
             
             // 遍历所有格子，尝试与相邻格子交换
@@ -1795,7 +1742,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
                         let neighbor = this.blockArr[h + 1][v].getComponent(gridCmpt);
                         totalChecked++;
                         if (this.canMakeMatch(current, neighbor)) {
-                            console.log(`找到可移动组合：位置(${h},${v})与(${h+1},${v})`);
                             resolve(true);
                             return;
                         }
@@ -1806,14 +1752,12 @@ export class SweetMatchGameView extends BaseViewCmpt {
                         let neighbor = this.blockArr[h][v + 1].getComponent(gridCmpt);
                         totalChecked++;
                         if (this.canMakeMatch(current, neighbor)) {
-                            console.log(`找到可移动组合：位置(${h},${v})与(${h},${v+1})`);
                             resolve(true);
                             return;
                         }
                     }
                 }
             }
-            console.log(`检查了${totalChecked}个组合，未发现可移动元素`);
             resolve(false);
         });
     }
@@ -1902,7 +1846,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
      * 重新洗牌 - 打乱棋盘元素
      */
     async shuffleBoard() {
-        console.log("开始洗牌...");
         
         // 收集所有非特效元素的类型
         let elementTypes = [];
@@ -1917,7 +1860,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
             }
         }
         
-        console.log(`收集到${elementTypes.length}个普通元素进行洗牌`);
         
         // Fisher-Yates洗牌算法
         for (let i = elementTypes.length - 1; i > 0; i--) {
@@ -1942,7 +1884,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
             }
         }
         
-        console.log("洗牌完成，重新分配了", typeIndex, "个元素");
     }
 
     /**
@@ -2020,18 +1961,14 @@ export class SweetMatchGameView extends BaseViewCmpt {
      */
     async checkAndShuffle() {
         let hasPossibleMoves = await this.detectPossibleMoves();
-        console.log("检查可移动元素结果:", hasPossibleMoves);
         
         if (!hasPossibleMoves) {
-            console.log("没有可移动的元素，开始洗牌");
             await this.shuffleBoard();
             
             // 洗牌后检查是否有可以直接消除的元素
             let hasMatchesAfterShuffle = await this.detectMatches();
-            console.log("洗牌后可消除元素检查结果:", hasMatchesAfterShuffle);
             
             if (hasMatchesAfterShuffle) {
-                console.log("洗牌后发现可消除元素，开始自动消除");
                 // 自动消除洗牌后产生的匹配
                 let matchResult = await this.startCheckThree();
                 if (matchResult) {
@@ -2041,15 +1978,12 @@ export class SweetMatchGameView extends BaseViewCmpt {
             } else {
                 // 洗牌后没有可消除元素，再次检查可移动性，避免无限循环
                 let hasMovesAfterShuffle = await this.detectPossibleMoves();
-                console.log("洗牌后可移动元素检查结果:", hasMovesAfterShuffle);
                 if (!hasMovesAfterShuffle) {
-                    console.log("洗牌后仍无可移动元素，再次洗牌");
                     await this.shuffleBoard();
                     
                     // 再次洗牌后也要检查是否有可消除元素
                     let hasMatchesAfterSecondShuffle = await this.detectMatches();
                     if (hasMatchesAfterSecondShuffle) {
-                        console.log("二次洗牌后发现可消除元素，开始自动消除");
                         let matchResult = await this.startCheckThree();
                         if (matchResult) {
                             this.checkAgain();
@@ -2058,7 +1992,7 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 }
             }
         } else {
-            console.log("发现可移动元素，无需洗牌");
+            // 发现可移动元素，无需洗牌
         }
     }
 
@@ -2066,17 +2000,15 @@ export class SweetMatchGameView extends BaseViewCmpt {
      * 自动消除循环 - 进入游戏后自动检测并消除可消除的元素
      */
     async autoEliminateLoop() {
-        console.log("开始自动消除检测...");
         
         // 检测是否有可消除的元素
         let hasMatches = await this.detectMatches();
         
         if (hasMatches) {
-            console.log("发现可消除元素，开始自动消除...");
             // 使用现有的checkAgain方法进行消除，它会递归处理所有连锁反应
             this.checkAgain();
         } else {
-            console.log("进入游戏时未发现可消除元素");
+            // 进入游戏时未发现可消除元素
         }
         
         // 确保用户可以开始游戏
@@ -2100,7 +2032,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
                     // 检查水平方向
                     let hor: gridCmpt[] = this._checkHorizontal(gridComponent);
                     if (hor.length >= 3) {
-                        console.log(`发现水平可消除组合，位置: (${i}, ${j}), 长度: ${hor.length}`);
                         resolve(true);
                         return;
                     }
@@ -2108,7 +2039,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
                     // 检查垂直方向
                     let ver: gridCmpt[] = this._checkVertical(gridComponent);
                     if (ver.length >= 3) {
-                        console.log(`发现垂直可消除组合，位置: (${i}, ${j}), 长度: ${ver.length}`);
                         resolve(true);
                         return;
                     }
@@ -2164,16 +2094,14 @@ export class SweetMatchGameView extends BaseViewCmpt {
 
     /** 显示可移动元素的提示 */
     async showHintForPossibleMove() {
-        console.log("30秒无操作，开始寻找可提示的移动");
         
         const moveInfo = await this.findFirstPossibleMove();
         if (moveInfo) {
             this.hintElements = moveInfo;
             this.shouldShowHint = true;
-            console.log(`显示提示：位置(${moveInfo.pos1.h},${moveInfo.pos1.v})与位置(${moveInfo.pos2.h},${moveInfo.pos2.v})`);
             this.startHintAnimation();
         } else {
-            console.log("未找到可移动的元素，无法显示提示");
+            // 未找到可移动的元素，无法显示提示
         }
     }
 
@@ -2285,25 +2213,21 @@ export class SweetMatchGameView extends BaseViewCmpt {
         }
         
         // 两个都是炸弹的特殊交换逻辑
-        console.log(`特效元素交换: ${one.type} 与 ${two.type}`);
         
         // 四消和四消交换 → 特效叠加（已经实现，使用现有逻辑）
         if (this.isFourMatchBomb(one) && this.isFourMatchBomb(two)) {
-            console.log("四消与四消交换，使用现有叠加逻辑");
             return false; // 让原有逻辑处理
         }
         
         // 四消和五消交换 → 五消随机选择目标，把所有该目标元素变成四消特效
         if ((this.isFourMatchBomb(one) && this.isFiveMatchBomb(two)) ||
             (this.isFiveMatchBomb(one) && this.isFourMatchBomb(two))) {
-            console.log("四消与五消交换，五消随机选择目标并转换为四消特效");
             await this.handleFourFiveExchange(one, two);
             return true;
         }
         
         // 五消和五消交换 → 全屏消除
         if (this.isFiveMatchBomb(one) && this.isFiveMatchBomb(two)) {
-            console.log("五消与五消交换，全屏消除");
             await this.handleFiveFiveExchange(one, two);
             return true;
         }
@@ -2327,11 +2251,9 @@ export class SweetMatchGameView extends BaseViewCmpt {
         const fourMatch = this.isFourMatchBomb(one) ? one : two;
         const fiveMatch = this.isFiveMatchBomb(one) ? one : two;
         
-        console.log(`四消类型: ${fourMatch.type}, 五消类型: ${fiveMatch.type}`);
         
         // 五消随机选择一种目标元素类型
         let targetType = await this.selectRandomTargetType(fiveMatch);
-        console.log(`五消选择的目标类型: ${targetType}`);
         
         if (targetType >= 0) {
             // 找到所有该类型的元素，并将它们转换为四消特效
@@ -2345,12 +2267,10 @@ export class SweetMatchGameView extends BaseViewCmpt {
                             // 将该元素转换为四消特效
                             gridComp.setType(fourMatch.type);
                             convertedElements.push(gridComp);
-                            console.log(`位置(${i},${j})的元素从类型${targetType}转换为四消类型${fourMatch.type}`);
                         }
                     }
                 }
             }
-            console.log(`转换了 ${convertedElements.length} 个元素为四消特效类型 ${fourMatch.type}`);
         }
         
         // 播放五消的视觉效果
@@ -2379,14 +2299,12 @@ export class SweetMatchGameView extends BaseViewCmpt {
             }
         }
         
-        console.log(`准备触发 ${bombsToTrigger.length} 个四消炸弹（包括原位置和转换后的）`);
         
         // 先收集所有炸弹的影响列表和播放所有特效
         let allAffectedElements: gridCmpt[] = [];
         let bombEffectPromises = [];
         
         for (let bomb of bombsToTrigger) {
-            console.log(`触发位置(${bomb.h},${bomb.v})的四消炸弹，类型:${bomb.type}`);
             
             // 播放特效但不获取影响列表（避免节点被销毁问题）
             bombEffectPromises.push(this.playBombEffect(bomb));
@@ -2420,7 +2338,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
 
     /** 处理五消与五消交换 → 全屏消除 */
     async handleFiveFiveExchange(one: gridCmpt, two: gridCmpt) {
-        console.log("五消与五消交换，执行全屏消除");
         
         // 播放两个五消的特效
         await Promise.all([
@@ -2464,12 +2381,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
             }
         });
         
-        console.log(`=== 全屏消除统计 ===`);
-        console.log(`总共消除 ${allElements.length} 个元素`);
-        console.log(`所有类型分布:`, typeCount);
-        console.log(`当前目标类型:`, targetTypes);
-        console.log(`目标类型元素数量:`, targetElementsCount);
-        console.log(`当前目标完成状态:`, this.coutArr.map((item, index) => `目标${index}[类型${item[0]}]:${item[1]}`));
         
         // 播放全屏消除动画
         App.audio.play("rocket_launch_sound");
@@ -2535,7 +2446,6 @@ export class SweetMatchGameView extends BaseViewCmpt {
                 let rotateComponent = node.getComponent('rotateSelf');
                 if (rotateComponent) {
                     node.removeComponent('rotateSelf');
-                    console.log("移除五消元素旋转组件");
                 }
                 // 重置角度为0，确保不再旋转
                 node.angle = 0;
@@ -2545,34 +2455,20 @@ export class SweetMatchGameView extends BaseViewCmpt {
 
     /** 检查并显示胜利弹窗 */
     private checkAndShowWinDialog() {
-        console.log(`准备检查胜利弹窗 - 当前飞行动画:${this.flyingAnimationCount}, 已胜利:${this.hasWon}`);
         
         // 如果飞行动画已经结束，立即弹窗
         if (this.flyingAnimationCount <= 0) {
-            console.log(`飞行动画已结束，立即弹出胜利弹窗`);
             // 在显示结果弹窗前最终更新星级计算
             this.updateScorePercent();
-            console.log(`🌟 最终星级计算详情:`);
-            console.log(`  当前分数: ${this.curScore}`);
-            console.log(`  分数阈值: [${this.data?.scores?.join(', ')}]`);
-            console.log(`  计算出的星数: ${this.starCount}`);
-            console.log(`🎯 传递给胜利弹窗的数据: 关卡${this.level}, 星数${this.starCount}`);
             App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
             return;
         }
         
         // 如果还有飞行动画，等待0.5秒再检查
         this.scheduleOnce(() => {
-            console.log(`延迟检查 - 飞行动画:${this.flyingAnimationCount}`);
             if (this.flyingAnimationCount <= 0) {
-                console.log(`延迟检查后弹出胜利弹窗`);
                 // 在显示结果弹窗前最终更新星级计算
                 this.updateScorePercent();
-                console.log(`🌟 延迟检查后星级计算详情:`);
-                console.log(`  当前分数: ${this.curScore}`);
-                console.log(`  分数阈值: [${this.data?.scores?.join(', ')}]`);
-                console.log(`  计算出的星数: ${this.starCount}`);
-                console.log(`🎯 延迟检查传递给胜利弹窗的数据: 关卡${this.level}, 星数${this.starCount}`);
                 App.view.openView(ViewName.Single.eResultView, this.level, true, this.coutArr, this.starCount);
             } else {
                 // 递归继续检查

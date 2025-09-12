@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "difficulty": {
+    "scorePerMatch": 60,
+    "extraTurnReward": 0,
+    "shuffleEnabled": true
+  },
+  "hearts": {
+    "maxHearts": 5,
+    "regenMinutes": 15
+  },
+  "drops": {
+    "weights": [1,1,1,1,1,1]
+  },
+  "goals": {
+    "baseScoreGoal": 10000
+  },
+  "ab": {
+    "B": {
+      "difficulty": { "scorePerMatch": 55 }
+    },
+    "C": {
+      "difficulty": { "scorePerMatch": 50, "shuffleEnabled": false }
+    }
+  }
+}
+

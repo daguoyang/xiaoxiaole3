@@ -1,6 +1,8 @@
 /**
  * 简化的App兼容层 - 快速修复构建错误
  */
+import { AudioClip, AudioSource, Node, director } from 'cc';
+
 class AppCompatSimple {
     // 基础属性
     user = {
@@ -37,10 +39,43 @@ class AppCompatSimple {
         }
     };
     
+    private _audioNode: Node | null = null;
+    private _audioSource: AudioSource | null = null;
     audio = {
         init: () => {},
-        play: (clipName: string, type?: any, loop?: boolean) => {
-            console.log('Audio play:', clipName);
+        play: async (clipName: string, type?: any, loop?: boolean) => {
+            try {
+                if (!clipName) return;
+                const path = clipName.includes('/') ? clipName : `sound/${clipName}`;
+                // lazy init audio node
+                if (!this._audioNode) {
+                    this._audioNode = new Node('CompatAudioNode');
+                    director.addPersistRootNode(this._audioNode);
+                    this._audioSource = this._audioNode.addComponent(AudioSource);
+                }
+                // load via new AssetMgr first
+                let clip: AudioClip | null = null;
+                try {
+                    const mod = await import('../../new-scripts/core/AssetManager');
+                    // @ts-ignore
+                    const { AssetMgr } = mod;
+                    clip = await AssetMgr.load(path, AudioClip);
+                } catch {
+                    // fallback to direct resources.load if new module not available
+                    const modcc = await import('cc');
+                    const { resources, AudioClip: AC } = modcc as any;
+                    clip = await new Promise<AudioClip>((resolve, reject) => {
+                        resources.load(path, AC, (err: any, a: AudioClip) => (err || !a) ? reject(err) : resolve(a));
+                    });
+                }
+                if (clip && this._audioSource) {
+                    this._audioSource.loop = !!loop;
+                    this._audioSource.clip = clip;
+                    this._audioSource.play();
+                }
+            } catch (e) {
+                console.log('Audio play (compat) failed:', clipName, e);
+            }
         }
     };
     

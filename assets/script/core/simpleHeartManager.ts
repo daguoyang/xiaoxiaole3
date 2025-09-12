@@ -71,7 +71,6 @@ export class SimpleHeartManager extends SingletonClass<SimpleHeartManager> {
                 const App = (globalThis as any).App || (window as any).App;
                 if (App && App.event) {
                     App.event.emit(EventName.Game.HeartUpdate);
-                    console.log('体力恢复事件已发送');
                 }
             } catch (e) {
                 console.warn('发送体力恢复事件失败:', e);
@@ -90,7 +89,6 @@ export class SimpleHeartManager extends SingletonClass<SimpleHeartManager> {
         const currentHeart = this.getCurrentHeart();
         
         if (currentHeart < count) {
-            console.log('体力不足，无法消耗');
             return false;
         }
         

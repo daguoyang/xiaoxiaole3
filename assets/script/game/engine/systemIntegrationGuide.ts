@@ -3,7 +3,7 @@
  * 用于指导如何使用重构后的匹配系统
  */
 
-import { MatchEngine } from "./gameLogic";
+import { GameCore } from "./gameLogic";
 import { App } from "../../core/app";
 
 export class SystemIntegrationGuide {

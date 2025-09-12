@@ -23,7 +23,7 @@ class config {
         { "id": 18, "name": "Q仔", "level": 749, "gold": 7490, "star": 749, "icon": 9 },
         { "id": 19, "name": "脑袋空空~", "level": 746, "gold": 7460, "star": 746, "icon": 1 },
         { "id": 20, "name": "轩辕霸气哥", "level": 743, "gold": 7430, "star": 743, "icon": 2 },
-        { "id": 21, "name": "Miss丶Candy", "level": 740, "gold": 7400, "star": 740, "icon": 3 },
+        { "id": 21, "name": "Miss丶Sweet", "level": 740, "gold": 7400, "star": 740, "icon": 3 },
         { "id": 22, "name": "无敌小笼包", "level": 737, "gold": 7370, "star": 737, "icon": 4 },
         { "id": 23, "name": "烟雨江南℡", "level": 734, "gold": 7340, "star": 734, "icon": 5 },
         { "id": 24, "name": "忘川秋水", "level": 731, "gold": 7310, "star": 731, "icon": 6 },
@@ -40,7 +40,7 @@ class config {
         { "id": 35, "name": "Mr_无所谓", "level": 698, "gold": 6980, "star": 698, "icon": 8 },
         { "id": 36, "name": "小区扛把子", "level": 695, "gold": 6950, "star": 695, "icon": 9 },
         { "id": 37, "name": "柠檬不萌", "level": 692, "gold": 6920, "star": 692, "icon": 1 },
-        { "id": 38, "name": "爱打麻将的羊", "level": 689, "gold": 6890, "star": 689, "icon": 2 },
+        { "id": 38, "name": "爱打拼图的羊", "level": 689, "gold": 6890, "star": 689, "icon": 2 },
         { "id": 39, "name": "AngelBaby520", "level": 686, "gold": 6860, "star": 686, "icon": 3 },
         { "id": 40, "name": "彼岸花开づ", "level": 683, "gold": 6830, "star": 683, "icon": 4 },
         { "id": 41, "name": "草莓味布丁", "level": 680, "gold": 6800, "star": 680, "icon": 5 },
@@ -116,11 +116,9 @@ class config {
         
         // 检查是否需要更新
         if (lastUpdate === today) {
-            console.log("今日排行榜已更新");
             return;
         }
         
-        console.log("开始执行每日排行榜更新...");
         
         // 随机选择15-25名玩家进行更新
         const updateCount = Math.floor(Math.random() * 11) + 15; // 15-25人

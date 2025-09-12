@@ -44,7 +44,7 @@ export class ShopController extends BaseViewCmpt {
         App.audio.play('ui_touch_feedback');
         
         // 显示广告
-        console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");
+        console.log("显示广告（重写版由新模块管理ID）");
         Advertise.showVideoAds();
         
         // 根据按钮类型给予不同奖励

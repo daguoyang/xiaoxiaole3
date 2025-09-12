@@ -1,9 +1,46 @@
 {
-  /* Base configuration. Do not edit this field. */
-  "extends": "./temp/tsconfig.cocos.json",
+    /* Base configuration. Do not edit this field. */
+    "extends": "./temp/tsconfig.cocos.json",
 
-  /* Add your custom configuration here. */
-  "compilerOptions": {
-    "strict": false
-  }
+    /* Custom configuration for Hi Play Match Game */
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "ESNext",
+        "lib": ["ES2020", "DOM"],
+        "strict": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "node",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "resolveJsonModule": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "baseUrl": "./assets/scripts",
+        "paths": {
+            "@core/*": ["core/*"],
+            "@models/*": ["models/*"],
+            "@systems/*": ["systems/*"],
+            "@ui/*": ["ui/*"],
+            "@utils/*": ["utils/*"],
+            "@controllers/*": ["controllers/*"],
+            "@tools/*": ["../tools/*"]
+        }
+    },
+    "include": [
+        "assets/scripts/**/*",
+        "assets/new-scripts/**/*",
+        "tools/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "temp",
+        "library",
+        "build",
+        "**/*.spec.ts",
+        "**/*.test.ts"
+    ]
 }

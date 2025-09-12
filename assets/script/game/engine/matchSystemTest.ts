@@ -1,4 +1,4 @@
-import { RegionMatchDetector, MatchResult } from "./regionMatchDetector";
+import { RegionDetector, MatchResult } from "./regionMatchDetector";
 import { EffectEventQueue, EffectEvent } from "./effectEventQueue";
 
 // 模拟的gridCmpt结构用于测试
@@ -15,11 +15,11 @@ class MockGridCmpt {
 }
 
 export class MatchSystemTest {
-    private regionDetector: RegionMatchDetector;
+    private regionDetector: RegionDetector;
     private effectQueue: EffectEventQueue;
     
     constructor() {
-        this.regionDetector = new RegionMatchDetector();
+        this.regionDetector = new RegionDetector();
         this.effectQueue = new EffectEventQueue();
     }
 

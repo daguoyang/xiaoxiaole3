@@ -1,0 +1,6 @@
+{
+  "ENABLE_ADS": true,
+  "ENABLE_ANALYTICS": true,
+  "ENABLE_REMOTE_CONFIG": false,
+  "DEBUG_OVERLAY": true
+}

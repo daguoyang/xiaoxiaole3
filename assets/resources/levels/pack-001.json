@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "rows": 9,
+    "cols": 9,
+    "moves": 25,
+    "spawnPool": [0,1,2,3,4,5],
+    "obstacles": [ { "r": 3, "c": 3, "type": "ice", "hp": 2 } ],
+    "goals": [ { "type": "score", "target": 10000 } ]
+  },
+  {
+    "id": 2,
+    "rows": 9,
+    "cols": 9,
+    "moves": 25,
+    "spawnPool": [0,1,2,3,4,5],
+    "obstacles": [ { "r": 2, "c": 2, "type": "lock", "hp": 1 }, { "r": 6, "c": 6, "type": "rock", "hp": 3 } ],
+    "goals": [ { "type": "collect", "target": 20, "itemId": 3 }, { "type": "score", "target": 8000 } ]
+  }
+]

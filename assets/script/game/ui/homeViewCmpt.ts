@@ -49,6 +49,17 @@ export class MainMenuController extends BaseViewCmpt {
         
         // 播放主页面背景音乐
         App.audio.play('game_theme_music', SoundType.Music, true);
+
+        // 挂载重写版调试水印/面板（仅开发期显示）
+        (async () => {
+            try {
+                const mod = await import('../../../new-scripts/ui/DebugOverlay');
+                // @ts-ignore
+                mod.DebugOverlay.mount();
+            } catch (e) {
+                // 忽略旧版本缺少模块的情况
+            }
+        })();
         
         this.btnNode = this.viewList.get("bottom/btn");
         this.pageView = this.viewList.get("page").getComponent(PageView);
@@ -261,7 +272,7 @@ export class MainMenuController extends BaseViewCmpt {
 
     evtGotoShop() {
         // 跳转商店逻辑改为显示广告
-        console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");
+        console.log("显示广告（重写版由新模块管理ID）");
         Advertise.showVideoAds();
     }
 
@@ -365,7 +376,7 @@ export class MainMenuController extends BaseViewCmpt {
 
     activateSharePage() {
         App.audio.play('ui_touch_feedback');
-        console.log("显示广告，广告ID：adunit-7fc34b1dba8ed852");
+        console.log("显示广告（重写版由新模块管理ID）");
         Advertise.showVideoAds();
     }
 

@@ -1,0 +1,30 @@
+{
+    "builder": {
+        "version": "3.8.3",
+        "configPath": "db://settings/builder.json"
+    },
+    "asset-db": {
+        "version": "3.8.3"
+    },
+    "cocos-service": {
+        "version": "1.2.7"
+    },
+    "localization-editor": {
+        "version": "1.0.1"
+    },
+    "preferences": {
+        "version": "3.8.3"
+    },
+    "program-preview": {
+        "version": "3.8.3"
+    },
+    "scene": {
+        "version": "3.8.3"
+    },
+    "spine": {
+        "version": "4.1.19"
+    },
+    "animation": {
+        "version": "3.8.3"
+    }
+}

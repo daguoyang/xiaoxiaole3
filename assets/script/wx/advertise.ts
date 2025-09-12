@@ -9,7 +9,7 @@ export class Ads {
     public interstitialAd = null;//插屏广告
 
     private bannerId: string = "";// banner广告id
-    private videoId: string = "adunit-7fc34b1dba8ed852";// 激励式视频广告id
+    private videoId: string = "";// 激励式视频广告id（重写后由新模块注入）
     private interstitialId: string = "";// 插屏r广告id
     constructor() {
         this.init();
@@ -74,7 +74,7 @@ export class Ads {
         if (sys.platform != sys.Platform.WECHAT_GAME) return;
         // 在适合的场景显示 Banner 广告
         // @ts-ignore
-        this.bannerAdv.show();
+        this.bannerAdv?.show?.();
     }
 
     // 隐藏banner广告
@@ -84,69 +84,18 @@ export class Ads {
         this.bannerAdv.hide();
     }
 
-    //显示视频广告
-    showVideoAds() {
-        if (sys.platform != sys.Platform.WECHAT_GAME) {
-            console.log("非微信小游戏环境，模拟广告播放完成");
-            // 非微信环境下模拟广告播放成功
-            setTimeout(() => {
-                console.log("模拟广告播放完成，给予奖励");
-            }, 1000);
-            return;
-        }
-
-        console.log("开始显示激励视频广告，ID:", this.videoId);
-        
-        if (!this.videoAdv) {
-            console.error("视频广告实例未初始化");
-            return;
-        }
-
-        // @ts-ignore
-        let videoAdv = this.videoAdv;
-        
-        // 先设置错误处理
-        // @ts-ignore
-        videoAdv.onError((err) => {
-            console.error("激励视频广告错误:", err);
-            console.error("错误详情:", JSON.stringify(err));
-        });
-
-        // 设置关闭回调
-        // @ts-ignore
-        videoAdv.onClose((res) => {
-            if (!videoAdv) return;
-            // @ts-ignore
-            videoAdv.offClose();//需要清除回调，否则第N次广告会一次性给N个奖励
-            console.log("广告关闭，结果:", res);
-            
-            //关闭
-            if (res && res.isEnded || res === undefined) {
-                //正常播放结束，需要下发奖励
-                console.log("广告播放完成，给予奖励");
+    //显示视频广告（桥接到新平台 AdService）
+    async showVideoAds() {
+        try {
+            const bridge = await import('../../scripts/bridge/NewAppBridge');
+            bridge.showRewardedFromBridge(() => {
                 WxMgr.addReward();
-            } else {
-                //播放退出，不下发奖励
-                console.log("广告未播放完成，不给奖励");
-            }
-        });
-
-        // 用户触发广告后，显示激励视频广告
-        // @ts-ignore
-        videoAdv.show().catch((err) => {
-            console.error("广告显示失败，尝试重新加载:", err);
-            // 失败重试
-            // @ts-ignore
-            videoAdv.load()
-                // @ts-ignore
-                .then(() => {
-                    console.log("广告重新加载成功，再次显示");
-                    return videoAdv.show();
-                })
-                .catch(retryErr => {
-                    console.error('激励视频广告显示失败，重试也失败:', retryErr);
-                })
-        });
+            }, () => {
+                console.log('激励视频未完成');
+            });
+        } catch (e) {
+            console.error('桥接新广告服务失败:', e);
+        }
     }
 
     /** 显示视频广告获取体力 */
@@ -160,14 +109,16 @@ export class Ads {
             }, 1000);
             return;
         }
-
-        this.showVideoAdsWithCallback(
-            () => {
-                WxMgr.addHeartReward();
-                onSuccess && onSuccess();
-            },
-            onFail
-        );
+        // 桥接新服务统一处理
+        (async () => {
+            try {
+                const bridge = await import('../../scripts/bridge/NewAppBridge');
+                bridge.showRewardedFromBridge(() => {
+                    WxMgr.addHeartReward();
+                    onSuccess && onSuccess();
+                }, () => onFail && onFail());
+            } catch (e) { console.error('桥接新广告服务失败:', e); onFail && onFail(); }
+        })();
     }
 
     /** 显示视频广告获取道具 */
@@ -181,74 +132,27 @@ export class Ads {
             }, 1000);
             return;
         }
-
-        this.showVideoAdsWithCallback(
-            () => {
-                WxMgr.addToolReward(toolType);
-                onSuccess && onSuccess();
-            },
-            onFail
-        );
+        (async () => {
+            try {
+                const bridge = await import('../../scripts/bridge/NewAppBridge');
+                bridge.showRewardedFromBridge(() => { WxMgr.addToolReward(toolType); onSuccess && onSuccess(); }, () => onFail && onFail());
+            } catch (e) { console.error('桥接新广告服务失败:', e); onFail && onFail(); }
+        })();
     }
 
     /** 通用的带回调的广告显示方法 */
-    private showVideoAdsWithCallback(onSuccess?: () => void, onFail?: () => void) {
-        console.log("开始显示激励视频广告，ID:", this.videoId);
-        
-        if (!this.videoAdv) {
-            console.error("视频广告实例未初始化");
-            onFail && onFail();
-            return;
-        }
-
-        // @ts-ignore
-        let videoAdv = this.videoAdv;
-        
-        // 设置错误处理
-        // @ts-ignore
-        videoAdv.onError((err) => {
-            console.error("激励视频广告错误:", err);
-            console.error("错误详情:", JSON.stringify(err));
-            onFail && onFail();
-        });
-
-        // 设置关闭回调
-        // @ts-ignore
-        videoAdv.onClose((res) => {
-            if (!videoAdv) return;
-            // @ts-ignore
-            videoAdv.offClose();//需要清除回调，否则第N次广告会一次性给N个奖励
-            console.log("广告关闭，结果:", res);
-            
-            //关闭
-            if (res && res.isEnded || res === undefined) {
-                //正常播放结束，需要下发奖励
-                console.log("广告播放完成，给予奖励");
+    private async showVideoAdsWithCallback(onSuccess?: () => void, onFail?: () => void) {
+        try {
+            const bridge = await import('../../scripts/bridge/NewAppBridge');
+            bridge.showRewardedFromBridge(() => {
                 onSuccess && onSuccess();
-            } else {
-                //播放退出，不下发奖励
-                console.log("广告未播放完成，不给奖励");
+            }, () => {
                 onFail && onFail();
-            }
-        });
-
-        // 用户触发广告后，显示激励视频广告
-        // @ts-ignore
-        videoAdv.show().catch((err) => {
-            console.error("广告显示失败，尝试重新加载:", err);
-            // 失败重试
-            // @ts-ignore
-            videoAdv.load()
-                // @ts-ignore
-                .then(() => {
-                    console.log("广告重新加载成功，再次显示");
-                    return videoAdv.show();
-                })
-                .catch(retryErr => {
-                    console.error('激励视频广告显示失败，重试也失败:', retryErr);
-                    onFail && onFail();
-                })
-        });
+            });
+        } catch (e) {
+            console.error('桥接新广告服务失败:', e);
+            onFail && onFail();
+        }
     }
 
     // 显示插件广告

@@ -1,6 +1,4 @@
-/**
- * 微信接口  wx92a00da0fc2944c6
- */
+/** 微信接口（AppID 请在构建配置中填写，不要硬编码） */
 import { _decorator, sys } from 'cc';
 import { PowerUpType, Bomb } from '../definitions/enumConst';
 import { EventName } from '../definitions/eventName';

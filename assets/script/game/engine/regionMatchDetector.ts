@@ -6,7 +6,7 @@ export interface MatchResult {
     center?: { h: number; v: number };
 }
 
-export class RegionMatchDetector {
+export class RegionDetector {
     private gridMap: gridCmpt[][] = [];
     private gridWidth: number = 9;
     private gridHeight: number = 9;
